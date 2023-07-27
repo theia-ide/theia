@@ -160,6 +160,9 @@
       "path": "packages/terminal"
     },
     {
+      "path": "packages/terminal-manager"
+    },
+    {
       "path": "packages/timeline"
     },
     {

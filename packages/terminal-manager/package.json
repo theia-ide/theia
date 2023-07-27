@@ -1,0 +1,40 @@
+{
+  "name": "@theia/terminal-manager",
+  "version": "1.39.0",
+  "description": "Theia - Terminal Manager Extension",
+  "keywords": [
+    "theia-extension"
+  ],
+  "homepage": "https://github.com/eclipse-theia/theia",
+  "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eclipse-theia/theia.git"
+  },
+  "author": "Ericsson",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "scripts": {
+    "build": "theiaext build",
+    "clean": "theiaext clean",
+    "compile": "theiaext compile",
+    "lint": "theiaext lint",
+    "test": "theiaext test",
+    "watch": "theiaext watch"
+  },
+  "dependencies": {
+    "@theia/core": "1.39.0",
+    "@theia/preferences": "1.39.0",
+    "@theia/terminal": "1.39.0"
+  },
+  "theiaExtensions": [
+    {
+      "frontend": "lib/browser/terminal-manager-frontend-module"
+    }
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

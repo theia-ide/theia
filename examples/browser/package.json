@@ -50,6 +50,7 @@
     "@theia/secondary-window": "1.39.0",
     "@theia/task": "1.39.0",
     "@theia/terminal": "1.39.0",
+    "@theia/terminal-manager": "1.39.0",
     "@theia/timeline": "1.39.0",
     "@theia/toolbar": "1.39.0",
     "@theia/typehierarchy": "1.39.0",

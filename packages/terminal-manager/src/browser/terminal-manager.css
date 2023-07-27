@@ -1,0 +1,133 @@
+/********************************************************************************
+ * Copyright (C) 2022-2023 Ericsson and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+
+#terminal-manager-widget .p-Widget.p-Panel.p-SplitPanel {
+    height: 100%;
+}
+
+#terminal-manager-widget .p-SplitPanel[data-orientation='horizontal'] > .p-SplitPanel-handle {
+    width: 1px !important;
+    background-color: var(--theia-tab-unfocusedInactiveForeground);
+}
+
+#terminal-manager-widget .p-SplitPanel[data-orientation='vertical'] > .p-SplitPanel-handle {
+    height: 1px !important;
+    background-color: var(--theia-tab-unfocusedInactiveForeground);
+}
+
+#terminal-manager-widget .p-Widget {
+    -webkit-transition: -webkit-filter 0.25s ease;
+    transition: filter 0.25s ease;
+}
+
+#terminal-manager-widget .p-Widget.attention {
+    -webkit-filter: brightness(150%);
+    filter: brightness(150%);
+}
+
+.terminal-manager-tree-widget .rename-node-input {
+    width: 100%;
+}
+
+.terminal-manager-tree-widget .theia-CompositeTreeNode .terminal-manager-inline-actions-container {
+    visibility: hidden;
+}
+
+.terminal-manager-tree-widget .theia-CompositeTreeNode:hover .terminal-manager-inline-actions-container {
+    visibility: unset;
+}
+
+.terminal-manager-tree-widget .codicon {
+    margin-right: 3px;
+}
+
+.terminal-manager-inline-actions {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.theia-alert-dialog {
+    --icon-size: 35px;
+}
+
+.theia-alert-dialog .dialogBlock {
+    max-width: 500px;
+}
+
+.theia-alert-dialog .theia-alert-dialog-message-wrapper {
+    display: grid;
+    grid-template-columns: var(--icon-size) 5fr;
+}
+
+.theia-alert-dialog .dialogBlock .dialogControl {
+    display: none;
+}
+
+.theia-alert-dialog-content-wrapper {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.theia-alert-dialog-message-wrapper .alert-icon {
+    font-size: var(--icon-size);
+}
+
+.theia-alert-dialog-message-wrapper .message-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theia-alert-dialog-message-wrapper .message {
+    padding-left: var(--theia-ui-padding);
+}
+
+.theia-alert-dialog-buttons-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+/* Error Styles */
+.theia-alert-dialog.error .dialogTitle {
+    background-color: var(--theia-statusBar-errorForground);
+}
+
+.theia-alert-dialog.error .alert-icon {
+    color: var(--theia-statusBar-errorForground);
+}
+
+/* Info Styles */
+.theia-alert-dialog.info .dialogTitle {
+    background-color: var(--theia-statusBar-background);
+}
+
+.theia-alert-dialog.info .alert-icon {
+    color: var(--theia-statusBar-background);
+}
+
+/* Warning Styles */
+.theia-alert-dialog.warning .dialogTitle {
+    background-color: var(--theia-notificationsWarningIcon-foreground);
+}
+
+.theia-alert-dialog.warning .alert-icon {
+    color: var(--theia-notificationsWarningIcon-foreground);
+}
