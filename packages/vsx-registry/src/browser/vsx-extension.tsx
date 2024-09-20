@@ -22,6 +22,7 @@ import { TreeElement, TreeElementNode } from '@theia/core/lib/browser/source-tre
 import { OpenerService, open, OpenerOptions } from '@theia/core/lib/browser/opener-service';
 import { HostedPluginSupport } from '@theia/plugin-ext/lib/hosted/browser/hosted-plugin';
 import { PluginServer, DeployedPlugin, PluginType, PluginIdentifiers, PluginDeployOptions } from '@theia/plugin-ext/lib/common/plugin-protocol';
+import { VscodeCommands } from '@theia/plugin-ext-vscode/lib/browser/plugin-vscode-commands-contribution';
 import { VSCodeExtensionUri } from '@theia/plugin-ext-vscode/lib/common/plugin-vscode-uri';
 import { ProgressService } from '@theia/core/lib/common/progress-service';
 import { Endpoint } from '@theia/core/lib/browser/endpoint';
@@ -324,8 +325,10 @@ export class VSXExtension implements VSXExtensionData, TreeElement {
             if (plugin) {
                 await this.progressService.withProgress(
                     nls.localizeByDefault('Uninstalling {0}...', this.id), 'extensions',
-                    () => this.pluginServer.uninstall(PluginIdentifiers.componentsToVersionedId(plugin.metadata.model))
-                );
+                    async () => {
+                        const versionedId = PluginIdentifiers.componentsToVersionedId(plugin.metadata.model);
+                        await this.commandRegistry.executeCommand(VscodeCommands.UNINSTALL_EXTENSION.id, versionedId);
+                    });
             }
         } finally {
             this._busy--;

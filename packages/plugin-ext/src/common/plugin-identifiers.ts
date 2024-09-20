@@ -81,4 +81,31 @@ export namespace PluginIdentifiers {
         }
         return { id: probablyId.slice(0, endOfName) as UnversionedId, version: probablyId.slice(endOfName + 1) };
     }
+
+    const EXTENSION_IDENTIFIER_WITH_VERSION_REGEX = /^([^.]+\..+)@((prerelease)|(\d+\.\d+\.\d+(-.*)?))$/;
+
+    /**
+     * Extracts the extension identifier and version from a string.
+     * @param id  The extension identifier
+     * @returns  A tuple of the extension identifier and the version, if present.
+     */
+    export function getIdAndVersion(id: string): [string, string | undefined] {
+        const matches = EXTENSION_IDENTIFIER_WITH_VERSION_REGEX.exec(id);
+        if (matches && matches[1]) {
+            return [matches[1], matches[2]];
+        }
+        return [id, undefined];
+    }
+
+    /**
+     *  Checks if the extension identifier is in the format `<publisher>.<name>@<version>`.
+     * @param id  The extension identifier
+     * @returns  `true` if the extension identifier is in the format `<publisher>.<name>@<version>`.
+     */
+    export function isVersionedId(id: string): boolean {
+        const matches = EXTENSION_IDENTIFIER_WITH_VERSION_REGEX.exec(id);
+        // eslint-disable-next-line no-null/no-null
+        return matches !== null && matches.length > 2;
+    }
+
 }
