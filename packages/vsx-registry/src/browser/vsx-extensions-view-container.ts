@@ -15,7 +15,7 @@
  *******************************************************************************‚*/
 
 import { injectable, inject, postConstruct } from '@theia/core/shared/inversify';
-import { ViewContainer, PanelLayout, ViewContainerPart, Message, codicon } from '@theia/core/lib/browser';
+import { ViewContainer, PanelLayout, ViewContainerPart, Message, codicon, Widget } from '@theia/core/lib/browser';
 import { VSXExtensionsSearchBar } from './vsx-extensions-search-bar';
 import { VSXExtensionsModel } from './vsx-extensions-model';
 import { VSXSearchMode } from './vsx-extensions-search-model';
@@ -161,12 +161,27 @@ export class VSXExtensionsViewContainer extends ViewContainer {
 
     protected override updateToolbarItems(allParts: ViewContainerPart[]): void {
         super.updateToolbarItems(allParts);
-        this.registerToolbarItem(VSXExtensionsCommands.INSTALL_FROM_VSIX.id, { tooltip: VSXExtensionsCommands.INSTALL_FROM_VSIX.label, group: 'other_1' });
-        this.registerToolbarItem(VSXExtensionsCommands.CLEAR_ALL.id, { tooltip: VSXExtensionsCommands.CLEAR_ALL.label, priority: 1, onDidChange: this.model.onDidChange });
+        this.toDisposeOnUpdateTitle.push(this.toolbarRegistry.registerItem({
+            id: VSXExtensionsCommands.INSTALL_FROM_VSIX.id,
+            command: VSXExtensionsCommands.INSTALL_FROM_VSIX.id,
+            text: VSXExtensionsCommands.INSTALL_FROM_VSIX.label,
+            group: 'other_1',
+            isVisible: (widget: Widget) => widget === this.getTabBarDelegate()
+        }));
+
+        this.toDisposeOnUpdateTitle.push(this.toolbarRegistry.registerItem({
+            id: VSXExtensionsCommands.CLEAR_ALL.id,
+            command: VSXExtensionsCommands.CLEAR_ALL.id,
+            text: VSXExtensionsCommands.CLEAR_ALL.label,
+            group: 'other_1',
+            priority: 1,
+            onDidChange: this.model.onDidChange,
+            isVisible: (widget: Widget) => widget === this.getTabBarDelegate()
+        }));
     }
 
     protected override getToggleVisibilityGroupLabel(): string {
-        return 'a/' + nls.localizeByDefault('Views');
+        return nls.localizeByDefault('Views');
     }
 }
 export namespace VSXExtensionsViewContainer {

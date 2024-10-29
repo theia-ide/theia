@@ -16,8 +16,10 @@
 
 import { inject, injectable } from 'inversify';
 import { Menu } from '../widgets';
-import { ContextMenuAccess, ContextMenuRenderer, coordinateFromAnchor, RenderContextMenuOptions } from '../context-menu-renderer';
+import { Anchor, ContextMenuAccess, ContextMenuRenderer, coordinateFromAnchor } from '../context-menu-renderer';
 import { BrowserMainMenuFactory } from './browser-menu-plugin';
+import { ContextMatcher } from '../context-key-service';
+import { CompoundMenuNode, MenuPath } from '../../common';
 
 export class BrowserContextMenuAccess extends ContextMenuAccess {
     constructor(
@@ -29,13 +31,17 @@ export class BrowserContextMenuAccess extends ContextMenuAccess {
 
 @injectable()
 export class BrowserContextMenuRenderer extends ContextMenuRenderer {
+    @inject(BrowserMainMenuFactory) private menuFactory: BrowserMainMenuFactory;
 
-    constructor(@inject(BrowserMainMenuFactory) private menuFactory: BrowserMainMenuFactory) {
-        super();
-    }
-
-    protected doRender({ menuPath, anchor, args, onHide, context, contextKeyService, skipSingleRootNode }: RenderContextMenuOptions): ContextMenuAccess {
-        const contextMenu = this.menuFactory.createContextMenu(menuPath, args, context, contextKeyService, skipSingleRootNode);
+    protected doRender(menuPath: MenuPath,
+        menu: CompoundMenuNode,
+        anchor: Anchor,
+        contextMatcher: ContextMatcher,
+        args?: unknown[],
+        context?: HTMLElement,
+        onHide?: () => void
+    ): ContextMenuAccess {
+        const contextMenu = this.menuFactory.createContextMenu(menuPath, menu, contextMatcher, args, context);
         const { x, y } = coordinateFromAnchor(anchor);
         if (onHide) {
             contextMenu.aboutToClose.connect(() => onHide!());

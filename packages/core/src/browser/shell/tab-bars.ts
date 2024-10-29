@@ -653,7 +653,7 @@ export class TabBarRenderer extends TabBar.Renderer {
                 menuPath: this.contextMenuPath!,
                 anchor: event,
                 args: [event],
-                contextKeyService: contextKeyServiceOverlay,
+                contextKeyService: contextKeyServiceOverlay!,
                 // We'd like to wait until the command triggered by the context menu has been run, but this should let it get through the preamble, at least.
                 onHide: () => setTimeout(() => { if (this.selectionService) { this.selectionService.selection = oldSelection; } })
             });

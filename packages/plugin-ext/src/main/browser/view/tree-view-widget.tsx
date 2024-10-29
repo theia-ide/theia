@@ -35,7 +35,7 @@ import {
     ApplicationShell,
     KeybindingRegistry
 } from '@theia/core/lib/browser';
-import { MenuPath, MenuModelRegistry, ActionMenuNode } from '@theia/core/lib/common/menu';
+import { MenuPath, MenuModelRegistry, CommandMenu, AcceleratorSource } from '@theia/core/lib/common/menu';
 import * as React from '@theia/core/shared/react';
 import { PluginSharedStyle } from '../plugin-shared-style';
 import { ACTION_ITEM, Widget } from '@theia/core/lib/browser/widgets/widget';
@@ -763,7 +763,7 @@ export class TreeViewWidget extends TreeViewWelcomeWidget {
         return this.contextKeys.with({ view: this.id, viewItem: treeViewNode.contextValue }, () => {
             const menu = this.menus.getMenu(VIEW_ITEM_INLINE_MENU);
             const args = this.toContextMenuArgs(treeViewNode);
-            const inlineCommands = menu.children.filter((item): item is ActionMenuNode => item instanceof ActionMenuNode);
+            const inlineCommands = menu.children.filter((item): item is CommandMenu => CommandMenu.is(item));
             const tailDecorations = super.renderTailDecorations(treeViewNode, props);
             return <React.Fragment>
                 {inlineCommands.length > 0 && <div className={TREE_NODE_SEGMENT_CLASS + ' flex'}>
@@ -796,17 +796,18 @@ export class TreeViewWidget extends TreeViewWelcomeWidget {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    protected renderInlineCommand(actionMenuNode: ActionMenuNode, index: number, tabbable: boolean, args: any[]): React.ReactNode {
-        if (!actionMenuNode.icon || !this.commands.isVisible(actionMenuNode.command, ...args) || !actionMenuNode.when || !this.contextKeys.match(actionMenuNode.when)) {
+    protected renderInlineCommand(actionMenuNode: CommandMenu, index: number, tabbable: boolean, args: any[]): React.ReactNode {
+        const nodePath = [...VIEW_ITEM_INLINE_MENU, actionMenuNode.id];
+        if (!actionMenuNode.icon || !actionMenuNode.isVisible(nodePath, this.contextKeys, undefined)) {
             return false;
         }
         const className = [TREE_NODE_SEGMENT_CLASS, TREE_NODE_TAIL_CLASS, actionMenuNode.icon, ACTION_ITEM, 'theia-tree-view-inline-action'].join(' ');
         const tabIndex = tabbable ? 0 : undefined;
-        const titleString = actionMenuNode.label + this.resolveKeybindingForCommand(actionMenuNode.command);
+        const titleString = actionMenuNode.label + (AcceleratorSource.is(actionMenuNode) ? actionMenuNode.getAccelerator(undefined).join('+') : '');
 
         return <div key={index} className={className} title={titleString} tabIndex={tabIndex} onClick={e => {
             e.stopPropagation();
-            this.commands.executeCommand(actionMenuNode.command, ...args);
+            actionMenuNode.run(nodePath, ...args);
         }} />;
     }
 

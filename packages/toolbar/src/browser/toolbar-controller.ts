@@ -14,8 +14,8 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { Command, ContributionProvider, Emitter, MaybePromise, MessageService } from '@theia/core';
-import { Widget } from '@theia/core/lib/browser';
+import { Command, CommandRegistry, ContributionProvider, Emitter, MaybePromise, MessageService } from '@theia/core';
+import { KeybindingRegistry, Widget } from '@theia/core/lib/browser';
 import { FrontendApplicationStateService } from '@theia/core/lib/browser/frontend-application-state';
 import { Deferred } from '@theia/core/lib/common/promise-util';
 import { injectable, inject, postConstruct, named } from '@theia/core/shared/inversify';
@@ -24,11 +24,13 @@ import {
     DeflatedToolbarTree,
     ToolbarContribution,
     ToolbarTreeSchema,
-    ToolbarItem,
     ToolbarAlignment,
     ToolbarItemPosition,
 } from './toolbar-interfaces';
 import { ToolbarStorageProvider, TOOLBAR_BAD_JSON_ERROR_MESSAGE } from './toolbar-storage-provider';
+import { ReactToolbarItemImpl, RenderedToolbarItemImpl, TabBarToolbarItem } from '@theia/core/lib/browser/shell/tab-bar-toolbar/tab-toolbar-item';
+import { ContextKeyService } from '@theia/core/lib/browser/context-key-service';
+import { LabelParser } from '@theia/core/lib/browser/label-parser';
 
 @injectable()
 export class ToolbarController {
@@ -36,6 +38,11 @@ export class ToolbarController {
     @inject(FrontendApplicationStateService) protected readonly appState: FrontendApplicationStateService;
     @inject(MessageService) protected readonly messageService: MessageService;
     @inject(ToolbarDefaultsFactory) protected readonly defaultsFactory: () => DeflatedToolbarTree;
+    @inject(CommandRegistry) commandRegistry: CommandRegistry;
+    @inject(ContextKeyService) contextKeyService: ContextKeyService;
+    @inject(KeybindingRegistry) keybindingRegistry: KeybindingRegistry;
+    @inject(LabelParser) labelParser: LabelParser;
+
     @inject(ContributionProvider) @named(ToolbarContribution)
     protected widgetContributions: ContributionProvider<ToolbarContribution>;
 
@@ -68,15 +75,15 @@ export class ToolbarController {
         for (const column of Object.keys(schema.items)) {
             const currentColumn = schema.items[column as ToolbarAlignment];
             for (const group of currentColumn) {
-                const newGroup: ToolbarItem[] = [];
+                const newGroup: TabBarToolbarItem[] = [];
                 for (const item of group) {
                     if (item.group === 'contributed') {
                         const contribution = this.getContributionByID(item.id);
                         if (contribution) {
-                            newGroup.push(contribution);
+                            newGroup.push(new ReactToolbarItemImpl(this.commandRegistry, this.contextKeyService, contribution));
                         }
                     } else {
-                        newGroup.push({ ...item });
+                        newGroup.push(new RenderedToolbarItemImpl(this.commandRegistry, this.contextKeyService, this.keybindingRegistry, this.labelParser, item));
                     }
                 }
                 if (newGroup.length) {

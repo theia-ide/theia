@@ -15,8 +15,9 @@
 // *****************************************************************************
 
 import * as React from 'react';
-import { ArrayUtils, Event, isFunction, isObject, MenuPath } from '../../../common';
+import { ArrayUtils, Event, isFunction, isObject } from '../../../common';
 import { Widget } from '../../widgets';
+import { MenuPath } from '../../../common/menu';
 
 /** Items whose group is exactly 'navigation' will be rendered inline. */
 export const NAVIGATION = 'navigation';
@@ -32,12 +33,12 @@ export namespace TabBarDelegator {
     }
 }
 
-export type TabBarToolbarItem = RenderedToolbarItem | ReactTabBarToolbarItem;
+export type TabBarToolbarAction = RenderedToolbarAction | ReactTabBarToolbarAction;
 
 /**
  * Representation of an item in the tab
  */
-export interface TabBarToolbarItemBase {
+export interface TabBarToolbarActionBase {
     /**
      * The unique ID of the toolbar item.
      */
@@ -55,6 +56,7 @@ export interface TabBarToolbarItemBase {
      * Checked before the item is shown.
      */
     isVisible?(widget?: Widget): boolean;
+
     /**
      * When defined, the container tool-bar will be updated if this event is fired.
      *
@@ -69,22 +71,16 @@ export interface TabBarToolbarItemBase {
     group?: string;
     /**
      * A menu path with which this item is associated.
-     * If accompanied by a command, this data will be passed to the {@link MenuCommandExecutor}.
-     * If no command is present, this menu will be opened.
      */
     menuPath?: MenuPath;
-    /**
-     * The path of the menu delegate that contributed this toolbar item
-     */
-    delegateMenuPath?: MenuPath;
-    contextKeyOverlays?: Record<string, string>;
+
     /**
      * Optional ordering string for placing the item within its group
      */
     order?: string;
 }
 
-export interface RenderedToolbarItem extends TabBarToolbarItemBase {
+export interface RenderedToolbarAction extends TabBarToolbarActionBase {
     /**
      * Optional icon for the item.
      */
@@ -110,29 +106,24 @@ export interface RenderedToolbarItem extends TabBarToolbarItemBase {
 
 /**
  * Tab-bar toolbar item backed by a `React.ReactNode`.
- * Unlike the `TabBarToolbarItem`, this item is not connected to the command service.
+ * Unlike the `TabBarToolbarAction`, this item is not connected to the command service.
  */
-export interface ReactTabBarToolbarItem extends TabBarToolbarItemBase {
+export interface ReactTabBarToolbarAction extends TabBarToolbarActionBase {
     render(widget?: Widget): React.ReactNode;
 }
 
-export namespace ReactTabBarToolbarItem {
-    export function is(item: TabBarToolbarItem): item is ReactTabBarToolbarItem {
-        return isObject<ReactTabBarToolbarItem>(item) && typeof item.render === 'function';
+export namespace ReactTabBarToolbarAction {
+    export function is(item: TabBarToolbarAction): item is ReactTabBarToolbarAction {
+        return isObject<ReactTabBarToolbarAction>(item) && typeof item.render === 'function';
     }
 }
 
-export interface MenuDelegate {
-    menuPath: MenuPath;
-    isVisible(widget?: Widget): boolean;
-}
-
-export namespace TabBarToolbarItem {
+export namespace TabBarToolbarAction {
 
     /**
      * Compares the items by `priority` in ascending. Undefined priorities will be treated as `0`.
      */
-    export const PRIORITY_COMPARATOR = (left: TabBarToolbarItem, right: TabBarToolbarItem) => {
+    export const PRIORITY_COMPARATOR = (left: { group?: string, priority?: number }, right: { group?: string, priority?: number }) => {
         const leftGroup: string = left.group ?? NAVIGATION;
         const rightGroup: string = right.group ?? NAVIGATION;
         if (leftGroup === NAVIGATION && rightGroup !== NAVIGATION) {

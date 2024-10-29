@@ -27,16 +27,18 @@ import * as React from '@theia/core/shared/react';
 import { MouseTargetType } from '@theia/editor/lib/browser';
 import { CommentsService } from './comments-service';
 import {
-    ActionMenuNode,
+    CommandMenu,
     CommandRegistry,
     CompoundMenuNode,
+    DisposableCollection,
     MenuModelRegistry,
     MenuPath
 } from '@theia/core/lib/common';
-import { CommentsContextKeyService } from './comments-context-key-service';
+import { CommentsContext } from './comments-context';
 import { RefObject } from '@theia/core/shared/react';
 import * as monaco from '@theia/monaco-editor-core';
 import { createRoot, Root } from '@theia/core/shared/react-dom/client';
+import { ContextKeyService } from '@theia/core/lib/browser/context-key-service';
 
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
@@ -64,7 +66,8 @@ export class CommentThreadWidget extends BaseWidget {
         private _commentThread: CommentThread,
         private commentService: CommentsService,
         protected readonly menus: MenuModelRegistry,
-        protected readonly contextKeyService: CommentsContextKeyService,
+        protected readonly commentsContext: CommentsContext,
+        protected readonly contextKeyService: ContextKeyService,
         protected readonly commands: CommandRegistry
     ) {
         super();
@@ -84,14 +87,9 @@ export class CommentThreadWidget extends BaseWidget {
                 return;
             }
         }));
-        this.contextKeyService.commentIsEmpty.set(true);
+        this.commentsContext.commentIsEmpty.set(true);
         this.toDispose.push(this.zoneWidget.editor.onMouseDown(e => this.onEditorMouseDown(e)));
-        this.toDispose.push(this.contextKeyService.onDidChange(() => {
-            const commentForm = this.commentFormRef.current;
-            if (commentForm) {
-                commentForm.update();
-            }
-        }));
+
         this.toDispose.push(this._commentThread.onDidChangeCanReply(_canReply => {
             const commentForm = this.commentFormRef.current;
             if (commentForm) {
@@ -102,9 +100,14 @@ export class CommentThreadWidget extends BaseWidget {
             this.update();
         }));
         this.contextMenu = this.menus.getMenu(COMMENT_THREAD_CONTEXT);
-        this.contextMenu.children.map(node => node instanceof ActionMenuNode && node.when).forEach(exp => {
-            if (typeof exp === 'string') {
-                this.contextKeyService.setExpression(exp);
+        this.contextMenu.children.forEach(node => {
+            if (node.onDidChange) {
+                this.toDispose.push(node.onDidChange(() => {
+                    const commentForm = this.commentFormRef.current;
+                    if (commentForm) {
+                        commentForm.update();
+                    }
+                }));
             }
         });
     }
@@ -287,6 +290,7 @@ export class CommentThreadWidget extends BaseWidget {
                     {this._commentThread.comments?.map((comment, index) => <ReviewComment
                         key={index}
                         contextKeyService={this.contextKeyService}
+                        commentsContext={this.commentsContext}
                         menus={this.menus}
                         comment={comment}
                         commentForm={this.commentFormRef}
@@ -295,6 +299,7 @@ export class CommentThreadWidget extends BaseWidget {
                     />)}
                 </div>
                 <CommentForm contextKeyService={this.contextKeyService}
+                    commentsContext={this.commentsContext}
                     commands={this.commands}
                     commentThread={this._commentThread}
                     menus={this.menus}
@@ -311,7 +316,8 @@ namespace CommentForm {
         menus: MenuModelRegistry,
         commentThread: CommentThread;
         commands: CommandRegistry;
-        contextKeyService: CommentsContextKeyService;
+        contextKeyService: ContextKeyService;
+        commentsContext: CommentsContext;
         widget: CommentThreadWidget;
     }
 
@@ -325,12 +331,13 @@ export class CommentForm<P extends CommentForm.Props = CommentForm.Props> extend
     private inputRef: RefObject<HTMLTextAreaElement> = React.createRef<HTMLTextAreaElement>();
     private inputValue: string = '';
     private readonly getInput = () => this.inputValue;
+    private toDisposeOnUnmount = new DisposableCollection();
     private readonly clearInput: () => void = () => {
         const input = this.inputRef.current;
         if (input) {
             this.inputValue = '';
             input.value = this.inputValue;
-            this.props.contextKeyService.commentIsEmpty.set(true);
+            this.props.commentsContext.commentIsEmpty.set(true);
         }
     };
 
@@ -363,11 +370,15 @@ export class CommentForm<P extends CommentForm.Props = CommentForm.Props> extend
         }, 100);
     }
 
+    override componentWillUnmount(): void {
+        this.toDisposeOnUnmount.dispose();
+    }
+
     private readonly onInput: (event: React.FormEvent) => void = (event: React.FormEvent) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const value = (event.target as any).value;
         if (this.inputValue.length === 0 || value.length === 0) {
-            this.props.contextKeyService.commentIsEmpty.set(value.length === 0);
+            this.props.commentsContext.commentIsEmpty.set(value.length === 0);
         }
         this.inputValue = value;
     };
@@ -382,17 +393,10 @@ export class CommentForm<P extends CommentForm.Props = CommentForm.Props> extend
         this.setState = newState => {
             setState(newState);
         };
-
-        this.menu = this.props.menus.getMenu(COMMENT_THREAD_CONTEXT);
-        this.menu.children.map(node => node instanceof ActionMenuNode && node.when).forEach(exp => {
-            if (typeof exp === 'string') {
-                this.props.contextKeyService.setExpression(exp);
-            }
-        });
     }
 
     override render(): React.ReactNode {
-        const { commands, commentThread, contextKeyService } = this.props;
+        const { commentThread, commentsContext, contextKeyService } = this.props;
         const hasExistingComments = commentThread.comments && commentThread.comments.length > 0;
         return commentThread.canReply ? <div className={'comment-form' + (this.state.expanded || commentThread.comments && commentThread.comments.length === 0 ? ' expand' : '')}>
             <div className={'theia-comments-input-message-container'}>
@@ -415,8 +419,9 @@ export class CommentForm<P extends CommentForm.Props = CommentForm.Props> extend
                 </textarea>
             </div>
             <CommentActions menu={this.menu}
+                menuPath={[]}
                 contextKeyService={contextKeyService}
-                commands={commands}
+                commentsContext={commentsContext}
                 commentThread={commentThread}
                 getInput={this.getInput}
                 clearInput={this.clearInput}
@@ -431,7 +436,8 @@ namespace ReviewComment {
         menus: MenuModelRegistry,
         comment: Comment;
         commentThread: CommentThread;
-        contextKeyService: CommentsContextKeyService;
+        contextKeyService: ContextKeyService;
+        commentsContext: CommentsContext;
         commands: CommandRegistry;
         commentForm: RefObject<CommentForm>;
     }
@@ -468,10 +474,10 @@ export class ReviewComment<P extends ReviewComment.Props = ReviewComment.Props> 
     protected hideHover = () => this.setState({ hover: false });
 
     override render(): React.ReactNode {
-        const { comment, commentForm, contextKeyService, menus, commands, commentThread } = this.props;
+        const { comment, commentForm, contextKeyService, commentsContext, menus, commands, commentThread } = this.props;
         const commentUniqueId = comment.uniqueIdInThread;
         const { hover } = this.state;
-        contextKeyService.comment.set(comment.contextValue);
+        commentsContext.comment.set(comment.contextValue);
         return <div className={'review-comment'}
             tabIndex={-1}
             aria-label={`${comment.userName}, ${comment.body.value}`}
@@ -488,14 +494,15 @@ export class ReviewComment<P extends ReviewComment.Props = ReviewComment.Props> 
                     <span className={'isPending'}>{comment.label}</span>
                     <div className={'theia-comments-inline-actions-container'}>
                         <div className={'theia-comments-inline-actions'} role={'toolbar'}>
-                            {hover && menus.getMenu(COMMENT_TITLE).children.map((node, index) => node instanceof ActionMenuNode &&
-                                <CommentsInlineAction key={index} {...{ node, commands, commentThread, commentUniqueId, contextKeyService }} />)}
+                            {hover && menus.getMenu(COMMENT_TITLE).children.map((node, index): React.ReactNode => CommandMenu.is(node) &&
+                                <CommentsInlineAction key={index} {...{ node, nodePath: [...COMMENT_TITLE, node.id], commands, commentThread, commentUniqueId, contextKeyService, commentsContext }} />)}
                         </div>
                     </div>
                 </div>
                 <CommentBody value={comment.body.value}
                     isVisible={comment.mode === undefined || comment.mode === CommentMode.Preview} />
                 <CommentEditContainer contextKeyService={contextKeyService}
+                    commentsContext={commentsContext}
                     menus={menus}
                     comment={comment}
                     commentThread={commentThread}
@@ -539,7 +546,8 @@ export class CommentBody extends React.Component<CommentBody.Props> {
 
 namespace CommentEditContainer {
     export interface Props {
-        contextKeyService: CommentsContextKeyService
+        contextKeyService: ContextKeyService;
+        commentsContext: CommentsContext;
         menus: MenuModelRegistry,
         comment: Comment;
         commentThread: CommentThread;
@@ -571,7 +579,7 @@ export class CommentEditContainer extends React.Component<CommentEditContainer.P
     }
 
     override render(): React.ReactNode {
-        const { menus, comment, commands, commentThread, contextKeyService } = this.props;
+        const { menus, comment, commands, commentThread, contextKeyService, commentsContext } = this.props;
         if (!(comment.mode === CommentMode.Editing)) {
             return false;
         }
@@ -585,7 +593,7 @@ export class CommentEditContainer extends React.Component<CommentEditContainer.P
                 </div>
             </div>
             <div className={'form-actions'}>
-                {menus.getMenu(COMMENT_CONTEXT).children.map((node, index) => {
+                {menus.getMenu(COMMENT_CONTEXT).children.map((node, index): React.ReactNode => {
                     const onClick = () => {
                         commands.executeCommand(node.id, {
                             thread: commentThread,
@@ -593,8 +601,8 @@ export class CommentEditContainer extends React.Component<CommentEditContainer.P
                             text: this.inputRef.current ? this.inputRef.current.value : ''
                         });
                     };
-                    return node instanceof ActionMenuNode &&
-                        <CommentAction key={index} {...{ node, commands, onClick, contextKeyService }} />;
+                    return CommandMenu.is(node) &&
+                        <CommentAction key={index} {...{ node, nodePath: [...COMMENT_CONTEXT, node.id], commands, onClick, contextKeyService, commentsContext }} />;
                 }
                 )}
             </div>
@@ -604,18 +612,20 @@ export class CommentEditContainer extends React.Component<CommentEditContainer.P
 
 namespace CommentsInlineAction {
     export interface Props {
-        node: ActionMenuNode;
+        nodePath: MenuPath,
+        node: CommandMenu;
         commentThread: CommentThread;
         commentUniqueId: number;
         commands: CommandRegistry;
-        contextKeyService: CommentsContextKeyService;
+        contextKeyService: ContextKeyService;
+        commentsContext: CommentsContext;
     }
 }
 
 export class CommentsInlineAction extends React.Component<CommentsInlineAction.Props> {
     override render(): React.ReactNode {
-        const { node, commands, contextKeyService, commentThread, commentUniqueId } = this.props;
-        if (node.when && !contextKeyService.match(node.when)) {
+        const { node, nodePath, commands, contextKeyService, commentThread, commentUniqueId } = this.props;
+        if (node.isVisible(nodePath, contextKeyService, undefined)) {
             return false;
         }
         return <div className='theia-comments-inline-action'>
@@ -633,8 +643,9 @@ export class CommentsInlineAction extends React.Component<CommentsInlineAction.P
 
 namespace CommentActions {
     export interface Props {
-        contextKeyService: CommentsContextKeyService;
-        commands: CommandRegistry;
+        contextKeyService: ContextKeyService;
+        commentsContext: CommentsContext;
+        menuPath: MenuPath,
         menu: CompoundMenuNode;
         commentThread: CommentThread;
         getInput: () => string;
@@ -644,29 +655,32 @@ namespace CommentActions {
 
 export class CommentActions extends React.Component<CommentActions.Props> {
     override render(): React.ReactNode {
-        const { contextKeyService, commands, menu, commentThread, getInput, clearInput } = this.props;
+        const { contextKeyService, commentsContext, menuPath, menu, commentThread, getInput, clearInput } = this.props;
         return <div className={'form-actions'}>
-            {menu.children.map((node, index) => node instanceof ActionMenuNode &&
+            {menu.children.map((node, index) => CommandMenu.is(node) &&
                 <CommentAction key={index}
-                    commands={commands}
+                    nodePath={menuPath}
                     node={node}
                     onClick={() => {
-                        commands.executeCommand(node.id, {
+                        node.run(
+                            [...menuPath, menu.id], {
                             thread: commentThread,
                             text: getInput()
                         });
                         clearInput();
                     }}
                     contextKeyService={contextKeyService}
+                    commentsContext={commentsContext}
                 />)}
         </div>;
     }
 }
 namespace CommentAction {
     export interface Props {
-        contextKeyService: CommentsContextKeyService;
-        commands: CommandRegistry;
-        node: ActionMenuNode;
+        contextKeyService: ContextKeyService;
+        commentsContext: CommentsContext;
+        nodePath: MenuPath,
+        node: CommandMenu;
         onClick: () => void;
     }
 }
@@ -674,11 +688,11 @@ namespace CommentAction {
 export class CommentAction extends React.Component<CommentAction.Props> {
     override render(): React.ReactNode {
         const classNames = ['comments-button', 'comments-text-button', 'theia-button'];
-        const { node, commands, contextKeyService, onClick } = this.props;
-        if (node.when && !contextKeyService.match(node.when)) {
+        const { node, nodePath, contextKeyService, onClick } = this.props;
+        if (!node.isVisible(nodePath, contextKeyService, undefined)) {
             return false;
         }
-        const isEnabled = commands.isEnabled(node.command);
+        const isEnabled = node.isEnabled(nodePath);
         if (!isEnabled) {
             classNames.push(DISABLED_CLASS);
         }

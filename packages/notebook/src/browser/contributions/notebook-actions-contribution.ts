@@ -14,7 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { Command, CommandContribution, CommandHandler, CommandRegistry, CompoundMenuNodeRole, MenuContribution, MenuModelRegistry, nls, URI } from '@theia/core';
+import { Command, CommandContribution, CommandHandler, CommandRegistry, MenuContribution, MenuModelRegistry, nls, URI } from '@theia/core';
 import { inject, injectable } from '@theia/core/shared/inversify';
 import { ApplicationShell, codicon, KeybindingContribution, KeybindingRegistry } from '@theia/core/lib/browser';
 import { NotebookModel } from '../view-model/notebook-model';
@@ -294,9 +294,8 @@ export class NotebookActionsContribution implements CommandContribution, MenuCon
 
     registerMenus(menus: MenuModelRegistry): void {
         // independent submenu for plugins to add commands
-        menus.registerIndependentSubmenu(NotebookMenus.NOTEBOOK_MAIN_TOOLBAR, 'Notebook Main Toolbar');
+        menus.registerSubmenu(NotebookMenus.NOTEBOOK_MAIN_TOOLBAR, 'Notebook Main Toolbar');
         // Add Notebook Cell items
-        menus.registerSubmenu(NotebookMenus.NOTEBOOK_MAIN_TOOLBAR_CELL_ADD_GROUP, 'Add Notebook Cell', { role: CompoundMenuNodeRole.Group });
         menus.registerMenuAction(NotebookMenus.NOTEBOOK_MAIN_TOOLBAR_CELL_ADD_GROUP, {
             commandId: NotebookCommands.ADD_NEW_CODE_CELL_COMMAND.id,
             label: nls.localizeByDefault('Code'),
@@ -309,7 +308,6 @@ export class NotebookActionsContribution implements CommandContribution, MenuCon
         });
 
         // Execution related items
-        menus.registerSubmenu(NotebookMenus.NOTEBOOK_MAIN_TOOLBAR_EXECUTION_GROUP, 'Cell Execution', { role: CompoundMenuNodeRole.Group });
         menus.registerMenuAction(NotebookMenus.NOTEBOOK_MAIN_TOOLBAR_EXECUTION_GROUP, {
             commandId: NotebookCommands.EXECUTE_NOTEBOOK_COMMAND.id,
             label: nls.localizeByDefault('Run All'),
@@ -324,7 +322,7 @@ export class NotebookActionsContribution implements CommandContribution, MenuCon
             when: NOTEBOOK_HAS_OUTPUTS
         });
 
-        menus.registerIndependentSubmenu(NotebookMenus.NOTEBOOK_MAIN_TOOLBAR_HIDDEN_ITEMS_CONTEXT_MENU, '');
+        menus.registerSubmenu(NotebookMenus.NOTEBOOK_MAIN_TOOLBAR_HIDDEN_ITEMS_CONTEXT_MENU, '');
     }
 
     registerKeybindings(keybindings: KeybindingRegistry): void {
@@ -372,8 +370,8 @@ export class NotebookActionsContribution implements CommandContribution, MenuCon
 }
 
 export namespace NotebookMenus {
-    export const NOTEBOOK_MAIN_TOOLBAR = 'notebook/toolbar';
-    export const NOTEBOOK_MAIN_TOOLBAR_CELL_ADD_GROUP = [NOTEBOOK_MAIN_TOOLBAR, 'cell-add-group'];
-    export const NOTEBOOK_MAIN_TOOLBAR_EXECUTION_GROUP = [NOTEBOOK_MAIN_TOOLBAR, 'cell-execution-group'];
-    export const NOTEBOOK_MAIN_TOOLBAR_HIDDEN_ITEMS_CONTEXT_MENU = 'notebook-main-toolbar-hidden-items-context-menu';
+    export const NOTEBOOK_MAIN_TOOLBAR = ['notebook', 'toolbar'];
+    export const NOTEBOOK_MAIN_TOOLBAR_CELL_ADD_GROUP = [...NOTEBOOK_MAIN_TOOLBAR, 'cell-add-group'];
+    export const NOTEBOOK_MAIN_TOOLBAR_EXECUTION_GROUP = [...NOTEBOOK_MAIN_TOOLBAR, 'cell-execution-group'];
+    export const NOTEBOOK_MAIN_TOOLBAR_HIDDEN_ITEMS_CONTEXT_MENU = ['notebook-main-toolbar-hidden-items-context-menu'];
 }

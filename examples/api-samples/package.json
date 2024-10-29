@@ -26,10 +26,6 @@
       "backend": "lib/node/api-samples-backend-module"
     },
     {
-      "frontend": "lib/browser/menu/sample-browser-menu-module",
-      "frontendElectron": "lib/electron-browser/menu/sample-electron-menu-module"
-    },
-    {
       "electronMain": "lib/electron-main/update/sample-updater-main-module",
       "frontendElectron": "lib/electron-browser/updater/sample-updater-frontend-module"
     },

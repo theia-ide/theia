@@ -126,4 +126,28 @@ export namespace ArrayUtils {
         }
         return result;
     }
+
+    export function shallowEquals(left: Array<unknown>, right: Array<unknown>): boolean {
+        if (left.length !== right.length) {
+            return false;
+        }
+        for (let i = 0; i < left.length; i++) {
+            if (left[i] !== right[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    export function isPrefix(left: Array<unknown>, of: Array<unknown>): boolean {
+        if (left.length > of.length) {
+            return false;
+        }
+        for (let i = 0; i < left.length; i++) {
+            if (left[i] !== of[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

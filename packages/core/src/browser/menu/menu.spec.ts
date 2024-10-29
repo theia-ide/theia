@@ -15,9 +15,8 @@
 // *****************************************************************************
 
 import * as chai from 'chai';
-import { CommandContribution, CommandRegistry } from '../command';
-import { CompositeMenuNode } from './composite-menu-node';
-import { MenuContribution, MenuModelRegistry } from './menu-model-registry';
+import { CommandContribution, CommandRegistry, CompoundMenuNode, MenuContribution, MenuModelRegistry, Submenu } from '../../common';
+import { BrowserMenuNodeFactory } from './browser-menu-node-factory';
 
 const expect = chai.expect;
 
@@ -49,15 +48,15 @@ describe('menu-model-registry', () => {
                     });
                 }
             });
-            const all = service.getMenu();
-            const main = all.children[0] as CompositeMenuNode;
+            const all = service.getMenu([])!;
+            const main = all.children[0] as CompoundMenuNode;
             expect(main.children.length).equals(1);
             expect(main.id, 'main');
             expect(all.children.length).equals(1);
-            const file = main.children[0] as CompositeMenuNode;
+            const file = main.children[0] as Submenu;
             expect(file.children.length).equals(1);
             expect(file.label, 'File');
-            const openGroup = file.children[0] as CompositeMenuNode;
+            const openGroup = file.children[0] as Submenu;
             expect(openGroup.children.length).equals(2);
             expect(openGroup.label).undefined;
         });
@@ -70,15 +69,15 @@ describe('menu-model-registry', () => {
                 registerMenus(menuRegistry: MenuModelRegistry): void {
                     menuRegistry.registerSubmenu(fileMenu, 'File');
                     // open menu should not be added to open menu
-                    menuRegistry.linkSubmenu(fileOpenMenu, fileOpenMenu);
+                    menuRegistry.linkCompoundMenuNode(fileOpenMenu, fileOpenMenu);
                     // close menu should be added
-                    menuRegistry.linkSubmenu(fileOpenMenu, fileCloseMenu);
+                    menuRegistry.linkCompoundMenuNode(fileOpenMenu, fileCloseMenu);
                 }
             }, {
                 registerCommands(reg: CommandRegistry): void { }
             });
-            const all = service.getMenu() as CompositeMenuNode;
-            expect(menuStructureToString(all.children[0] as CompositeMenuNode)).equals('File(0_open(1_close),1_close())');
+            const all = service.getMenu([]) as CompoundMenuNode;
+            expect(menuStructureToString(all.children[0] as CompoundMenuNode)).equals('File(0_open(1_close),1_close())');
         });
     });
 });
@@ -86,14 +85,14 @@ describe('menu-model-registry', () => {
 function createMenuRegistry(menuContrib: MenuContribution, commandContrib: CommandContribution): MenuModelRegistry {
     const cmdReg = new CommandRegistry({ getContributions: () => [commandContrib] });
     cmdReg.onStart();
-    const menuReg = new MenuModelRegistry({ getContributions: () => [menuContrib] }, cmdReg);
+    const menuReg = new MenuModelRegistry({ getContributions: () => [menuContrib] }, cmdReg, new BrowserMenuNodeFactory());
     menuReg.onStart();
     return menuReg;
 }
 
-function menuStructureToString(node: CompositeMenuNode): string {
+function menuStructureToString(node: CompoundMenuNode): string {
     return node.children.map(c => {
-        if (c instanceof CompositeMenuNode) {
+        if (CompoundMenuNode.is(c)) {
             return `${c.id}(${menuStructureToString(c)})`;
         }
         return c.id;

@@ -21,7 +21,7 @@ import { CommandContribution, MenuContribution, ResourceResolver } from '@theia/
 import {
     WebSocketConnectionProvider,
     FrontendApplicationContribution,
-} from '@theia/core/lib/browser';
+    } from '@theia/core/lib/browser';
 import { TabBarToolbarContribution } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { Git, GitPath, GitWatcher, GitWatcherPath, GitWatcherServer, GitWatcherServerProxy, ReconnectingGitWatcherServer } from '../common';
 import { GitContribution } from './git-contribution';

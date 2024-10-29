@@ -23,13 +23,13 @@ import {
 import { Event as CommonEvent, Emitter } from '../common/event';
 import { Disposable, DisposableCollection } from '../common/disposable';
 import { CommandRegistry } from '../common/command';
-import { MenuModelRegistry, MenuPath, MenuAction } from '../common/menu';
+import { MenuModelRegistry, MenuPath, MenuAction, SubmenuImpl, ActionMenuNode, MenuNode, RenderedMenuNode } from '../common/menu';
 import { ApplicationShell, StatefulWidget, SplitPositionHandler, SplitPositionOptions, SIDE_PANEL_TOOLBAR_CONTEXT_MENU } from './shell';
 import { MAIN_AREA_ID, BOTTOM_AREA_ID } from './shell/theia-dock-panel';
 import { FrontendApplicationStateService } from './frontend-application-state';
 import { ContextMenuRenderer, Anchor } from './context-menu-renderer';
 import { parseCssMagnitude } from './browser';
-import { TabBarToolbarRegistry, TabBarToolbarFactory, TabBarToolbar, TabBarDelegator, RenderedToolbarItem } from './shell/tab-bar-toolbar';
+import { TabBarToolbarRegistry, TabBarToolbarFactory, TabBarToolbar, TabBarDelegator } from './shell/tab-bar-toolbar';
 import { isEmpty, isObject, nls } from '../common';
 import { WidgetManager } from './widget-manager';
 import { Key } from './keys';
@@ -38,6 +38,9 @@ import { Drag, IDragEvent } from '@phosphor/dragdrop';
 import { MimeData } from '@phosphor/coreutils';
 import { ElementExt } from '@phosphor/domutils';
 import { TabBarDecoratorService } from './shell/tab-bar-decorator';
+import { ContextKeyService } from './context-key-service';
+import { KeybindingRegistry } from './keybinding';
+import { ToolbarMenuNodeWrapper } from './shell/tab-bar-toolbar/tab-bar-toolbar-menu-adapters';
 
 export interface ViewContainerTitleOptions {
     label: string;
@@ -87,6 +90,26 @@ export interface DynamicToolbarWidget {
 export namespace DynamicToolbarWidget {
     export function is(arg: unknown): arg is DynamicToolbarWidget {
         return isObject(arg) && 'onDidChangeToolbarItems' in arg;
+    }
+}
+
+class PartsMenuToolbarItem extends ToolbarMenuNodeWrapper {
+    constructor(
+        protected readonly target: () => Widget | undefined,
+        effectiveMenuPath: MenuPath,
+        commandRegistry: CommandRegistry,
+        menuRegistry: MenuModelRegistry,
+        contextKeyService: ContextKeyService,
+        contextMenuRenderer: ContextMenuRenderer,
+        menuNode: MenuNode & RenderedMenuNode,
+        group: string | undefined,
+        menuPath?: MenuPath,
+    ) {
+        super(effectiveMenuPath, commandRegistry, menuRegistry, contextKeyService, contextMenuRenderer, menuNode, group, menuPath);
+    }
+
+    override isVisible(widget: Widget): boolean {
+        return widget === this.target() && super.isVisible(widget);
     }
 }
 
@@ -146,8 +169,15 @@ export class ViewContainer extends BaseWidget implements StatefulWidget, Applica
     @inject(TabBarDecoratorService)
     protected readonly decoratorService: TabBarDecoratorService;
 
+    @inject(ContextKeyService)
+    protected readonly contextKeyService: ContextKeyService;
+
+    @inject(KeybindingRegistry)
+    protected readonly keybindingRegistry: KeybindingRegistry;
+
     @postConstruct()
     protected init(): void {
+        this.toDispose.push(Disposable.create(() => { this.toDisposeOnUpdateTitle.dispose(); }));
         this.id = this.options.id;
         this.addClass('theia-view-container');
         const layout = new PanelLayout();
@@ -239,7 +269,7 @@ export class ViewContainer extends BaseWidget implements StatefulWidget, Applica
         this.updateTitle();
     }
 
-    protected readonly toDisposeOnUpdateTitle = new DisposableCollection();
+    protected toDisposeOnUpdateTitle = new DisposableCollection();
 
     protected _tabBarDelegate: Widget = this;
     updateTabBarDelegate(): void {
@@ -257,7 +287,7 @@ export class ViewContainer extends BaseWidget implements StatefulWidget, Applica
 
     protected updateTitle(): void {
         this.toDisposeOnUpdateTitle.dispose();
-        this.toDispose.push(this.toDisposeOnUpdateTitle);
+        this.toDisposeOnUpdateTitle = new DisposableCollection();
         this.updateTabBarDelegate();
         let title = Object.assign({}, this.titleOptions);
         if (isEmpty(title)) {
@@ -311,36 +341,26 @@ export class ViewContainer extends BaseWidget implements StatefulWidget, Applica
 
     protected updateToolbarItems(allParts: ViewContainerPart[]): void {
         if (allParts.length > 1) {
-            const group = this.getToggleVisibilityGroupLabel();
+            const group = new SubmenuImpl(this.contextKeyService, `toggleParts-${this.id}`, this.getToggleVisibilityGroupLabel(), undefined);
             for (const part of allParts) {
                 const existingId = this.toggleVisibilityCommandId(part);
-                const { caption, label, dataset: { visibilityCommandLabel } } = part.wrapped.title;
-                this.registerToolbarItem(existingId, { tooltip: visibilityCommandLabel || caption || label, group });
+                const { label } = part.wrapped.title;
+                group.addNode(new ActionMenuNode({
+                    commandId: existingId,
+                    label: label
+                }, this.commandRegistry, this.keybindingRegistry, this.contextKeyService));
             }
+
+            // widget === this.getTabBarDelegate()
+
+            const toolbarItem = new PartsMenuToolbarItem(() => this.getTabBarDelegate(), [this.id], this.commandRegistry, this.menuRegistry,
+                this.contextKeyService, this.contextMenuRenderer, group, 'view', [this.id]);
+            this.toDisposeOnUpdateTitle.push(this.toolbarRegistry.doRegisterItem(toolbarItem));
         }
     }
 
     protected getToggleVisibilityGroupLabel(): string {
         return 'view';
-    }
-
-    protected registerToolbarItem(commandId: string, options?: Partial<Omit<RenderedToolbarItem, 'id' | 'command'>>): void {
-        const newId = `${this.id}-tabbar-toolbar-${commandId}`;
-        const existingHandler = this.commandRegistry.getAllHandlers(commandId)[0];
-        const existingCommand = this.commandRegistry.getCommand(commandId);
-        if (existingHandler && existingCommand) {
-            this.toDisposeOnUpdateTitle.push(this.commandRegistry.registerCommand({ ...existingCommand, id: newId }, {
-                execute: (_widget, ...args) => this.commandRegistry.executeCommand(commandId, ...args),
-                isToggled: (_widget, ...args) => this.commandRegistry.isToggled(commandId, ...args),
-                isEnabled: (_widget, ...args) => this.commandRegistry.isEnabled(commandId, ...args),
-                isVisible: (widget, ...args) => widget === this.getTabBarDelegate() && this.commandRegistry.isVisible(commandId, ...args),
-            }));
-            this.toDisposeOnUpdateTitle.push(this.toolbarRegistry.registerItem({
-                ...options,
-                id: newId,
-                command: newId,
-            }));
-        }
     }
 
     protected findOriginalPart(): ViewContainerPart | undefined {

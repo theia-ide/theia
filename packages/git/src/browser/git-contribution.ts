@@ -28,8 +28,8 @@ import {
 } from '@theia/core';
 import { codicon, DiffUris, Widget, open, OpenerService } from '@theia/core/lib/browser';
 import {
+    TabBarToolbarAction,
     TabBarToolbarContribution,
-    TabBarToolbarItem,
     TabBarToolbarRegistry
 } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { EditorContextMenu, EditorManager, EditorOpenerOptions, EditorWidget } from '@theia/editor/lib/browser';
@@ -659,7 +659,7 @@ export class GitContribution implements CommandContribution, MenuContribution, T
             tooltip: GIT_COMMANDS.INIT_REPOSITORY.label
         });
 
-        const registerItem = (item: Mutable<TabBarToolbarItem & { command: string }>) => {
+        const registerItem = (item: Mutable<TabBarToolbarAction & { command: string }>) => {
             const commandId = item.command;
             const id = '__git.tabbar.toolbar.' + commandId;
             const command = this.commands.getCommand(commandId);

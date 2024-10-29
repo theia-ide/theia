@@ -274,6 +274,14 @@ export class TestViewContribution extends AbstractViewContribution<TestTreeWidge
             commandId: TestViewCommands.SELECT_DEFAULT_PROFILES.id,
             order: 'aaaaa'
         });
+
+        menus.registerSubmenu([...PLUGIN_TEST_VIEW_TITLE_MENU, TestViewCommands.RUN_ALL_TESTS.id], '', undefined, undefined, undefined, {
+            'testing.profile.context.group': 'run'
+        });
+
+        menus.registerSubmenu([...PLUGIN_TEST_VIEW_TITLE_MENU, TestViewCommands.DEBUG_ALL_TESTS.id], '', undefined, undefined, undefined, {
+            'testing.profile.context.group': 'debug'
+        });
     }
 
     registerToolbarItems(toolbar: TabBarToolbarRegistry): void {
@@ -295,20 +303,20 @@ export class TestViewContribution extends AbstractViewContribution<TestTreeWidge
             id: TestViewCommands.RUN_ALL_TESTS.id,
             command: TestViewCommands.RUN_ALL_TESTS.id,
             menuPath: PLUGIN_TEST_VIEW_TITLE_MENU,
-            contextKeyOverlays: {
-                'testing.profile.context.group': 'run'
-            },
-            priority: 1
+            priority: 1,
+            isVisible(widget): boolean {
+                return widget instanceof TestTreeWidget && widget.id === TestTreeWidget.ID;
+            }
         });
 
         toolbar.registerItem({
             id: TestViewCommands.DEBUG_ALL_TESTS.id,
             command: TestViewCommands.DEBUG_ALL_TESTS.id,
             menuPath: PLUGIN_TEST_VIEW_TITLE_MENU,
-            contextKeyOverlays: {
-                'testing.profile.context.group': 'debug'
-            },
-            priority: 2
+            priority: 2,
+            isVisible(widget): boolean {
+                return widget instanceof TestTreeWidget && widget.id === TestTreeWidget.ID;
+            }
         });
 
         toolbar.registerItem({

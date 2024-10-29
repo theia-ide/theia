@@ -16,6 +16,7 @@
 
 import * as React from '@theia/core/shared/react';
 import { codiconArray, DISABLED_CLASS } from '@theia/core/lib/browser';
+import { MenuPath } from '@theia/core';
 
 export class DebugAction extends React.Component<DebugAction.Props> {
 
@@ -31,7 +32,7 @@ export class DebugAction extends React.Component<DebugAction.Props> {
         return <span tabIndex={0}
             className={classNames.join(' ')}
             title={label}
-            onClick={this.props.run}
+            onClick={() => { this.props.run([]) }}
             ref={this.setRef} >
             {!iconClass && <div>{label}</div>}
         </span>;
@@ -51,7 +52,7 @@ export namespace DebugAction {
     export interface Props {
         label: string
         iconClass: string
-        run: () => void
+        run: (effectiveMenuPath: MenuPath) => void
         enabled?: boolean
     }
 }

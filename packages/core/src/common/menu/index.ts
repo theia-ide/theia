@@ -14,8 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-export * from './action-menu-node';
-export * from './composite-menu-node';
-export * from './menu-adapter';
+export * from '../../browser/menu/action-menu-node';
+export * from '../../browser/menu/composite-menu-node';
 export * from './menu-model-registry';
 export * from './menu-types';

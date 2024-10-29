@@ -17,11 +17,10 @@ import * as React from '@theia/core/shared/react';
 import { ACTION_ITEM } from '@theia/core/lib/browser';
 import { NotebookCellToolbarItem } from './notebook-cell-toolbar-factory';
 import { DisposableCollection, Event } from '@theia/core';
-import { ContextKeyChangeEvent } from '@theia/core/lib/browser/context-key-service';
 
 export interface NotebookCellToolbarProps {
     getMenuItems: () => NotebookCellToolbarItem[];
-    onContextKeysChanged: Event<ContextKeyChangeEvent>;
+    onContextChanged: Event<void>;
 }
 
 interface NotebookCellToolbarState {
@@ -34,11 +33,9 @@ abstract class NotebookCellActionBar extends React.Component<NotebookCellToolbar
 
     constructor(props: NotebookCellToolbarProps) {
         super(props);
-        this.toDispose.push(props.onContextKeysChanged(e => {
+        this.toDispose.push(props.onContextChanged(e => {
             const menuItems = this.props.getMenuItems();
-            if (menuItems.some(item => item.contextKeys ? e.affects(item.contextKeys) : false)) {
-                this.setState({ inlineItems: menuItems });
-            }
+            this.setState({ inlineItems: menuItems });
         }));
         this.state = { inlineItems: this.props.getMenuItems() };
     }

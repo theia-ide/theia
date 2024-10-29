@@ -21,7 +21,7 @@ import { ColorRegistry } from '@theia/core/lib/browser/color-registry';
 import { FrontendApplication } from '@theia/core/lib/browser/frontend-application';
 import { FrontendApplicationContribution } from '@theia/core/lib/browser/frontend-application-contribution';
 import { AbstractViewContribution } from '@theia/core/lib/browser/shell/view-contribution';
-import { CompoundMenuNodeRole, MenuModelRegistry, MessageService, SelectionService, nls } from '@theia/core/lib/common';
+import { MenuModelRegistry, MessageService, SelectionService, nls } from '@theia/core/lib/common';
 import { Color } from '@theia/core/lib/common/color';
 import { Command, CommandRegistry } from '@theia/core/lib/common/command';
 import URI from '@theia/core/lib/common/uri';
@@ -160,10 +160,6 @@ export class VSXExtensionsContribution extends AbstractViewContribution<VSXExten
             commandId: VSXExtensionsCommands.INSTALL_VSIX_FILE.id,
             label: VSXExtensionsCommands.INSTALL_VSIX_FILE.label,
             when: 'resourceScheme == file && resourceExtname == .vsix'
-        });
-
-        menus.registerSubmenu(VSXExtensionsContextMenu.CONTRIBUTION, '', {
-            role: CompoundMenuNodeRole.Group,
         });
     }
 
