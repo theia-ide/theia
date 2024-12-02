@@ -82,7 +82,7 @@ export class ContainerConnectionContribution extends AbstractRemoteRegistryContr
             throw new Error(`Devcontainer file at ${filePath} not found in workspace`);
         }
 
-        return this.doOpenInContainer(devcontainerFile);
+        return this.doOpenInContainer(devcontainerFile, uri.toString());
     }
 
     async getWorkspaceLabel(uri: URI): Promise<string | undefined> {
