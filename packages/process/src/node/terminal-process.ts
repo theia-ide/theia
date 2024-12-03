@@ -135,6 +135,10 @@ export class TerminalProcess extends Process {
         this.inputStream = inputStream;
     }
 
+    debugString(): string {
+        return JSON.stringify(this.terminal);
+    }
+
     /**
      * Helper for the constructor to attempt to create the pseudo-terminal encapsulating the shell process.
      *
@@ -150,7 +154,9 @@ export class TerminalProcess extends Process {
             options.options || {}
         );
 
-        process.nextTick(() => this.emitOnStarted());
+        if (process.pid !== undefined) {
+            process.nextTick(() => this.emitOnStarted());
+        }
 
         // node-pty actually wait for the underlying streams to be closed before emitting exit.
         // We should emulate the `exit` and `close` sequence.

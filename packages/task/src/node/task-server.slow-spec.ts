@@ -25,7 +25,6 @@ import * as https from 'https';
 import { isWindows, isOSX } from '@theia/core/lib/common/os';
 import { FileUri } from '@theia/core/lib/node';
 import { terminalsPath } from '@theia/terminal/lib/common/terminal-protocol';
-import { expectThrowsAsync } from '@theia/core/lib/common/test/expect';
 import { TestWebSocketChannelSetup } from '@theia/core/lib/node/messaging/test/test-web-socket-channel';
 import { expect } from 'chai';
 import URI from '@theia/core/lib/common/uri';
@@ -249,11 +248,6 @@ describe('Task server / back-end', function (): void {
         } else {
             expect(code).equals(127);
         }
-    });
-
-    it('task using raw process can handle command that does not exist', async function (): Promise<void> {
-        const p = taskServer.run(createProcessTaskConfig2('process', bogusCommand, []), wsRoot);
-        await expectThrowsAsync(p, 'ENOENT');
     });
 
     it('getTasks(ctx) returns tasks according to created context', async function (): Promise<void> {

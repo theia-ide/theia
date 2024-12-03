@@ -8902,6 +8902,11 @@ node-addon-api@^7.0.0:
   resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-7.1.1.tgz#1aba6693b0f255258a049d621329329322aad558"
   integrity sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==
 
+node-addon-api@^7.1.0:
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-7.1.1.tgz#1aba6693b0f255258a049d621329329322aad558"
+  integrity sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==
+
 node-api-version@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/node-api-version/-/node-api-version-0.1.4.tgz#1ed46a485e462d55d66b5aa1fe2821720dedf080"
@@ -8974,12 +8979,12 @@ node-preload@^0.2.1:
   dependencies:
     process-on-spawn "^1.0.0"
 
-node-pty@0.11.0-beta24:
-  version "0.11.0-beta24"
-  resolved "https://registry.yarnpkg.com/node-pty/-/node-pty-0.11.0-beta24.tgz#084841017187656edaf14b459946c4a1d7cf8392"
-  integrity sha512-CzItw3hitX+wnpw9dHA/A+kcbV7ETNKrsyQJ+s0ZGzsu70+CSGuIGPLPfMnAc17vOrQktxjyRQfaqij75GVJFw==
+node-pty@1.1.0-beta27:
+  version "1.1.0-beta27"
+  resolved "https://registry.yarnpkg.com/node-pty/-/node-pty-1.1.0-beta27.tgz#08a76876d345a03dd181f0b81fa7eb26e31b39b3"
+  integrity sha512-r0nRVgunspo/cBmf/eR+ultBrclxqldaL6FhiTLEmC4VcyKJxhluRK5d8EtbHYPLt8DqPKMnCakJDxreQynpnw==
   dependencies:
-    nan "^2.17.0"
+    node-addon-api "^7.1.0"
 
 node-releases@^2.0.14:
   version "2.0.14"

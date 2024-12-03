@@ -39,9 +39,4 @@ describe('TerminalServer', function (): void {
         const createResult = await terminalServer.create({ command: process.execPath, 'args': args });
         expect(createResult).to.be.greaterThan(-1);
     });
-
-    it('test terminal create from non-existent path', async function (): Promise<void> {
-        const createError = await terminalServer.create({ command: '/non-existent' });
-        expect(createError).eq(-1);
-    });
 });

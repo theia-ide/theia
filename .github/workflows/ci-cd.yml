@@ -51,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2019, ubuntu-22.04, macos-14]
+        os: [windows-latest, ubuntu-latest, macos-latest]
         node: [18.x, 20.x]
 
     runs-on: ${{ matrix.os }}
@@ -83,7 +83,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # https://github.com/microsoft/vscode-ripgrep/issues/9
 
       - name: Download Plugins
-        if: runner.os == 'Linux'
         shell: bash
         run: |
           yarn -s download:plugins --rate-limit 3
@@ -105,9 +104,9 @@ jobs:
           yarn test:theia
 
       - name: Test (browser)
-        if: matrix.tests != 'skip' && runner.os == 'Linux'
+        if: matrix.tests != 'skip'
         run: |
-          xvfb-run -a yarn browser test
+          yarn browser test
 
       - name: Test (electron)
         if: matrix.tests != 'skip' && runner.os == 'Linux'
