@@ -44,6 +44,11 @@ export interface WorkspaceOpenHandlerContribution {
     getWorkspaceLabel?(uri: URI): MaybePromise<string | undefined>;
 }
 
+export interface WorkspaceHandlingContribution {
+    modifyRecentWorksapces?(workspaces: string[]): MaybePromise<string[]>;
+
+}
+
 /**
  * The workspace service.
  */
@@ -371,7 +376,7 @@ export class WorkspaceService implements FrontendApplicationContribution, Worksp
         throw new Error(`Could not find a handler to open the workspace with uri ${uri.toString()}.`);
     }
 
-    async canHandle(uri: URI): Promise<boolean> {
+    canHandle(uri: URI): boolean {
         return uri.scheme === 'file';
     }
 
