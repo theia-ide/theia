@@ -18,12 +18,12 @@ import { inject, injectable } from '@theia/core/shared/inversify';
 import { AbstractRemoteRegistryContribution, RemoteRegistry } from '@theia/remote/lib/electron-browser/remote-registry-contribution';
 import { DevContainerFile, LastContainerInfo, RemoteContainerConnectionProvider } from '../electron-common/remote-container-connection-provider';
 import { RemotePreferences } from '@theia/remote/lib/electron-browser/remote-preferences';
-import { WorkspaceStorageService } from '@theia/workspace/lib/browser/workspace-storage-service';
 import { Command, MaybePromise, QuickInputService, URI } from '@theia/core';
 import { WorkspaceInput, WorkspaceOpenHandlerContribution, WorkspaceService } from '@theia/workspace/lib/browser/workspace-service';
 import { ContainerOutputProvider } from './container-output-provider';
 import { WorkspaceServer } from '@theia/workspace/lib/common';
 import { DEV_CONTAINER_PATH_QUERY, DEV_CONTAINER_WORKSPACE_SCHEME } from '../electron-common/dev-container-workspaces';
+import { LocalStorageService, StorageService } from '@theia/core/lib/browser';
 
 export namespace RemoteContainerCommands {
     export const REOPEN_IN_CONTAINER = Command.toLocalizedCommand({
@@ -43,8 +43,8 @@ export class ContainerConnectionContribution extends AbstractRemoteRegistryContr
     @inject(RemotePreferences)
     protected readonly remotePreferences: RemotePreferences;
 
-    @inject(WorkspaceStorageService)
-    protected readonly workspaceStorageService: WorkspaceStorageService;
+    @inject(LocalStorageService)
+    protected readonly storageService: StorageService;
 
     @inject(WorkspaceService)
     protected readonly workspaceService: WorkspaceService;
@@ -105,7 +105,7 @@ export class ContainerConnectionContribution extends AbstractRemoteRegistryContr
 
     async doOpenInContainer(devcontainerFile: DevContainerFile, workspaceUri?: string): Promise<void> {
         const lastContainerInfoKey = `${LAST_USED_CONTAINER}:${devcontainerFile.path}`;
-        const lastContainerInfo = await this.workspaceStorageService.getData<LastContainerInfo | undefined>(lastContainerInfoKey);
+        const lastContainerInfo = await this.storageService.getData<LastContainerInfo | undefined>(lastContainerInfoKey);
 
         this.containerOutputProvider.openChannel();
 
@@ -116,7 +116,7 @@ export class ContainerConnectionContribution extends AbstractRemoteRegistryContr
             workspaceUri
         });
 
-        this.workspaceStorageService.setData<LastContainerInfo>(lastContainerInfoKey, {
+        this.storageService.setData<LastContainerInfo>(lastContainerInfoKey, {
             id: connectionResult.containerId,
             lastUsed: Date.now()
         });
