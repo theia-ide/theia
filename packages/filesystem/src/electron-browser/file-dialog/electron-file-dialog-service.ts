@@ -49,7 +49,13 @@ export class ElectronFileDialogService extends DefaultFileDialogService {
                     return undefined;
                 }
 
-                const uris = filePaths.map(path => FileUri.create(path));
+                const uris = filePaths.map(path => {
+                    let uri = FileUri.create(path);
+                    if (props.fileScheme) {
+                        uri = uri.withScheme(props.fileScheme);
+                    }
+                    return uri;
+                });
                 const canAccess = await this.canRead(uris);
                 const result = canAccess ? uris.length === 1 ? uris[0] : uris : undefined;
                 return result;
@@ -70,6 +76,9 @@ export class ElectronFileDialogService extends DefaultFileDialogService {
                 }
 
                 const uri = FileUri.create(filePath);
+                if (props.fileScheme) {
+                    uri.withScheme(props.fileScheme);
+                }
                 const exists = await this.fileService.exists(uri);
                 if (!exists) {
                     return uri;
