@@ -82,6 +82,16 @@ export namespace PluginIdentifiers {
         return { id: probablyId.slice(0, endOfName) as UnversionedId, version: probablyId.slice(endOfName + 1) };
     }
 
+    /**
+     * Regular expression to match plugin identifiers.
+     *
+     * The pattern matches strings in the format: `vendor.name@version`.
+     *
+     * Expected matching strings examples:
+     * - `vendor.name@prerelease`
+     * - `vendor.name@1.0.0`
+     * - `vendor.name@1.0.0-beta`
+     */
     const EXTENSION_IDENTIFIER_WITH_VERSION_REGEX = /^([^.]+\..+)@((prerelease)|(\d+\.\d+\.\d+(-.*)?))$/;
 
     /**
