@@ -16,7 +16,7 @@
 
 import { MaybeArray, URI, nls } from '@theia/core';
 import { inject, injectable } from '@theia/core/shared/inversify';
-import { OpenFileDialogProps, SaveFileDialogProps } from '@theia/filesystem/lib/browser/file-dialog';
+import { AdditionalButtonDefinition, OpenFileDialogProps, SaveFileDialogProps } from '@theia/filesystem/lib/browser/file-dialog';
 import { FileStat } from '@theia/filesystem/lib/common/files';
 import { DefaultFileDialogService } from '@theia/filesystem/lib/browser/file-dialog/file-dialog-service';
 import { ElectronFileDialogService } from '@theia/filesystem/lib/electron-browser/file-dialog/electron-file-dialog-service';
@@ -48,14 +48,15 @@ export class RemoteElectronFileDialogService extends ElectronFileDialogService {
     }
 
     protected addLocalFilesButton(props: OpenFileDialogProps): void {
-        const localFilesButton: [string, (res: typeof Promise.resolve) => void] = ['Show Local Files', async resolve => {
-            const localFile = await super.showOpenDialog({ ...props, title: nls.localizeByDefault('Show Local'), fileScheme: LOCAL_FILE_SCHEME });
-            if (localFile) {
-                resolve({ uri: localFile });
-            } else {
-                resolve(undefined);
+        const localFilesButton: AdditionalButtonDefinition<{ uri: URI }> = {
+            label: nls.localizeByDefault('Show Local'),
+            onClick: async resolve => {
+                const localFile = await super.showOpenDialog({ ...props, fileScheme: LOCAL_FILE_SCHEME });
+                if (localFile) {
+                    resolve({ uri: localFile });
+                }
             }
-        }];
+        };
         if (props.additionalButtons) {
             props.additionalButtons.push(localFilesButton);
         } else {
