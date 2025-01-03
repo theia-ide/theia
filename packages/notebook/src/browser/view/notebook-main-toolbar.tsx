@@ -99,7 +99,7 @@ export class NotebookMainToolbar extends React.Component<NotebookMainToolbarProp
         const menuItems = this.getMenuItems();
         for (const item of menuItems) {
             if (item.onDidChange) {
-                item.onDidChange(() => this.forceUpdate())
+                item.onDidChange(() => this.forceUpdate());
             }
         }
     }
@@ -130,7 +130,7 @@ export class NotebookMainToolbar extends React.Component<NotebookMainToolbarProp
     protected renderContextMenu(event: MouseEvent, menuItems: readonly MenuNode[]): void {
         const hiddenItems = menuItems.slice(menuItems.length - this.calculateNumberOfHiddenItems(menuItems));
 
-        const menu = new GroupImpl(this.props.contextKeyService, NotebookMenus.NOTEBOOK_MAIN_TOOLBAR_HIDDEN_ITEMS_CONTEXT_MENU[0])
+        const menu = new GroupImpl(this.props.contextKeyService, NotebookMenus.NOTEBOOK_MAIN_TOOLBAR_HIDDEN_ITEMS_CONTEXT_MENU[0]);
 
         hiddenItems.forEach(item => menu.addNode(item));
 
@@ -146,7 +146,7 @@ export class NotebookMainToolbar extends React.Component<NotebookMainToolbarProp
 
     override render(): React.ReactNode {
         const menuItems = this.getMenuItems();
-        return <div className='theia-notebook-main-toolbar'>
+        return <div className='theia-notebook-main-toolbar' id='notebook-main-toolbar'>
             {menuItems.slice(0, menuItems.length - this.calculateNumberOfHiddenItems(menuItems)).map(item => this.renderMenuItem(NotebookMenus.NOTEBOOK_MAIN_TOOLBAR, item))}
             {
                 this.state.numberOfHiddenItems > 0 &&
@@ -182,7 +182,7 @@ export class NotebookMainToolbar extends React.Component<NotebookMainToolbarProp
                 {itemNodes && itemNodes.length > 0 && <span key={`${item.id}-separator`} className='theia-notebook-toolbar-separator'></span>}
             </React.Fragment>;
         } else if (CommandMenu.is(item) && ((this.nativeSubmenus.includes(submenu ?? '')) || item.isVisible(itemPath, this.props.contextKeyService, this.props.editorNode))) {
-            return <div key={item.id} title={item.label} className={`theia-notebook-main-toolbar-item action-label${this.getAdditionalClasses(itemPath, item)}`}
+            return <div key={item.id} id={item.id} title={item.label} className={`theia-notebook-main-toolbar-item action-label${this.getAdditionalClasses(itemPath, item)}`}
                 onClick={() => {
                     item.run(itemPath, this.props.notebookModel.uri);
                 }}>

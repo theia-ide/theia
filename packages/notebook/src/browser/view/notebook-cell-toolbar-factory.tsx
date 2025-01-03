@@ -54,7 +54,7 @@ export class NotebookCellToolbarFactory {
     @inject(NotebookContextManager)
     protected readonly notebookContextManager: NotebookContextManager;
 
-    protected readonly onDidChangeContextEmitter = new Emitter<void>
+    protected readonly onDidChangeContextEmitter = new Emitter<void>;
     readonly onDidChangeContext: Event<void> = this.onDidChangeContextEmitter.event;
 
     protected toDisposeOnRender = new DisposableCollection();
@@ -105,7 +105,7 @@ export class NotebookCellToolbarFactory {
                             context: this.notebookContextManager.context
                         });
                 } else if (CommandMenu.is(menuNode)) {
-                    () => menuNode.run(menuPath, itemOptions.commandArgs?.() ?? [])
+                    menuNode.run(menuPath, ...(itemOptions.commandArgs?.() ?? []));
                 };
             },
             isVisible: () => true
