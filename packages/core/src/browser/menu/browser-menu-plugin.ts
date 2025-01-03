@@ -291,7 +291,7 @@ export class DynamicMenuWidget extends MenuWidget {
                         }
                     }
                 } else if (CommandMenu.is(node)) {
-                    const id = `menuCommand:${DynamicMenuWidget.nextCommmandId++}`;
+                    const id = !phCommandRegistry.hasCommand(node.id) ? node.id : `${node.id}:${DynamicMenuWidget.nextCommmandId++}`;
                     phCommandRegistry.addCommand(id, {
                         execute: () => { node.run(nodePath, ...(this.args || [])); },
                         isEnabled: () => node.isEnabled(nodePath, ...(this.args || [])),
