@@ -158,7 +158,8 @@ export class ElectronMainMenuFactory extends BrowserMainMenuFactory {
         return undefined;
     }
 
-    createElectronContextMenu(menuPath: MenuPath, menu: CompoundMenuNode, contextMatcher: ContextMatcher, args?: any[], context?: HTMLElement, skipSingleRootNode?: boolean): MenuDto[] {
+    createElectronContextMenu(menuPath: MenuPath, menu: CompoundMenuNode, contextMatcher: ContextMatcher, args?: any[],
+        context?: HTMLElement, skipSingleRootNode?: boolean): MenuDto[] {
         return this.fillMenuTemplate([], menuPath, menu, args, contextMatcher, { showDisabled: true, context }, true);
     }
 
@@ -221,7 +222,7 @@ export class ElectronMainMenuFactory extends BrowserMainMenuFactory {
                     const wasToggled = menuItem.checked;
                     await menu.run(menuPath, ...args);
                     const isToggled = menu.isToggled(menuPath, ...args);
-                    if (isToggled != wasToggled) {
+                    if (isToggled !== wasToggled) {
                         menuItem.type = isToggled ? 'checkbox' : 'normal';
                         menuItem.checked = isToggled;
                         window.electronTheiaCore.setMenu(this.menu);

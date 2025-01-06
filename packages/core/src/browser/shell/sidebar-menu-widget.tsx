@@ -152,7 +152,7 @@ export class SidebarMenuWidget extends ReactWidget {
     protected onClick(e: React.MouseEvent<HTMLElement, MouseEvent>, menuPath: MenuPath): void {
         this.preservingContext = true;
         const button = e.currentTarget.getBoundingClientRect();
-        const menu = this.menuRegistry.getMenuNode(menuPath) as CompoundMenuNode
+        const menu = this.menuRegistry.getMenuNode(menuPath) as CompoundMenuNode;
         this.contextMenuRenderer.render({
             menuPath: menuPath,
             menu: menu,

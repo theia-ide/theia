@@ -33,7 +33,7 @@ import { CodeEditorWidgetUtil, ContributionPoint } from './vscode-theia-menu-map
 import { TestItem, TestMessage } from '@theia/test/lib/browser/test-service';
 
 export type ArgumentAdapter = (...args: unknown[]) => unknown[];
-function identity(...args: unknown[]) {
+function identity(...args: unknown[]): unknown[] {
     return args;
 }
 @injectable()

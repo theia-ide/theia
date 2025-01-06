@@ -495,7 +495,10 @@ export class ReviewComment<P extends ReviewComment.Props = ReviewComment.Props> 
                     <div className={'theia-comments-inline-actions-container'}>
                         <div className={'theia-comments-inline-actions'} role={'toolbar'}>
                             {hover && menus.getMenu(COMMENT_TITLE).children.map((node, index): React.ReactNode => CommandMenu.is(node) &&
-                                <CommentsInlineAction key={index} {...{ node, nodePath: [...COMMENT_TITLE, node.id], commands, commentThread, commentUniqueId, contextKeyService, commentsContext }} />)}
+                                <CommentsInlineAction key={index} {...{
+                                    node, nodePath: [...COMMENT_TITLE, node.id], commands, commentThread, commentUniqueId,
+                                    contextKeyService, commentsContext
+                                }} />)}
                         </div>
                     </div>
                 </div>

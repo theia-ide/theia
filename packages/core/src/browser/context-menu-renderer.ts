@@ -89,7 +89,8 @@ export abstract class ContextMenuRenderer {
             menu = MenuModelRegistry.removeSingleRootNode(menu);
         }
 
-        const access = this.doRender(options.menuPath, menu, resolvedOptions.anchor, options.contextKeyService || this.contextKeyService, resolvedOptions.args, resolvedOptions.context, resolvedOptions.onHide);
+        const access = this.doRender(options.menuPath, menu, resolvedOptions.anchor, options.contextKeyService || this.contextKeyService, resolvedOptions.args,
+            resolvedOptions.context, resolvedOptions.onHide);
         this.setCurrent(access);
         return access;
     }

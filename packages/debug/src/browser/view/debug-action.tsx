@@ -32,7 +32,7 @@ export class DebugAction extends React.Component<DebugAction.Props> {
         return <span tabIndex={0}
             className={classNames.join(' ')}
             title={label}
-            onClick={() => { this.props.run([]) }}
+            onClick={() => { this.props.run([]); }}
             ref={this.setRef} >
             {!iconClass && <div>{label}</div>}
         </span>;

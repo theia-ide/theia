@@ -265,14 +265,14 @@ export class PlaceholderMenuNode implements CommandMenu {
 
     constructor(readonly id: string, public readonly label: string, readonly order?: string, readonly icon?: string) { }
 
-    isEnabled(effectiveMenuPath: MenuPath, ...args: any[]): boolean {
+    isEnabled(effectiveMenuPath: MenuPath, ...args: unknown[]): boolean {
         return false;
     }
 
     isToggled(effectiveMenuPath: MenuPath): boolean {
         return false;
     }
-    run(effectiveMenuPath: MenuPath, ...args: any[]): Promise<void> {
+    run(effectiveMenuPath: MenuPath, ...args: unknown[]): Promise<void> {
         throw new Error('Should never happen');
     }
     getAccelerator(context: HTMLElement | undefined): string[] {
@@ -283,7 +283,7 @@ export class PlaceholderMenuNode implements CommandMenu {
         return this.order || this.label;
     }
 
-    isVisible<T>(effectiveMenuPath: MenuPath, contextMatcher: ContextExpressionMatcher<T>, context: T | undefined, ...args: any[]): boolean {
+    isVisible<T>(effectiveMenuPath: MenuPath, contextMatcher: ContextExpressionMatcher<T>, context: T | undefined, ...args: unknown[]): boolean {
         return true;
     }
 

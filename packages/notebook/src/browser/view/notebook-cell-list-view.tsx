@@ -255,7 +255,7 @@ export class NotebookCellListView extends React.Component<CellListProps, Noteboo
         this.setState({ ...this.state, dragOverIndicator: undefined });
     }
 
-    protected onAddNewCell(handler: (...args: any[]) => void, index: number): void {
+    protected onAddNewCell(handler: (...args: unknown[]) => void, index: number): void {
         if (this.isEnabled()) {
             this.props.commandRegistry.executeCommand(NotebookCommands.CHANGE_SELECTED_CELL.id, index - 1);
             handler(
@@ -276,7 +276,7 @@ export class NotebookCellListView extends React.Component<CellListProps, Noteboo
 
 export interface NotebookCellDividerProps {
     isVisible: () => boolean;
-    onAddNewCell: (createCommand: (...args: any[]) => void) => void;
+    onAddNewCell: (createCommand: (...args: unknown[]) => void) => void;
     onDrop: (event: React.DragEvent<HTMLLIElement>) => void;
     onDragOver: (event: React.DragEvent<HTMLLIElement>) => void;
     menuRegistry: MenuModelRegistry;
@@ -289,7 +289,7 @@ export function NotebookCellDivider({ isVisible, onAddNewCell, onDrop, onDragOve
     const menuItems: CommandMenu[] = menuRegistry.getMenu(menuPath).children.filter(item => CommandMenu.is(item)).map(item => item as CommandMenu);
 
     const renderItem = (item: CommandMenu): React.ReactNode => {
-        const execute = (...args: any[]) => {
+        const execute = (...args: unknown[]) => {
             if (CommandMenu.is(item)) {
                 item.run([...menuPath, item.id], ...args);
             }
@@ -302,7 +302,7 @@ export function NotebookCellDivider({ isVisible, onAddNewCell, onDrop, onDragOve
         >
             <div className={item.icon + ' theia-notebook-add-cell-button-icon'} />
             <div className='theia-notebook-add-cell-button-text'>{item.label}</div>
-        </button>
+        </button>;
     };
 
     return <li className='theia-notebook-cell-divider' onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} onDrop={onDrop} onDragOver={onDragOver}>
