@@ -130,7 +130,7 @@ export class NotebookMainToolbar extends React.Component<NotebookMainToolbarProp
     protected renderContextMenu(event: MouseEvent, menuItems: readonly MenuNode[]): void {
         const hiddenItems = menuItems.slice(menuItems.length - this.calculateNumberOfHiddenItems(menuItems));
 
-        const menu = new GroupImpl(this.props.contextKeyService, NotebookMenus.NOTEBOOK_MAIN_TOOLBAR_HIDDEN_ITEMS_CONTEXT_MENU[0]);
+        const menu = new GroupImpl(NotebookMenus.NOTEBOOK_MAIN_TOOLBAR_HIDDEN_ITEMS_CONTEXT_MENU[0]);
 
         hiddenItems.forEach(item => menu.addNode(item));
 

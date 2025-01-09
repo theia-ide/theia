@@ -32,7 +32,7 @@ export class BrowserMenuNodeFactory implements MenuNodeFactory {
     protected readonly keybindingRegistry: KeybindingRegistry;
 
     createGroup(id: string, orderString?: string, when?: string): Group & MutableCompoundMenuNode {
-        return new GroupImpl(this.contextKeyService, id, orderString, when);
+        return new GroupImpl(id, orderString, when);
     }
 
     createCommandMenu(item: MenuAction): CommandMenu {
@@ -40,7 +40,7 @@ export class BrowserMenuNodeFactory implements MenuNodeFactory {
     }
     createSubmenu(id: string, label: string, contextKeyOverlays: Record<string, string> | undefined, orderString?: string, icon?: string, when?: string):
         Submenu & MutableCompoundMenuNode {
-        return new SubmenuImpl(this.contextKeyService, id, label, contextKeyOverlays, orderString, icon, when);
+        return new SubmenuImpl(id, label, contextKeyOverlays, orderString, icon, when);
     }
     createSubmenuLink(delegate: Submenu, sortString?: string, when?: string): MenuNode {
         return new SubMenuLink(delegate, sortString, when);

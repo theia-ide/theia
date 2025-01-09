@@ -341,7 +341,7 @@ export class ViewContainer extends BaseWidget implements StatefulWidget, Applica
 
     protected updateToolbarItems(allParts: ViewContainerPart[]): void {
         if (allParts.length > 1) {
-            const group = new SubmenuImpl(this.contextKeyService, `toggleParts-${this.id}`, this.getToggleVisibilityGroupLabel(), undefined);
+            const group = new SubmenuImpl(`toggleParts-${this.id}`, this.getToggleVisibilityGroupLabel(), undefined);
             for (const part of allParts) {
                 const existingId = this.toggleVisibilityCommandId(part);
                 const { label } = part.wrapped.title;

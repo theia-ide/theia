@@ -14,7 +14,6 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { ContextKeyService } from '../context-key-service';
 import { CompoundMenuNode, ContextExpressionMatcher, Group, MenuNode, MenuPath, Submenu } from '../../common/menu/menu-types';
 import { Event } from '../../common';
 
@@ -45,7 +44,6 @@ export abstract class AbstractCompoundMenuImpl implements MenuNode {
     readonly children: MenuNode[] = [];
 
     protected constructor(
-        protected readonly contextKeyService: ContextKeyService,
         readonly id: string,
         protected readonly orderString?: string,
         protected readonly when?: string
@@ -58,7 +56,7 @@ export abstract class AbstractCompoundMenuImpl implements MenuNode {
         }
         let child = this.getNode(menuPath[pathIndex]);
         if (!child) {
-            child = new GroupImpl(this.contextKeyService, menuPath[pathIndex]);
+            child = new GroupImpl(menuPath[pathIndex]);
             this.addNode(child);
         }
         if (child instanceof AbstractCompoundMenuImpl) {
@@ -117,19 +115,17 @@ export abstract class AbstractCompoundMenuImpl implements MenuNode {
 
 export class GroupImpl extends AbstractCompoundMenuImpl implements Group {
     constructor(
-        contextKeyService: ContextKeyService,
         id: string,
         orderString?: string,
         when?: string
     ) {
-        super(contextKeyService, id, orderString, when);
+        super(id, orderString, when);
     }
 }
 
 export class SubmenuImpl extends AbstractCompoundMenuImpl implements Submenu {
 
     constructor(
-        contextKeyService: ContextKeyService,
         id: string,
         readonly label: string,
         readonly contextKeyOverlays: Record<string, string> | undefined,
@@ -137,7 +133,7 @@ export class SubmenuImpl extends AbstractCompoundMenuImpl implements Submenu {
         readonly icon?: string,
         when?: string,
     ) {
-        super(contextKeyService, id, orderString, when);
+        super(id, orderString, when);
     }
 }
 

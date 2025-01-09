@@ -158,7 +158,7 @@ export class TabBarToolbar extends ReactWidget {
         this.addClass('menu-open');
         toDisposeOnHide.push(Disposable.create(() => this.removeClass('menu-open')));
 
-        const menu = new GroupImpl(this.contextKeyService, 'contextMenu');
+        const menu = new GroupImpl('contextMenu');
         for (const item of this.more.values()) {
             if (item.toMenuNode) {
                 const node = item.toMenuNode();
