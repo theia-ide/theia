@@ -102,9 +102,8 @@ export namespace RenderedMenuNode {
     }
 }
 
-export interface CommandMenu extends MenuNode, RenderedMenuNode, Action {
+export type CommandMenu = MenuNode & RenderedMenuNode & Action;
 
-}
 export namespace CommandMenu {
     export function is(node: MenuNode): node is CommandMenu {
         return RenderedMenuNode.is(node) && Action.is(node);
@@ -120,7 +119,7 @@ export namespace Group {
 
 export type Submenu = CompoundMenuNode & RenderedMenuNode;
 
-export type CompoundMenuNode = MenuNode & {
+export interface CompoundMenuNode extends MenuNode {
     children: MenuNode[];
     contextKeyOverlays?: Record<string, string>;
     /**

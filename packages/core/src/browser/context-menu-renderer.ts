@@ -89,13 +89,20 @@ export abstract class ContextMenuRenderer {
             menu = MenuModelRegistry.removeSingleRootNode(menu);
         }
 
-        const access = this.doRender(options.menuPath, menu, resolvedOptions.anchor, options.contextKeyService || this.contextKeyService, resolvedOptions.args,
-            resolvedOptions.context, resolvedOptions.onHide);
+        const access = this.doRender({
+            menuPath: options.menuPath,
+            menu,
+            anchor: resolvedOptions.anchor,
+            contextMatcher: options.contextKeyService || this.contextKeyService,
+            args: resolvedOptions.args,
+            context: resolvedOptions.context,
+            onHide: resolvedOptions.onHide
+        });
         this.setCurrent(access);
         return access;
     }
 
-    protected abstract doRender(
+    protected abstract doRender(params: {
         menuPath: MenuPath,
         menu: CompoundMenuNode,
         anchor: Anchor,
@@ -103,7 +110,7 @@ export abstract class ContextMenuRenderer {
         args?: any[],
         context?: HTMLElement,
         onHide?: () => void
-    ): ContextMenuAccess;
+    }): ContextMenuAccess;
 
     protected resolve(options: RenderContextMenuOptions): RenderContextMenuOptions {
         const args: any[] = options.args ? options.args.slice() : [];

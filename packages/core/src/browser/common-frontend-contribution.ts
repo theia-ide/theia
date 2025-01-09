@@ -751,7 +751,7 @@ export class CommonFrontendContribution implements FrontendApplicationContributi
             commandId: CommonCommands.SELECT_ICON_THEME.id
         });
 
-        registry.registerSubmenu(CommonMenus.MANAGE_SETTINGS_THEMES, nls.localizeByDefault('Themes'), 'a50');
+        registry.registerSubmenu(CommonMenus.MANAGE_SETTINGS_THEMES, nls.localizeByDefault('Themes'), { sortString: 'a50' });
         registry.registerMenuAction(CommonMenus.MANAGE_SETTINGS_THEMES, {
             commandId: CommonCommands.SELECT_COLOR_THEME.id,
             order: '0'

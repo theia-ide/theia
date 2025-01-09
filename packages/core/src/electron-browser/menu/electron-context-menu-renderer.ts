@@ -104,29 +104,31 @@ export class ElectronContextMenuRenderer extends BrowserContextMenuRenderer {
         this.useNativeStyle = await window.electronTheiaCore.getTitleBarStyleAtStartup() === 'native';
     }
 
-    protected override doRender(menuPath: MenuPath, menu: CompoundMenuNode,
+    protected override doRender(params: {
+        menuPath: MenuPath,
+        menu: CompoundMenuNode,
         anchor: Anchor,
         contextMatcher: ContextMatcher,
         args?: any,
         context?: HTMLElement,
         onHide?: () => void
-    ): ContextMenuAccess {
+    }): ContextMenuAccess {
         if (this.useNativeStyle) {
-            const contextMenu = this.electronMenuFactory.createElectronContextMenu(menuPath, menu, contextMatcher, args, context);
-            const { x, y } = coordinateFromAnchor(anchor);
+            const contextMenu = this.electronMenuFactory.createElectronContextMenu(params.menuPath, params.menu, params.contextMatcher, params.args, params.context);
+            const { x, y } = coordinateFromAnchor(params.anchor);
 
-            const windowName = context?.ownerDocument.defaultView?.Window.name;
+            const windowName = params.context?.ownerDocument.defaultView?.Window.name;
 
             const menuHandle = window.electronTheiaCore.popup(contextMenu, x, y, () => {
-                if (onHide) {
-                    onHide();
+                if (params.onHide) {
+                    params.onHide();
                 }
             }, windowName);
             // native context menu stops the event loop, so there is no keyboard events
             this.context.resetAltPressed();
             return new ElectronContextMenuAccess(menuHandle);
         } else {
-            const menuAccess = super.doRender(menuPath, menu, anchor, contextMatcher, args, context, onHide);
+            const menuAccess = super.doRender(params);
             const node = (menuAccess as BrowserContextMenuAccess).menu.node;
             const topPanelHeight = document.getElementById('theia-top-panel')?.clientHeight ?? 0;
             // ensure the context menu is not displayed outside of the main area

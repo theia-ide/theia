@@ -275,12 +275,16 @@ export class TestViewContribution extends AbstractViewContribution<TestTreeWidge
             order: 'aaaaa'
         });
 
-        menus.registerSubmenu([...PLUGIN_TEST_VIEW_TITLE_MENU, TestViewCommands.RUN_ALL_TESTS.id], '', undefined, undefined, undefined, {
-            'testing.profile.context.group': 'run'
+        menus.registerSubmenu([...PLUGIN_TEST_VIEW_TITLE_MENU, TestViewCommands.RUN_ALL_TESTS.id], '', {
+            contextKeyOverlay: {
+                'testing.profile.context.group': 'run'
+            }
         });
 
-        menus.registerSubmenu([...PLUGIN_TEST_VIEW_TITLE_MENU, TestViewCommands.DEBUG_ALL_TESTS.id], '', undefined, undefined, undefined, {
-            'testing.profile.context.group': 'debug'
+        menus.registerSubmenu([...PLUGIN_TEST_VIEW_TITLE_MENU, TestViewCommands.DEBUG_ALL_TESTS.id], '', {
+            contextKeyOverlay: {
+                'testing.profile.context.group': 'debug'
+            }
         });
     }
 

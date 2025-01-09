@@ -15,10 +15,24 @@
 // *****************************************************************************
 
 import * as chai from 'chai';
-import { CommandContribution, CommandRegistry, CompoundMenuNode, MenuContribution, MenuModelRegistry, Submenu } from '../../common';
+import { CommandContribution, CommandMenu, CommandRegistry, CompoundMenuNode, MenuAction, MenuContribution, MenuModelRegistry, Submenu } from '../../common';
 import { BrowserMenuNodeFactory } from './browser-menu-node-factory';
 
 const expect = chai.expect;
+
+class TestMenuNodeFactory extends BrowserMenuNodeFactory {
+    override createCommandMenu(item: MenuAction): CommandMenu {
+        return {
+            isVisible: () => true,
+            isEnabled: () => true,
+            isToggled: () => false,
+            id: item.commandId,
+            label: item.label || '',
+            sortString: item.order || '',
+            run: () => Promise.resolve()
+        };
+    }
+}
 
 describe('menu-model-registry', () => {
 
@@ -69,9 +83,9 @@ describe('menu-model-registry', () => {
                 registerMenus(menuRegistry: MenuModelRegistry): void {
                     menuRegistry.registerSubmenu(fileMenu, 'File');
                     // open menu should not be added to open menu
-                    menuRegistry.linkCompoundMenuNode(fileOpenMenu, fileOpenMenu);
+                    menuRegistry.linkCompoundMenuNode({ newParentPath: fileOpenMenu, submenuPath: fileOpenMenu });
                     // close menu should be added
-                    menuRegistry.linkCompoundMenuNode(fileOpenMenu, fileCloseMenu);
+                    menuRegistry.linkCompoundMenuNode({ newParentPath: fileOpenMenu, submenuPath: fileCloseMenu });
                 }
             }, {
                 registerCommands(reg: CommandRegistry): void { }
@@ -85,7 +99,7 @@ describe('menu-model-registry', () => {
 function createMenuRegistry(menuContrib: MenuContribution, commandContrib: CommandContribution): MenuModelRegistry {
     const cmdReg = new CommandRegistry({ getContributions: () => [commandContrib] });
     cmdReg.onStart();
-    const menuReg = new MenuModelRegistry({ getContributions: () => [menuContrib] }, cmdReg, new BrowserMenuNodeFactory());
+    const menuReg = new MenuModelRegistry({ getContributions: () => [menuContrib] }, cmdReg, new TestMenuNodeFactory());
     menuReg.onStart();
     return menuReg;
 }

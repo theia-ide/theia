@@ -233,13 +233,18 @@ export class NotebookCellActionContribution implements MenuContribution, Command
         menus.registerSubmenu(
             NotebookCellActionContribution.ADDITIONAL_ACTION_MENU,
             nls.localizeByDefault('More'),
-            '30',
-            codicon('ellipsis'),
+            {
+                sortString: '30',
+                icon: codicon('ellipsis')
+            }
         );
 
         menus.registerSubmenu(NotebookCellActionContribution.CONTRIBUTED_CELL_ACTION_MENU, '');
         // since contributions are adding to an independent submenu we have to manually add it to the more submenu
-        menus.linkCompoundMenuNode(NotebookCellActionContribution.ADDITIONAL_ACTION_MENU, NotebookCellActionContribution.CONTRIBUTED_CELL_ACTION_MENU);
+        menus.linkCompoundMenuNode({
+            newParentPath: NotebookCellActionContribution.ADDITIONAL_ACTION_MENU,
+            submenuPath: NotebookCellActionContribution.CONTRIBUTED_CELL_ACTION_MENU
+        });
 
         // code cell sidebar menu
         menus.registerMenuAction(NotebookCellActionContribution.CODE_CELL_SIDEBAR_MENU, {
@@ -258,16 +263,14 @@ export class NotebookCellActionContribution implements MenuContribution, Command
         // Notebook Cell extra execution options
         menus.registerSubmenu(NotebookCellActionContribution.CONTRIBUTED_CELL_EXECUTION_MENU,
             nls.localizeByDefault('More...'),
-            undefined,
-            codicon('chevron-down'));
+            { icon: codicon('chevron-down') });
         // menus.getMenu(NotebookCellActionContribution.CODE_CELL_SIDEBAR_MENU).addNode(menus.getMenuNode(NotebookCellActionContribution.CONTRIBUTED_CELL_EXECUTION_MENU));
 
         // code cell output sidebar menu
         menus.registerSubmenu(
             NotebookCellActionContribution.ADDITIONAL_OUTPUT_SIDEBAR_MENU,
             nls.localizeByDefault('More'),
-            undefined,
-            codicon('ellipsis'),
+            { icon: codicon('ellipsis') }
         );
         menus.registerMenuAction(NotebookCellActionContribution.ADDITIONAL_OUTPUT_SIDEBAR_MENU, {
             commandId: NotebookCellCommands.CLEAR_OUTPUTS_COMMAND.id,

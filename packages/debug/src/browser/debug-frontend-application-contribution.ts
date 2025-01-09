@@ -641,7 +641,7 @@ export class DebugFrontendApplicationContribution extends AbstractViewContributi
             { ...DebugEditorContextCommands.DISABLE_LOGPOINT, label: nlsDisableBreakpoint('Logpoint') },
             { ...DebugEditorContextCommands.JUMP_TO_CURSOR, label: nls.localizeByDefault('Jump to Cursor') }
         );
-        menus.linkCompoundMenuNode(EDITOR_LINENUMBER_CONTEXT_MENU, DebugEditorModel.CONTEXT_MENU);
+        menus.linkCompoundMenuNode({ newParentPath: EDITOR_LINENUMBER_CONTEXT_MENU, submenuPath: DebugEditorModel.CONTEXT_MENU });
 
         menus.registerSubmenu(DebugToolBar.MENU, 'Debug Toolbar Menu');
     }

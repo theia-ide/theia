@@ -33,21 +33,22 @@ export class BrowserContextMenuAccess extends ContextMenuAccess {
 export class BrowserContextMenuRenderer extends ContextMenuRenderer {
     @inject(BrowserMainMenuFactory) private menuFactory: BrowserMainMenuFactory;
 
-    protected doRender(menuPath: MenuPath,
+    protected doRender(params: {
+        menuPath: MenuPath,
         menu: CompoundMenuNode,
         anchor: Anchor,
         contextMatcher: ContextMatcher,
         args?: unknown[],
         context?: HTMLElement,
         onHide?: () => void
-    ): ContextMenuAccess {
-        const contextMenu = this.menuFactory.createContextMenu(menuPath, menu, contextMatcher, args, context);
-        const { x, y } = coordinateFromAnchor(anchor);
-        if (onHide) {
-            contextMenu.aboutToClose.connect(() => onHide!());
+    }): ContextMenuAccess {
+        const contextMenu = this.menuFactory.createContextMenu(params.menuPath, params.menu, params.contextMatcher, params.args, params.context);
+        const { x, y } = coordinateFromAnchor(params.anchor);
+        if (params.onHide) {
+            contextMenu.aboutToClose.connect(() => params.onHide!());
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        contextMenu.open(x, y, undefined, context);
+        contextMenu.open(x, y, undefined, params.context);
         return new BrowserContextMenuAccess(contextMenu);
     }
 

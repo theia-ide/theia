@@ -739,7 +739,7 @@ export class TerminalFrontendContribution implements FrontendApplicationContribu
 
         menus.registerSubmenu(TerminalMenus.TERMINAL_CONTRIBUTIONS, '');
 
-        menus.registerSubmenu(TerminalMenus.TERMINAL_TITLE_CONTRIBUTIONS, '', undefined, undefined, 'isTerminalTab');
+        menus.registerSubmenu(TerminalMenus.TERMINAL_TITLE_CONTRIBUTIONS, '', { when: 'isTerminalTab' });
     }
 
     registerToolbarItems(toolbar: TabBarToolbarRegistry): void {

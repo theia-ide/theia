@@ -159,7 +159,10 @@ export class MenuModelRegistry {
      * Note that if the menu already existed and was registered with a different label an error
      * will be thrown.
      */
-    registerSubmenu(menuPath: MenuPath, label: string, sortString?: string, icon?: string, when?: string, contextKeyOverlay?: Record<string, string>): Disposable {
+    registerSubmenu(menuPath: MenuPath, label: string,
+        options: { sortString?: string, icon?: string, when?: string, contextKeyOverlay?: Record<string, string> } = {}): Disposable {
+        const { contextKeyOverlay, sortString, icon, when } = options;
+
         const parent = this.root.getOrCreate(menuPath, 0, menuPath.length - 1);
         const existing = parent.children.find(node => node.id === menuPath[menuPath.length - 1]);
         if (Group.is(existing)) {
@@ -181,7 +184,8 @@ export class MenuModelRegistry {
         }
     }
 
-    linkCompoundMenuNode(newParentPath: MenuPath, submenuPath: MenuPath, order?: string, when?: string): Disposable {
+    linkCompoundMenuNode(params: { newParentPath: MenuPath, submenuPath: MenuPath, order?: string, when?: string }): Disposable {
+        const { newParentPath, submenuPath, order, when } = params;
         // add a wrapper here
         let i = 0;
         while (i < newParentPath.length && i < submenuPath.length && newParentPath[i] === submenuPath[i]) {

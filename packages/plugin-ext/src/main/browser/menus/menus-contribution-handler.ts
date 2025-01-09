@@ -81,7 +81,7 @@ export class MenusContributionPointHandler {
         const submenus = plugin.contributes?.submenus ?? [];
         for (const submenu of submenus) {
             const iconClass = submenu.icon && this.toIconClass(submenu.icon, toDispose);
-            this.menuRegistry.registerSubmenu([submenu.id], submenu.label, undefined, iconClass);
+            this.menuRegistry.registerSubmenu([submenu.id], submenu.label, { icon: iconClass });
         }
 
         for (const [contributionPoint, items] of Object.entries(allMenus)) {
@@ -145,7 +145,12 @@ export class MenusContributionPointHandler {
                                 toDispose.push(this.menuRegistry.registerCommandMenu(menuPath, action));
                             });
                         } else if (submenu) {
-                            targets.forEach(target => toDispose.push(this.menuRegistry.linkCompoundMenuNode(group ? [...target, group] : target, [submenu!], order, item.when)));
+                            targets.forEach(target => toDispose.push(this.menuRegistry.linkCompoundMenuNode({
+                                newParentPath: group ? [...target, group] : target,
+                                submenuPath: [submenu!],
+                                order: order,
+                                when: item.when
+                            })));
                         }
                     }
                 } catch (error) {
