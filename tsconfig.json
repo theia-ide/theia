@@ -1,0 +1,253 @@
+{
+  "extends": "./configs/base.tsconfig.json",
+  "include": [],
+  "compilerOptions": {
+    "composite": true,
+    "allowJs": true
+  },
+  "references": [
+    {
+      "path": "dev-packages/application-manager"
+    },
+    {
+      "path": "dev-packages/application-package"
+    },
+    {
+      "path": "dev-packages/cli"
+    },
+    {
+      "path": "dev-packages/ffmpeg"
+    },
+    {
+      "path": "dev-packages/localization-manager"
+    },
+    {
+      "path": "dev-packages/native-webpack-plugin"
+    },
+    {
+      "path": "dev-packages/ovsx-client"
+    },
+    {
+      "path": "dev-packages/private-eslint-plugin"
+    },
+    {
+      "path": "dev-packages/private-re-exports"
+    },
+    {
+      "path": "dev-packages/request"
+    },
+    {
+      "path": "examples/api-provider-sample"
+    },
+    {
+      "path": "examples/api-samples"
+    },
+    {
+      "path": "examples/browser"
+    },
+    {
+      "path": "examples/browser-only"
+    },
+    {
+      "path": "examples/electron"
+    },
+    {
+      "path": "examples/playwright"
+    },
+    {
+      "path": "packages/ai-anthropic"
+    },
+    {
+      "path": "packages/ai-chat"
+    },
+    {
+      "path": "packages/ai-chat-ui"
+    },
+    {
+      "path": "packages/ai-code-completion"
+    },
+    {
+      "path": "packages/ai-core"
+    },
+    {
+      "path": "packages/ai-history"
+    },
+    {
+      "path": "packages/ai-hugging-face"
+    },
+    {
+      "path": "packages/ai-llamafile"
+    },
+    {
+      "path": "packages/ai-mcp"
+    },
+    {
+      "path": "packages/ai-ollama"
+    },
+    {
+      "path": "packages/ai-openai"
+    },
+    {
+      "path": "packages/ai-scanoss"
+    },
+    {
+      "path": "packages/ai-terminal"
+    },
+    {
+      "path": "packages/ai-workspace-agent"
+    },
+    {
+      "path": "packages/bulk-edit"
+    },
+    {
+      "path": "packages/callhierarchy"
+    },
+    {
+      "path": "packages/collaboration"
+    },
+    {
+      "path": "packages/console"
+    },
+    {
+      "path": "packages/core"
+    },
+    {
+      "path": "packages/debug"
+    },
+    {
+      "path": "packages/dev-container"
+    },
+    {
+      "path": "packages/editor"
+    },
+    {
+      "path": "packages/editor-preview"
+    },
+    {
+      "path": "packages/external-terminal"
+    },
+    {
+      "path": "packages/file-search"
+    },
+    {
+      "path": "packages/filesystem"
+    },
+    {
+      "path": "packages/getting-started"
+    },
+    {
+      "path": "packages/git"
+    },
+    {
+      "path": "packages/keymaps"
+    },
+    {
+      "path": "packages/markers"
+    },
+    {
+      "path": "packages/memory-inspector"
+    },
+    {
+      "path": "packages/messages"
+    },
+    {
+      "path": "packages/metrics"
+    },
+    {
+      "path": "packages/mini-browser"
+    },
+    {
+      "path": "packages/monaco"
+    },
+    {
+      "path": "packages/navigator"
+    },
+    {
+      "path": "packages/notebook"
+    },
+    {
+      "path": "packages/outline-view"
+    },
+    {
+      "path": "packages/output"
+    },
+    {
+      "path": "packages/plugin"
+    },
+    {
+      "path": "packages/plugin-dev"
+    },
+    {
+      "path": "packages/plugin-ext"
+    },
+    {
+      "path": "packages/plugin-ext-headless"
+    },
+    {
+      "path": "packages/plugin-ext-vscode"
+    },
+    {
+      "path": "packages/plugin-metrics"
+    },
+    {
+      "path": "packages/preferences"
+    },
+    {
+      "path": "packages/preview"
+    },
+    {
+      "path": "packages/process"
+    },
+    {
+      "path": "packages/property-view"
+    },
+    {
+      "path": "packages/remote"
+    },
+    {
+      "path": "packages/scanoss"
+    },
+    {
+      "path": "packages/scm"
+    },
+    {
+      "path": "packages/scm-extra"
+    },
+    {
+      "path": "packages/search-in-workspace"
+    },
+    {
+      "path": "packages/secondary-window"
+    },
+    {
+      "path": "packages/task"
+    },
+    {
+      "path": "packages/terminal"
+    },
+    {
+      "path": "packages/test"
+    },
+    {
+      "path": "packages/timeline"
+    },
+    {
+      "path": "packages/toolbar"
+    },
+    {
+      "path": "packages/typehierarchy"
+    },
+    {
+      "path": "packages/userstorage"
+    },
+    {
+      "path": "packages/variable-resolver"
+    },
+    {
+      "path": "packages/vsx-registry"
+    },
+    {
+      "path": "packages/workspace"
+    }
+  ]
+}
