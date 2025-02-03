@@ -28,7 +28,8 @@ export class TheiaToolbarItem extends TheiaPageObject {
     }
 
     async isEnabled(): Promise<boolean> {
-        const classAttribute = await this.element.getAttribute('class');
+        const child = await this.element.$(':first-child');
+        const classAttribute = child && await child.getAttribute('class');
         if (classAttribute === undefined || classAttribute === null) {
             return false;
         }
