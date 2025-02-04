@@ -59,6 +59,14 @@ For example:
 }
 ```
 
+### v1.59.0
+
+#### Refactor menu nodes [#14676](https://github.com/eclipse-theia/theia/pull/14676)
+
+This PR makes menu nodes and tab toolbar items into active object instead of pure data descriptors. This means they can polymorphically handle concerns like enablement, visibility, command execution and rendering. This keeps concerns like conversion of parameters out of the general tool bar and menu handling code. In this way, we could get rid of the MenuCommandExecutor and MenuCommandAdapter infrastructure.
+If you are simply registering toolbar items and menus, little will change for you as a Theia adopter. Mainly, some of the paremeter types have changed in menu-model-registry.ts. Menu registration has been simplified in that an independent submenu is simply a menu that is registered under a path that does not start with the MAIN_MENU_BAR prefix.
+If you override any of the toolbar or menu related implementations in your product, the biggest change will be that some functionality is now delegated to the menu and too bar item implementations. If this breaks your use case, please let us know.
+
 ### v1.38.0
 
 #### Inversify 6.0

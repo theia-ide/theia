@@ -4,6 +4,11 @@
 
 - [Previous Changelogs](https://github.com/eclipse-theia/theia/tree/master/doc/changelogs/)
 
+## 1.59.0
+
+<a name="breaking_changes_1.59.0">[Breaking Changes:](#breaking_changes_1.59.0)</a>
+- [core] Refactor menu nodes [#14676](https://github.com/eclipse-theia/theia/pull/14676) - Contributed on behalf of STMicroelectronics
+
 ## 1.58.0 - 01/30/2025
 
 - [ai] added 'required' property to tool call parameters [#14673](https://github.com/eclipse-theia/theia/pull/14673)
