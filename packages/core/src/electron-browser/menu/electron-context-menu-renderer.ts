@@ -89,9 +89,12 @@ export class ElectronContextMenuRenderer extends BrowserContextMenuRenderer {
     @inject(PreferenceService)
     protected readonly preferenceService: PreferenceService;
 
+    @inject(ElectronMainMenuFactory)
+    protected readonly electronMenuFactory: ElectronMainMenuFactory;
+
     protected useNativeStyle: boolean = true;
 
-    constructor(@inject(ElectronMainMenuFactory) private electronMenuFactory: ElectronMainMenuFactory) {
+    constructor() {
         super();
     }
 
