@@ -38,7 +38,6 @@ export class MenusContributionPointHandler {
     @inject(MenuModelRegistry) private readonly menuRegistry: MenuModelRegistry;
     @inject(CommandRegistry) private readonly commandRegistry: CommandRegistry;
     @inject(TabBarToolbarRegistry) private readonly tabBarToolbar: TabBarToolbarRegistry;
-    @inject(PluginMenuCommandAdapter) protected readonly commandAdapter: PluginMenuCommandAdapter;
     @inject(PluginMenuCommandAdapter) pluginMenuCommandAdapter: PluginMenuCommandAdapter;
     @inject(ContextKeyService) protected readonly contextKeyService: ContextKeyService;
     @inject(PluginSharedStyle) protected readonly style: PluginSharedStyle;
