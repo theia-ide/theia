@@ -18,8 +18,8 @@ import { ConfirmDialog, Dialog, QuickInputService } from '@theia/core/lib/browse
 import { ReactDialog } from '@theia/core/lib/browser/dialogs/react-dialog';
 import { SelectComponent } from '@theia/core/lib/browser/widgets/select-component';
 import {
-    Command, CommandContribution, CommandRegistry, MAIN_MENU_BAR,
-    MenuContribution, MenuModelRegistry, MenuNode, MessageService, SubMenuOptions
+    Command, CommandContribution, CommandMenu, CommandRegistry, ContextExpressionMatcher, MAIN_MENU_BAR,
+    MenuContribution, MenuModelRegistry, MenuPath, MessageService
 } from '@theia/core/lib/common';
 import { inject, injectable, interfaces } from '@theia/core/shared/inversify';
 import * as React from '@theia/core/shared/react';
@@ -226,9 +226,8 @@ export class SampleCommandContribution implements CommandContribution {
 export class SampleMenuContribution implements MenuContribution {
     registerMenus(menus: MenuModelRegistry): void {
         const subMenuPath = [...MAIN_MENU_BAR, 'sample-menu'];
-        menus.registerSubmenu(subMenuPath, 'Sample Menu', {
-            order: '2' // that should put the menu right next to the File menu
-        });
+        menus.registerSubmenu(subMenuPath, 'Sample Menu', { sortString: '2' }); // that should put the menu right next to the File menu
+
         menus.registerMenuAction(subMenuPath, {
             commandId: SampleCommand.id,
             order: '0'
@@ -238,7 +237,7 @@ export class SampleMenuContribution implements MenuContribution {
             order: '2'
         });
         const subSubMenuPath = [...subMenuPath, 'sample-sub-menu'];
-        menus.registerSubmenu(subSubMenuPath, 'Sample sub menu', { order: '2' });
+        menus.registerSubmenu(subSubMenuPath, 'Sample sub menu', { sortString: '2' });
         menus.registerMenuAction(subSubMenuPath, {
             commandId: SampleCommand.id,
             order: '1'
@@ -247,8 +246,8 @@ export class SampleMenuContribution implements MenuContribution {
             commandId: SampleCommand2.id,
             order: '3'
         });
-        const placeholder = new PlaceholderMenuNode([...subSubMenuPath, 'placeholder'].join('-'), 'Placeholder', { order: '0' });
-        menus.registerMenuNode(subSubMenuPath, placeholder);
+        const placeholder = new PlaceholderMenuNode([...subSubMenuPath, 'placeholder'].join('-'), 'Placeholder', '0');
+        menus.registerCommandMenu(subSubMenuPath, placeholder);
 
         /**
          * Register an action menu with an invalid command (un-registered and without a label) in order
@@ -262,16 +261,30 @@ export class SampleMenuContribution implements MenuContribution {
 /**
  * Special menu node that is not backed by any commands and is always disabled.
  */
-export class PlaceholderMenuNode implements MenuNode {
+export class PlaceholderMenuNode implements CommandMenu {
 
-    constructor(readonly id: string, public readonly label: string, protected options?: SubMenuOptions) { }
+    constructor(readonly id: string, public readonly label: string, readonly order?: string, readonly icon?: string) { }
 
-    get icon(): string | undefined {
-        return this.options?.iconClass;
+    isEnabled(effectiveMenuPath: MenuPath, ...args: unknown[]): boolean {
+        return false;
+    }
+
+    isToggled(effectiveMenuPath: MenuPath): boolean {
+        return false;
+    }
+    run(effectiveMenuPath: MenuPath, ...args: unknown[]): Promise<void> {
+        throw new Error('Should never happen');
+    }
+    getAccelerator(context: HTMLElement | undefined): string[] {
+        return [];
     }
 
     get sortString(): string {
-        return this.options?.order || this.label;
+        return this.order || this.label;
+    }
+
+    isVisible<T>(effectiveMenuPath: MenuPath, contextMatcher: ContextExpressionMatcher<T>, context: T | undefined, ...args: unknown[]): boolean {
+        return true;
     }
 
 }

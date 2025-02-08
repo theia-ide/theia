@@ -18,9 +18,10 @@ import { injectable, inject } from 'inversify';
 import * as React from 'react';
 import { ReactWidget } from '../widgets';
 import { ContextMenuRenderer } from '../context-menu-renderer';
-import { MenuPath } from '../../common/menu';
+import { CompoundMenuNode, MenuModelRegistry, MenuPath } from '../../common/menu';
 import { HoverService } from '../hover-service';
 import { Event, Disposable, Emitter, DisposableCollection } from '../../common';
+import { ContextKeyService } from '../context-key-service';
 
 export const SidebarTopMenuWidgetFactory = Symbol('SidebarTopMenuWidgetFactory');
 export const SidebarBottomMenuWidgetFactory = Symbol('SidebarBottomMenuWidgetFactory');
@@ -90,8 +91,14 @@ export class SidebarMenuWidget extends ReactWidget {
     @inject(ContextMenuRenderer)
     protected readonly contextMenuRenderer: ContextMenuRenderer;
 
+    @inject(MenuModelRegistry)
+    protected readonly menuRegistry: MenuModelRegistry;
+
     @inject(HoverService)
     protected readonly hoverService: HoverService;
+
+    @inject(ContextKeyService)
+    protected readonly contextKeyService: ContextKeyService;
 
     constructor() {
         super();
@@ -145,13 +152,16 @@ export class SidebarMenuWidget extends ReactWidget {
     protected onClick(e: React.MouseEvent<HTMLElement, MouseEvent>, menuPath: MenuPath): void {
         this.preservingContext = true;
         const button = e.currentTarget.getBoundingClientRect();
+        const menu = this.menuRegistry.getMenuNode(menuPath) as CompoundMenuNode;
         this.contextMenuRenderer.render({
-            menuPath,
+            menuPath: menuPath,
+            menu: menu,
             includeAnchorArg: false,
             anchor: {
                 x: button.left + button.width,
                 y: button.top,
             },
+            contextKeyService: this.contextKeyService,
             onHide: () => {
                 this.preservingContext = false;
                 if (this.preservedContext) {

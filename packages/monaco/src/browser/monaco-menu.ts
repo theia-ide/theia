@@ -40,16 +40,17 @@ export class MonacoEditorMenuContribution implements MenuContribution {
     ) { }
 
     registerMenus(registry: MenuModelRegistry): void {
+        registry.registerSubmenu(EDITOR_CONTEXT_MENU, 'Editor Context Menu');
         for (const item of MenuRegistry.getMenuItems(MenuId.EditorContext)) {
             if (!isIMenuItem(item)) {
                 continue;
             }
             const commandId = this.commands.validate(item.command.id);
             if (commandId) {
-                const menuPath = [...EDITOR_CONTEXT_MENU, (item.group || '')];
-                const coreId = MonacoCommands.COMMON_ACTIONS.get(commandId);
-                if (!(coreId && registry.getMenu(menuPath).children.some(it => it.id === coreId))) {
-                    // Don't add additional actions if the item is already registered with a core ID.
+                const nodeId = MonacoCommands.COMMON_ACTIONS.get(commandId) || commandId;
+                const menuPath = item.group ? [...EDITOR_CONTEXT_MENU, item.group] : EDITOR_CONTEXT_MENU;
+                if (registry.getMenuNode([...menuPath, nodeId])) {
+                    // Don't add additional actions if the item is already registered.
                     registry.registerMenuAction(menuPath, this.buildMenuAction(commandId, item));
                 }
             }

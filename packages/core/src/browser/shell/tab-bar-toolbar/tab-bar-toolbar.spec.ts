@@ -18,7 +18,7 @@ import { enableJSDOM } from '../../test/jsdom';
 
 let disableJSDOM = enableJSDOM();
 import { expect } from 'chai';
-import { TabBarToolbarItem } from './tab-bar-toolbar-types';
+import { TabBarToolbarAction } from './tab-bar-toolbar-types';
 
 disableJSDOM();
 
@@ -34,27 +34,27 @@ describe('tab-bar-toolbar', () => {
             disableJSDOM();
         });
 
-        const testMe = TabBarToolbarItem.PRIORITY_COMPARATOR;
+        const testMe = TabBarToolbarAction.PRIORITY_COMPARATOR;
 
         it("should favour the 'navigation' group before everything else", () => {
-            expect(testMe({ id: 'a', command: 'a', group: 'navigation' }, { id: 'b', command: 'b', group: 'other' })).to.be.equal(-1);
+            expect(testMe({ group: 'navigation' }, { group: 'other' })).to.be.equal(-1);
         });
 
         it("should treat 'undefined' groups as 'navigation'", () => {
-            expect(testMe({ id: 'a', command: 'a' }, { id: 'b', command: 'b' })).to.be.equal(0);
-            expect(testMe({ id: 'a', command: 'a', group: 'navigation' }, { id: 'b', command: 'b' })).to.be.equal(0);
-            expect(testMe({ id: 'a', command: 'a' }, { id: 'b', command: 'b', group: 'navigation' })).to.be.equal(0);
-            expect(testMe({ id: 'a', command: 'a' }, { id: 'b', command: 'b', group: 'other' })).to.be.equal(-1);
+            expect(testMe({}, {})).to.be.equal(0);
+            expect(testMe({ group: 'navigation' }, {})).to.be.equal(0);
+            expect(testMe({}, { group: 'navigation' })).to.be.equal(0);
+            expect(testMe({}, { group: 'other' })).to.be.equal(-1);
         });
 
         it("should fall back to 'priority' if the groups are the same", () => {
-            expect(testMe({ id: 'a', command: 'a', priority: 1 }, { id: 'b', command: 'b', priority: 2 })).to.be.equal(-1);
-            expect(testMe({ id: 'a', command: 'a', group: 'navigation', priority: 1 }, { id: 'b', command: 'b', priority: 2 })).to.be.equal(-1);
-            expect(testMe({ id: 'a', command: 'a', priority: 1 }, { id: 'b', command: 'b', group: 'navigation', priority: 2 })).to.be.equal(-1);
-            expect(testMe({ id: 'a', command: 'a', priority: 1, group: 'other' }, { id: 'b', command: 'b', priority: 2 })).to.be.equal(1);
-            expect(testMe({ id: 'a', command: 'a', group: 'other', priority: 1 }, { id: 'b', command: 'b', priority: 2, group: 'other' })).to.be.equal(-1);
-            expect(testMe({ id: 'a', command: 'a', priority: 10 }, { id: 'b', command: 'b', group: 'other', priority: 2 })).to.be.equal(-1);
-            expect(testMe({ id: 'a', command: 'a', group: 'other', priority: 10 }, { id: 'b', command: 'b', group: 'other', priority: 10 })).to.be.equal(0);
+            expect(testMe({ priority: 1 }, { priority: 2 })).to.be.equal(-1);
+            expect(testMe({ group: 'navigation', priority: 1 }, { priority: 2 })).to.be.equal(-1);
+            expect(testMe({ priority: 1 }, { group: 'navigation', priority: 2 })).to.be.equal(-1);
+            expect(testMe({ priority: 1, group: 'other' }, { priority: 2 })).to.be.equal(1);
+            expect(testMe({ group: 'other', priority: 1 }, { priority: 2, group: 'other' })).to.be.equal(-1);
+            expect(testMe({ priority: 10 }, { group: 'other', priority: 2 })).to.be.equal(-1);
+            expect(testMe({ group: 'other', priority: 10 }, { group: 'other', priority: 10 })).to.be.equal(0);
         });
 
     });

@@ -15,7 +15,8 @@
 // *****************************************************************************
 
 import { interfaces } from '@theia/core/shared/inversify';
-import { ReactTabBarToolbarItem, RenderedToolbarItem, TabBarToolbar, TabBarToolbarItem } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
+import { ReactTabBarToolbarAction, RenderedToolbarAction, TabBarToolbar } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
+import { TabBarToolbarItem } from '@theia/core/lib/browser/shell/tab-bar-toolbar/tab-toolbar-item';
 
 export enum ToolbarAlignment {
     LEFT = 'left',
@@ -25,7 +26,7 @@ export enum ToolbarAlignment {
 
 export interface ToolbarTreeSchema {
     items: {
-        [key in ToolbarAlignment]: ToolbarItem[][];
+        [key in ToolbarAlignment]: TabBarToolbarItem[][];
     };
 }
 
@@ -44,7 +45,7 @@ export interface ToolbarContributionProperties {
     toJSON(): DeflatedContributedToolbarItem;
 }
 
-export type ToolbarContribution = ReactTabBarToolbarItem & ToolbarContributionProperties;
+export type ToolbarContribution = ReactTabBarToolbarAction & ToolbarContributionProperties;
 
 export const ToolbarContribution = Symbol('ToolbarContribution');
 
@@ -52,9 +53,9 @@ export const Toolbar = Symbol('Toolbar');
 export const ToolbarFactory = Symbol('ToolbarFactory');
 export type Toolbar = TabBarToolbar;
 
-export type ToolbarItem = ToolbarContribution | RenderedToolbarItem;
+export type ToolbarItem = ToolbarContribution | RenderedToolbarAction;
 export interface DeflatedContributedToolbarItem { id: string; group: 'contributed' };
-export type ToolbarItemDeflated = DeflatedContributedToolbarItem | TabBarToolbarItem;
+export type ToolbarItemDeflated = DeflatedContributedToolbarItem | RenderedToolbarAction;
 
 export const LateInjector = Symbol('LateInjector');
 

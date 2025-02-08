@@ -19,10 +19,14 @@ import { FrontendApplicationContribution } from '../frontend-application-contrib
 import { ContextMenuRenderer } from '../context-menu-renderer';
 import { BrowserMenuBarContribution, BrowserMainMenuFactory } from './browser-menu-plugin';
 import { BrowserContextMenuRenderer } from './browser-context-menu-renderer';
+import { BrowserMenuNodeFactory } from './browser-menu-node-factory';
+import { MenuNodeFactory } from '../../common';
 
 export default new ContainerModule(bind => {
     bind(BrowserMainMenuFactory).toSelf().inSingletonScope();
     bind(ContextMenuRenderer).to(BrowserContextMenuRenderer).inSingletonScope();
     bind(BrowserMenuBarContribution).toSelf().inSingletonScope();
     bind(FrontendApplicationContribution).toService(BrowserMenuBarContribution);
+    bind(BrowserMenuNodeFactory).toSelf().inSingletonScope();
+    bind(MenuNodeFactory).toService(BrowserMenuNodeFactory);
 });

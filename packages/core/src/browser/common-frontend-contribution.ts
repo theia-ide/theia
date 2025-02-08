@@ -18,7 +18,7 @@
 
 import debounce = require('lodash.debounce');
 import { injectable, inject, optional } from 'inversify';
-import { MAIN_MENU_BAR, MANAGE_MENU, MenuContribution, MenuModelRegistry, ACCOUNTS_MENU } from '../common/menu';
+import { MAIN_MENU_BAR, MANAGE_MENU, MenuContribution, MenuModelRegistry, ACCOUNTS_MENU, CompoundMenuNode, CommandMenu, Group, Submenu } from '../common/menu';
 import { KeybindingContribution, KeybindingRegistry } from './keybinding';
 import { FrontendApplication } from './frontend-application';
 import { FrontendApplicationContribution, OnWillStopAction } from './frontend-application-contribution';
@@ -84,7 +84,7 @@ export namespace CommonMenus {
     export const FILE_SETTINGS_SUBMENU_THEME = [...FILE_SETTINGS_SUBMENU, '2_settings_submenu_theme'];
     export const FILE_CLOSE = [...FILE, '6_close'];
 
-    export const FILE_NEW_CONTRIBUTIONS = 'file/newFile';
+    export const FILE_NEW_CONTRIBUTIONS = ['file', 'newFile'];
 
     export const EDIT = [...MAIN_MENU_BAR, '2_edit'];
     export const EDIT_UNDO = [...EDIT, '1_undo'];
@@ -610,7 +610,7 @@ export class CommonFrontendContribution implements FrontendApplicationContributi
         registry.registerSubmenu(CommonMenus.HELP, nls.localizeByDefault('Help'));
 
         // For plugins contributing create new file commands/menu-actions
-        registry.registerIndependentSubmenu(CommonMenus.FILE_NEW_CONTRIBUTIONS, nls.localizeByDefault('New File...'));
+        registry.registerSubmenu(CommonMenus.FILE_NEW_CONTRIBUTIONS, nls.localizeByDefault('New File...'));
 
         registry.registerMenuAction(CommonMenus.FILE_SAVE, {
             commandId: CommonCommands.SAVE.id
@@ -751,7 +751,7 @@ export class CommonFrontendContribution implements FrontendApplicationContributi
             commandId: CommonCommands.SELECT_ICON_THEME.id
         });
 
-        registry.registerSubmenu(CommonMenus.MANAGE_SETTINGS_THEMES, nls.localizeByDefault('Themes'), { order: 'a50' });
+        registry.registerSubmenu(CommonMenus.MANAGE_SETTINGS_THEMES, nls.localizeByDefault('Themes'), { sortString: 'a50' });
         registry.registerMenuAction(CommonMenus.MANAGE_SETTINGS_THEMES, {
             commandId: CommonCommands.SELECT_COLOR_THEME.id,
             order: '0'
@@ -1467,7 +1467,7 @@ export class CommonFrontendContribution implements FrontendApplicationContributi
      * @todo https://github.com/eclipse-theia/theia/issues/12824
      */
     protected async showNewFilePicker(): Promise<void> {
-        const newFileContributions = this.menuRegistry.getMenuNode(CommonMenus.FILE_NEW_CONTRIBUTIONS); // Add menus
+        const newFileContributions = this.menuRegistry.getMenuNode(CommonMenus.FILE_NEW_CONTRIBUTIONS) as Submenu; // Add menus
         const items: QuickPickItemOrSeparator[] = [
             {
                 label: nls.localizeByDefault('New Text File'),
@@ -1476,22 +1476,22 @@ export class CommonFrontendContribution implements FrontendApplicationContributi
             },
             ...newFileContributions.children
                 .flatMap(node => {
-                    if (node.children && node.children.length > 0) {
+                    if (CompoundMenuNode.is(node) && node.children.length > 0) {
                         return node.children;
                     }
                     return node;
                 })
-                .filter(node => node.role || node.command)
+                .filter(node => Group.is(node) || CommandMenu.is(node))
                 .map(node => {
-                    if (node.role) {
+                    if (Group.is(node)) {
                         return { type: 'separator' } as QuickPickSeparator;
+                    } else {
+                        const item = node as CommandMenu;
+                        return {
+                            label: item.label,
+                            execute: () => item.run(CommonMenus.FILE_NEW_CONTRIBUTIONS)
+                        };
                     }
-                    const command = this.commandRegistry.getCommand(node.command!);
-                    return {
-                        label: command!.label!,
-                        execute: async () => this.commandRegistry.executeCommand(command!.id!)
-                    };
-
                 })
         ];
 

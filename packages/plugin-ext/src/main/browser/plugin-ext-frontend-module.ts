@@ -68,7 +68,7 @@ import { WebviewWidgetFactory } from './webview/webview-widget-factory';
 import { CommentsService, PluginCommentService } from './comments/comments-service';
 import { CommentingRangeDecorator } from './comments/comments-decorator';
 import { CommentsContribution } from './comments/comments-contribution';
-import { CommentsContextKeyService } from './comments/comments-context-key-service';
+import { CommentsContext } from './comments/comments-context';
 import { PluginCustomEditorRegistry } from './custom-editors/plugin-custom-editor-registry';
 import { CustomEditorWidgetFactory } from '../browser/custom-editors/custom-editor-widget-factory';
 import { CustomEditorWidget } from './custom-editors/custom-editor-widget';
@@ -77,7 +77,6 @@ import { WebviewFrontendSecurityWarnings } from './webview/webview-frontend-secu
 import { PluginAuthenticationServiceImpl } from './plugin-authentication-service';
 import { AuthenticationService } from '@theia/core/lib/browser/authentication-service';
 import { bindTreeViewDecoratorUtilities, TreeViewDecoratorService } from './view/tree-view-decorator-service';
-import { CodeEditorWidgetUtil } from './menus/vscode-theia-menu-mappings';
 import { PluginMenuCommandAdapter } from './menus/plugin-menu-command-adapter';
 import './theme-icon-override';
 import { PluginIconService } from './plugin-icon-service';
@@ -250,7 +249,6 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
 
     bind(MenusContributionPointHandler).toSelf().inSingletonScope();
     bind(PluginMenuCommandAdapter).toSelf().inSingletonScope();
-    bind(CodeEditorWidgetUtil).toSelf().inSingletonScope();
     bind(KeybindingsContributionPointHandler).toSelf().inSingletonScope();
     bind(PluginContributionHandler).toSelf().inSingletonScope();
 
@@ -266,7 +264,7 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(CommentsService).to(PluginCommentService).inSingletonScope();
     bind(CommentingRangeDecorator).toSelf().inSingletonScope();
     bind(CommentsContribution).toSelf().inSingletonScope();
-    bind(CommentsContextKeyService).toSelf().inSingletonScope();
+    bind(CommentsContext).toSelf().inSingletonScope();
 
     bind(WebviewFrontendSecurityWarnings).toSelf().inSingletonScope();
     bind(FrontendApplicationContribution).toService(WebviewFrontendSecurityWarnings);

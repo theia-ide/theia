@@ -16,8 +16,10 @@
 
 import { inject, injectable } from 'inversify';
 import { Menu } from '../widgets';
-import { ContextMenuAccess, ContextMenuRenderer, coordinateFromAnchor, RenderContextMenuOptions } from '../context-menu-renderer';
+import { Anchor, ContextMenuAccess, ContextMenuRenderer, coordinateFromAnchor } from '../context-menu-renderer';
 import { BrowserMainMenuFactory } from './browser-menu-plugin';
+import { ContextMatcher } from '../context-key-service';
+import { CompoundMenuNode, MenuPath } from '../../common';
 
 export class BrowserContextMenuAccess extends ContextMenuAccess {
     constructor(
@@ -29,19 +31,24 @@ export class BrowserContextMenuAccess extends ContextMenuAccess {
 
 @injectable()
 export class BrowserContextMenuRenderer extends ContextMenuRenderer {
+    @inject(BrowserMainMenuFactory) private menuFactory: BrowserMainMenuFactory;
 
-    constructor(@inject(BrowserMainMenuFactory) private menuFactory: BrowserMainMenuFactory) {
-        super();
-    }
-
-    protected doRender({ menuPath, anchor, args, onHide, context, contextKeyService, skipSingleRootNode }: RenderContextMenuOptions): ContextMenuAccess {
-        const contextMenu = this.menuFactory.createContextMenu(menuPath, args, context, contextKeyService, skipSingleRootNode);
-        const { x, y } = coordinateFromAnchor(anchor);
-        if (onHide) {
-            contextMenu.aboutToClose.connect(() => onHide!());
+    protected doRender(params: {
+        menuPath: MenuPath,
+        menu: CompoundMenuNode,
+        anchor: Anchor,
+        contextMatcher: ContextMatcher,
+        args?: unknown[],
+        context?: HTMLElement,
+        onHide?: () => void
+    }): ContextMenuAccess {
+        const contextMenu = this.menuFactory.createContextMenu(params.menuPath, params.menu, params.contextMatcher, params.args, params.context);
+        const { x, y } = coordinateFromAnchor(params.anchor);
+        if (params.onHide) {
+            contextMenu.aboutToClose.connect(() => params.onHide!());
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        contextMenu.open(x, y, undefined, context);
+        contextMenu.open(x, y, undefined, params.context);
         return new BrowserContextMenuAccess(contextMenu);
     }
 

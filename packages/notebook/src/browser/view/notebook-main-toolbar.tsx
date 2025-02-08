@@ -13,7 +13,7 @@
 //
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
-import { ArrayUtils, CommandRegistry, CompoundMenuNodeRole, DisposableCollection, MenuModelRegistry, MenuNode, nls } from '@theia/core';
+import { ArrayUtils, CommandMenu, CommandRegistry, DisposableCollection, Group, GroupImpl, MenuModelRegistry, MenuNode, MenuPath, nls } from '@theia/core';
 import * as React from '@theia/core/shared/react';
 import { codicon, ContextMenuRenderer } from '@theia/core/lib/browser';
 import { NotebookCommands, NotebookMenus } from '../contributions/notebook-actions-contribution';
@@ -21,7 +21,6 @@ import { NotebookModel } from '../view-model/notebook-model';
 import { NotebookKernelService } from '../service/notebook-kernel-service';
 import { inject, injectable } from '@theia/core/shared/inversify';
 import { ContextKeyService } from '@theia/core/lib/browser/context-key-service';
-import { NotebookCommand } from '../../common';
 import { NotebookContextManager } from '../service/notebook-context-manager';
 
 export interface NotebookMainToolbarProps {
@@ -97,19 +96,12 @@ export class NotebookMainToolbar extends React.Component<NotebookMainToolbarProp
         }));
 
         // TODO maybe we need a mechanism to check for changes in the menu to update this toolbar
-        const contextKeys = new Set<string>();
-        this.getAllContextKeys(this.getMenuItems(), contextKeys);
-        props.notebookContextManager.onDidChangeContext(e => {
-            if (e.affects(contextKeys)) {
-                this.forceUpdate();
+        const menuItems = this.getMenuItems();
+        for (const item of menuItems) {
+            if (item.onDidChange) {
+                item.onDidChange(() => this.forceUpdate());
             }
-        });
-        props.contextKeyService.onDidChange(e => {
-            if (e.affects(contextKeys)) {
-                this.forceUpdate();
-            }
-        });
-
+        }
     }
 
     override componentWillUnmount(): void {
@@ -137,14 +129,16 @@ export class NotebookMainToolbar extends React.Component<NotebookMainToolbarProp
 
     protected renderContextMenu(event: MouseEvent, menuItems: readonly MenuNode[]): void {
         const hiddenItems = menuItems.slice(menuItems.length - this.calculateNumberOfHiddenItems(menuItems));
-        const contextMenu = this.props.menuRegistry.getMenu([NotebookMenus.NOTEBOOK_MAIN_TOOLBAR_HIDDEN_ITEMS_CONTEXT_MENU]);
 
-        contextMenu.children.map(item => item.id).forEach(id => contextMenu.removeNode(id));
-        hiddenItems.forEach(item => contextMenu.addNode(item));
+        const menu = new GroupImpl(NotebookMenus.NOTEBOOK_MAIN_TOOLBAR_HIDDEN_ITEMS_CONTEXT_MENU[0]);
+
+        hiddenItems.forEach(item => menu.addNode(item));
 
         this.props.contextMenuRenderer.render({
             anchor: event,
-            menuPath: [NotebookMenus.NOTEBOOK_MAIN_TOOLBAR_HIDDEN_ITEMS_CONTEXT_MENU],
+            menuPath: NotebookMenus.NOTEBOOK_MAIN_TOOLBAR_HIDDEN_ITEMS_CONTEXT_MENU,
+            menu: menu,
+            contextKeyService: this.props.contextKeyService,
             context: this.props.editorNode,
             args: [this.props.notebookModel.uri]
         });
@@ -153,7 +147,7 @@ export class NotebookMainToolbar extends React.Component<NotebookMainToolbarProp
     override render(): React.ReactNode {
         const menuItems = this.getMenuItems();
         return <div className='theia-notebook-main-toolbar' id='notebook-main-toolbar'>
-            {menuItems.slice(0, menuItems.length - this.calculateNumberOfHiddenItems(menuItems)).map(item => this.renderMenuItem(item))}
+            {menuItems.slice(0, menuItems.length - this.calculateNumberOfHiddenItems(menuItems)).map(item => this.renderMenuItem(NotebookMenus.NOTEBOOK_MAIN_TOOLBAR, item))}
             {
                 this.state.numberOfHiddenItems > 0 &&
                 <span className={`${codicon('ellipsis')} action-label theia-notebook-main-toolbar-item`} onClick={e => this.renderContextMenu(e.nativeEvent, menuItems)} />
@@ -180,51 +174,31 @@ export class NotebookMainToolbar extends React.Component<NotebookMainToolbarProp
         }
     }
 
-    protected renderMenuItem(item: MenuNode, submenu?: string): React.ReactNode {
-        if (item.role === CompoundMenuNodeRole.Group) {
-            const itemNodes = ArrayUtils.coalesce(item.children?.map(child => this.renderMenuItem(child, item.id)) ?? []);
+    protected renderMenuItem<T>(itemPath: MenuPath, item: MenuNode, submenu?: string): React.ReactNode {
+        if (Group.is(item)) {
+            const itemNodes = ArrayUtils.coalesce(item.children?.map(child => this.renderMenuItem([...itemPath, child.id], child, item.id)) ?? []);
             return <React.Fragment key={item.id}>
                 {itemNodes}
                 {itemNodes && itemNodes.length > 0 && <span key={`${item.id}-separator`} className='theia-notebook-toolbar-separator'></span>}
             </React.Fragment>;
-        } else if ((this.nativeSubmenus.includes(submenu ?? '')) || !item.when || this.props.contextKeyService.match(item.when, this.props.editorNode)) {
-            const visibleCommand = Boolean(this.props.commandRegistry.getVisibleHandler(item.command ?? '', this.props.notebookModel));
-            if (!visibleCommand) {
-                return undefined;
-            }
-            const command = this.props.commandRegistry.getCommand(item.command ?? '') as NotebookCommand | undefined;
-            const label = command?.shortTitle ?? item.label;
-            const title = command?.tooltip ?? item.label;
-            return <div key={item.id} id={item.id} title={title} className={`theia-notebook-main-toolbar-item action-label${this.getAdditionalClasses(item)}`}
+        } else if (CommandMenu.is(item) && ((this.nativeSubmenus.includes(submenu ?? '')) || item.isVisible(itemPath, this.props.contextKeyService, this.props.editorNode))) {
+            return <div key={item.id} id={item.id} title={item.label} className={`theia-notebook-main-toolbar-item action-label${this.getAdditionalClasses(itemPath, item)}`}
                 onClick={() => {
-                    if (item.command && (!item.when || this.props.contextKeyService.match(item.when, this.props.editorNode))) {
-                        this.props.commandRegistry.executeCommand(item.command, this.props.notebookModel.uri);
-                    }
+                    item.run(itemPath, this.props.notebookModel.uri);
                 }}>
                 <span className={item.icon} />
-                <span className='theia-notebook-main-toolbar-item-text'>{label}</span>
+                <span className='theia-notebook-main-toolbar-item-text'>{item.label}</span>
             </div>;
         }
         return undefined;
     }
 
     protected getMenuItems(): readonly MenuNode[] {
-        const menuPath = NotebookMenus.NOTEBOOK_MAIN_TOOLBAR;
-        const pluginCommands = this.props.menuRegistry.getMenuNode(menuPath).children;
-        const theiaCommands = this.props.menuRegistry.getMenu([menuPath]).children;
-        return theiaCommands.concat(pluginCommands);
+        return this.props.menuRegistry.getMenu(NotebookMenus.NOTEBOOK_MAIN_TOOLBAR).children;
     }
 
-    protected getAdditionalClasses(item: MenuNode): string {
-        return !item.when || this.props.contextKeyService.match(item.when, this.props.editorNode) ? '' : ' theia-mod-disabled';
-    }
-
-    protected getAllContextKeys(menus: readonly MenuNode[], keySet: Set<string>): void {
-        menus.filter(item => item.when)
-            .forEach(item => this.props.contextKeyService.parseKeys(item.when!)?.forEach(key => keySet.add(key)));
-
-        menus.filter(item => item.children && item.children.length > 0)
-            .forEach(item => this.getAllContextKeys(item.children!, keySet));
+    protected getAdditionalClasses(itemPath: MenuPath, item: CommandMenu): string {
+        return item.isEnabled(itemPath, this.props.editorNode) ? '' : ' theia-mod-disabled';
     }
 
     protected calculateNumberOfHiddenItems(allMenuItems: readonly MenuNode[]): number {

@@ -16,21 +16,20 @@
 
 import * as React from '@theia/core/shared/react';
 import { Anchor, ContextMenuAccess, KeybindingRegistry, PreferenceService, Widget, WidgetManager } from '@theia/core/lib/browser';
-import { LabelIcon } from '@theia/core/lib/browser/label-parser';
-import { ReactTabBarToolbarItem, RenderedToolbarItem, TabBarToolbar, TabBarToolbarFactory } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
+import { TabBarToolbar, TabBarToolbarFactory } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { injectable, inject, postConstruct } from '@theia/core/shared/inversify';
-import { MenuPath, ProgressService } from '@theia/core';
+import { DisposableCollection, MenuPath, ProgressService } from '@theia/core';
 import { FrontendApplicationStateService } from '@theia/core/lib/browser/frontend-application-state';
 import { ProgressBarFactory } from '@theia/core/lib/browser/progress-bar-factory';
 import { Deferred } from '@theia/core/lib/common/promise-util';
 import {
-    ToolbarItem,
     ToolbarAlignment,
     ToolbarAlignmentString,
     ToolbarItemPosition,
 } from './toolbar-interfaces';
 import { ToolbarController } from './toolbar-controller';
 import { ToolbarMenus } from './toolbar-constants';
+import { TabBarToolbarItem } from '@theia/core/lib/browser/shell/tab-bar-toolbar/tab-toolbar-item';
 
 const TOOLBAR_BACKGROUND_DATA_ID = 'toolbar-wrapper';
 export const TOOLBAR_PROGRESSBAR_ID = 'main-toolbar-progress';
@@ -80,22 +79,21 @@ export class ToolbarImpl extends TabBarToolbar {
     }
 
     protected updateInlineItems(): void {
+        this.toDisposeOnUpdateItems.dispose();
+        this.toDisposeOnUpdateItems = new DisposableCollection();
         this.inline.clear();
         const { items } = this.model.toolbarItems;
 
-        const contextKeys = new Set<string>();
         for (const column of Object.keys(items)) {
             for (const group of items[column as ToolbarAlignment]) {
                 for (const item of group) {
                     this.inline.set(item.id, item);
-
-                    if (item.when) {
-                        this.contextKeyService.parseKeys(item.when)?.forEach(key => contextKeys.add(key));
+                    if (item.onDidChange) {
+                        this.toDisposeOnUpdateItems.push(item.onDidChange(() => this.maybeUpdate()));
                     }
                 }
             }
         }
-        this.updateContextKeyListener(contextKeys);
     }
 
     protected handleContextMenu = (e: React.MouseEvent<HTMLDivElement>): ContextMenuAccess => this.doHandleContextMenu(e);
@@ -106,7 +104,7 @@ export class ToolbarImpl extends TabBarToolbar {
         const { menuPath, anchor } = this.getMenuDetailsForClick(event);
         return this.contextMenuRenderer.render({
             args: contextMenuArgs,
-            menuPath,
+            menuPath: menuPath,
             anchor,
         });
     }
@@ -141,7 +139,7 @@ export class ToolbarImpl extends TabBarToolbar {
         return args;
     }
 
-    protected renderGroupsInColumn(groups: ToolbarItem[][], alignment: ToolbarAlignment): React.ReactNode[] {
+    protected renderGroupsInColumn(groups: TabBarToolbarItem[][], alignment: ToolbarAlignment): React.ReactNode[] {
         const nodes: React.ReactNode[] = [];
         groups.forEach((group, groupIndex) => {
             if (nodes.length && group.length) {
@@ -180,7 +178,7 @@ export class ToolbarImpl extends TabBarToolbar {
         );
     }
 
-    protected renderColumnWrapper(alignment: ToolbarAlignment, columnGroup: ToolbarItem[][]): React.ReactNode {
+    protected renderColumnWrapper(alignment: ToolbarAlignment, columnGroup: TabBarToolbarItem[][]): React.ReactNode {
         let children: React.ReactNode;
         if (alignment === ToolbarAlignment.LEFT) {
             children = (
@@ -234,23 +232,11 @@ export class ToolbarImpl extends TabBarToolbar {
         );
     }
 
-    protected renderItemWithDraggableWrapper(item: ToolbarItem, position: ToolbarItemPosition): React.ReactNode {
+    protected renderItemWithDraggableWrapper(item: TabBarToolbarItem, position: ToolbarItemPosition): React.ReactNode {
         const stringifiedPosition = JSON.stringify(position);
-        let toolbarItemClassNames = '';
-        let renderBody: React.ReactNode;
+        const toolbarItemClassNames = '';
+        const renderBody = item.render(this);
 
-        if (!ReactTabBarToolbarItem.is(item)) {
-            toolbarItemClassNames = TabBarToolbar.Styles.TAB_BAR_TOOLBAR_ITEM;
-            if (this.evaluateWhenClause(item.when)) {
-                toolbarItemClassNames += ' enabled';
-            }
-            renderBody = this.renderItem(item);
-        } else {
-            const contribution = this.model.getContributionByID(item.id);
-            if (contribution) {
-                renderBody = contribution.render();
-            }
-        }
         return (
             <div
                 role='button'
@@ -260,12 +246,8 @@ export class ToolbarImpl extends TabBarToolbar {
                 data-position={stringifiedPosition}
                 key={`${item.id}-${stringifiedPosition}`}
                 className={`${toolbarItemClassNames} toolbar-item action-label`}
-                onMouseDown={this.onMouseDownEvent}
-                onMouseUp={this.onMouseUpEvent}
-                onMouseOut={this.onMouseUpEvent}
                 draggable={true}
                 onDragStart={this.handleOnDragStart}
-                onClick={e => this.executeCommand(e, item)}
                 onDragOver={this.handleOnDragEnter}
                 onDragLeave={this.handleOnDragLeave}
                 onContextMenu={this.handleContextMenu}
@@ -275,41 +257,6 @@ export class ToolbarImpl extends TabBarToolbar {
                 {renderBody}
                 <div className='hover-overlay' />
             </div>
-        );
-    }
-
-    protected override renderItem(
-        item: RenderedToolbarItem,
-    ): React.ReactNode {
-        const classNames = [];
-        if (item.text) {
-            for (const labelPart of this.labelParser.parse(item.text)) {
-                if (typeof labelPart !== 'string' && LabelIcon.is(labelPart)) {
-                    const className = `fa fa-${labelPart.name}${labelPart.animation ? ' fa-' + labelPart.animation : ''}`;
-                    classNames.push(...className.split(' '));
-                }
-            }
-        }
-        const command = this.commands.getCommand(item.command!);
-        const iconClass = (typeof item.icon === 'function' && item.icon()) || item.icon || command?.iconClass;
-        if (iconClass) {
-            classNames.push(iconClass);
-        }
-        let itemTooltip = '';
-        if (item.tooltip) {
-            itemTooltip = item.tooltip;
-        } else if (command?.label) {
-            itemTooltip = command.label;
-        }
-        const keybindingString = this.resolveKeybindingForCommand(command?.id);
-        itemTooltip = `${itemTooltip}${keybindingString}`;
-
-        return (
-            <div
-                id={item.id}
-                className={classNames.join(' ')}
-                title={itemTooltip}
-            />
         );
     }
 

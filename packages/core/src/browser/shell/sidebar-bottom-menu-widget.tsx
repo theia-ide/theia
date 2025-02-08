@@ -32,7 +32,8 @@ export class SidebarBottomMenuWidget extends SidebarMenuWidget {
             anchor: {
                 x: button.left + button.width,
                 y: button.top + button.height,
-            }
+            },
+            contextKeyService: this.contextKeyService
         });
     }
 

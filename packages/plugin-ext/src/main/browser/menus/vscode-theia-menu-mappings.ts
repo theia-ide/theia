@@ -17,7 +17,6 @@
 import { MenuPath } from '@theia/core';
 import { SHELL_TABBAR_CONTEXT_MENU } from '@theia/core/lib/browser';
 import { Navigatable } from '@theia/core/lib/browser/navigatable';
-import { injectable } from '@theia/core/shared/inversify';
 import { URI as CodeUri } from '@theia/core/shared/vscode-uri';
 import { DebugStackFramesWidget } from '@theia/debug/lib/browser/view/debug-stack-frames-widget';
 import { DebugThreadsWidget } from '@theia/debug/lib/browser/view/debug-threads-widget';
@@ -74,7 +73,7 @@ export const implementedVSCodeContributionPoints = [
 export type ContributionPoint = (typeof implementedVSCodeContributionPoints)[number];
 
 /** The values are menu paths to which the VSCode contribution points correspond */
-export const codeToTheiaMappings = new Map<ContributionPoint, MenuPath[]>([
+export const codeToTheiaMappings = new Map<string, MenuPath[]>([
     ['comments/comment/context', [COMMENT_CONTEXT]],
     ['comments/comment/title', [COMMENT_TITLE]],
     ['comments/commentThread/context', [COMMENT_THREAD_CONTEXT]],
@@ -106,12 +105,11 @@ export const codeToTheiaMappings = new Map<ContributionPoint, MenuPath[]>([
 ]);
 
 type CodeEditorWidget = EditorWidget | WebviewWidget;
-@injectable()
-export class CodeEditorWidgetUtil {
-    is(arg: unknown): arg is CodeEditorWidget {
+export namespace CodeEditorWidgetUtil {
+    export function is(arg: unknown): arg is CodeEditorWidget {
         return arg instanceof EditorWidget || arg instanceof WebviewWidget;
     }
-    getResourceUri(editor: CodeEditorWidget): CodeUri | undefined {
+    export function getResourceUri(editor: CodeEditorWidget): CodeUri | undefined {
         const resourceUri = Navigatable.is(editor) && editor.getResourceUri();
         return resourceUri ? resourceUri['codeUri'] : undefined;
     }

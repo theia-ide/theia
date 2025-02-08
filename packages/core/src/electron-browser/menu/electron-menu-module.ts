@@ -15,14 +15,17 @@
 // *****************************************************************************
 
 import { ContainerModule } from 'inversify';
-import { CommandContribution, MenuContribution } from '../../common';
+import { CommandContribution, MenuContribution, MenuNodeFactory } from '../../common';
 import { FrontendApplicationContribution, ContextMenuRenderer, KeybindingContribution, KeybindingContext } from '../../browser';
 import { ElectronMainMenuFactory } from './electron-main-menu-factory';
 import { ElectronContextMenuRenderer, ElectronTextInputContextMenuContribution } from './electron-context-menu-renderer';
 import { CustomTitleWidget, CustomTitleWidgetFactory, ElectronMenuContribution } from './electron-menu-contribution';
+import { BrowserMenuNodeFactory } from '../../browser/menu/browser-menu-node-factory';
+import { BrowserMainMenuFactory } from '../../browser/menu/browser-menu-plugin';
 
 export default new ContainerModule(bind => {
     bind(ElectronMainMenuFactory).toSelf().inSingletonScope();
+    bind(BrowserMainMenuFactory).toService(ElectronMainMenuFactory);
     bind(ContextMenuRenderer).to(ElectronContextMenuRenderer).inSingletonScope();
     bind(KeybindingContext).toConstantValue({
         id: 'theia.context',
@@ -37,4 +40,6 @@ export default new ContainerModule(bind => {
     bind(CustomTitleWidgetFactory).toFactory(context => () => context.container.get(CustomTitleWidget));
     bind(FrontendApplicationContribution).to(ElectronTextInputContextMenuContribution).inSingletonScope();
     bind(MenuContribution).to(ElectronTextInputContextMenuContribution).inSingletonScope();
+    bind(BrowserMenuNodeFactory).toSelf().inSingletonScope();
+    bind(MenuNodeFactory).toService(BrowserMenuNodeFactory);
 });

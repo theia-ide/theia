@@ -15,11 +15,39 @@
 // *****************************************************************************
 
 import * as chai from 'chai';
-import { CommandContribution, CommandRegistry } from '../command';
-import { CompositeMenuNode } from './composite-menu-node';
-import { MenuContribution, MenuModelRegistry } from './menu-model-registry';
+import {
+    CommandContribution, CommandMenu, CommandRegistry, CompoundMenuNode, Group, GroupImpl, MenuAction, MenuContribution,
+    MenuModelRegistry, MenuNode, MenuNodeFactory, MutableCompoundMenuNode, Submenu,
+    SubmenuImpl,
+    SubMenuLink
+} from '../../common';
 
 const expect = chai.expect;
+
+class TestMenuNodeFactory implements MenuNodeFactory {
+    createGroup(id: string, orderString?: string, when?: string): Group & MutableCompoundMenuNode {
+        return new GroupImpl(id, orderString, when);
+    }
+    createSubmenu(id: string, label: string, contextKeyOverlays: Record<string, string> | undefined, orderString?: string, icon?: string, when?: string):
+        Submenu & MutableCompoundMenuNode {
+        return new SubmenuImpl(id, label, contextKeyOverlays, orderString, icon, when);
+    }
+    createSubmenuLink(delegate: Submenu, sortString?: string, when?: string): MenuNode {
+        return new SubMenuLink(delegate, sortString, when);
+    }
+
+    createCommandMenu(item: MenuAction): CommandMenu {
+        return {
+            isVisible: () => true,
+            isEnabled: () => true,
+            isToggled: () => false,
+            id: item.commandId,
+            label: item.label || '',
+            sortString: item.order || '',
+            run: () => Promise.resolve()
+        };
+    }
+}
 
 describe('menu-model-registry', () => {
 
@@ -49,15 +77,13 @@ describe('menu-model-registry', () => {
                     });
                 }
             });
-            const all = service.getMenu();
-            const main = all.children[0] as CompositeMenuNode;
+            const main = service.getMenu(['main'])!;
             expect(main.children.length).equals(1);
             expect(main.id, 'main');
-            expect(all.children.length).equals(1);
-            const file = main.children[0] as CompositeMenuNode;
+            const file = main.children[0] as Submenu;
             expect(file.children.length).equals(1);
             expect(file.label, 'File');
-            const openGroup = file.children[0] as CompositeMenuNode;
+            const openGroup = file.children[0] as Submenu;
             expect(openGroup.children.length).equals(2);
             expect(openGroup.label).undefined;
         });
@@ -69,16 +95,22 @@ describe('menu-model-registry', () => {
             const service = createMenuRegistry({
                 registerMenus(menuRegistry: MenuModelRegistry): void {
                     menuRegistry.registerSubmenu(fileMenu, 'File');
+                    menuRegistry.registerSubmenu(fileOpenMenu, 'Open');
+                    menuRegistry.registerSubmenu(fileCloseMenu, 'Close');
                     // open menu should not be added to open menu
-                    menuRegistry.linkSubmenu(fileOpenMenu, fileOpenMenu);
+                    try {
+                        menuRegistry.linkCompoundMenuNode({ newParentPath: fileOpenMenu, submenuPath: fileOpenMenu });
+                    } catch (e) {
+                        // expected
+                    }
                     // close menu should be added
-                    menuRegistry.linkSubmenu(fileOpenMenu, fileCloseMenu);
+                    menuRegistry.linkCompoundMenuNode({ newParentPath: fileOpenMenu, submenuPath: fileCloseMenu });
                 }
             }, {
                 registerCommands(reg: CommandRegistry): void { }
             });
-            const all = service.getMenu() as CompositeMenuNode;
-            expect(menuStructureToString(all.children[0] as CompositeMenuNode)).equals('File(0_open(1_close),1_close())');
+            const main = service.getMenu(['main']) as CompoundMenuNode;
+            expect(menuStructureToString(main)).equals('File(0_open(1_close()),1_close())');
         });
     });
 });
@@ -86,14 +118,14 @@ describe('menu-model-registry', () => {
 function createMenuRegistry(menuContrib: MenuContribution, commandContrib: CommandContribution): MenuModelRegistry {
     const cmdReg = new CommandRegistry({ getContributions: () => [commandContrib] });
     cmdReg.onStart();
-    const menuReg = new MenuModelRegistry({ getContributions: () => [menuContrib] }, cmdReg);
+    const menuReg = new MenuModelRegistry({ getContributions: () => [menuContrib] }, cmdReg, new TestMenuNodeFactory());
     menuReg.onStart();
     return menuReg;
 }
 
-function menuStructureToString(node: CompositeMenuNode): string {
+function menuStructureToString(node: CompoundMenuNode): string {
     return node.children.map(c => {
-        if (c instanceof CompositeMenuNode) {
+        if (CompoundMenuNode.is(c)) {
             return `${c.id}(${menuStructureToString(c)})`;
         }
         return c.id;

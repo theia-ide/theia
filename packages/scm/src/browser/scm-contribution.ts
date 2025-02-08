@@ -28,7 +28,7 @@ import {
     ColorTheme,
     CssStyleCollector
 } from '@theia/core/lib/browser';
-import { TabBarToolbarContribution, TabBarToolbarRegistry, TabBarToolbarItem } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
+import { TabBarToolbarContribution, TabBarToolbarRegistry, TabBarToolbarAction } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { CommandRegistry, Command, Disposable, DisposableCollection, CommandService, MenuModelRegistry } from '@theia/core/lib/common';
 import { ContextKeyService, ContextKey } from '@theia/core/lib/browser/context-key-service';
 import { ScmService } from './scm-service';
@@ -232,7 +232,7 @@ export class ScmContribution extends AbstractViewContribution<ScmWidget> impleme
         const viewModeEmitter = new Emitter<void>();
         const registerToggleViewItem = (command: Command, mode: 'tree' | 'list') => {
             const id = command.id;
-            const item: TabBarToolbarItem = {
+            const item: TabBarToolbarAction = {
                 id,
                 command: id,
                 tooltip: command.label,

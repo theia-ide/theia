@@ -49,7 +49,7 @@ export class TheiaNotebookEditor extends TheiaEditor {
     }
 
     tabLocator(): Locator {
-        return this.page.locator(this.data.viewSelector);
+        return this.page.locator(this.data.tabSelector);
     }
 
     override async waitForVisible(): Promise<void> {

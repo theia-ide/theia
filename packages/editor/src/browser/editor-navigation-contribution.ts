@@ -201,7 +201,7 @@ export class EditorNavigationContribution implements Disposable, FrontendApplica
         // Get the index of the current value, and toggle to the next available value.
         const index = values.indexOf(wordWrap) + 1;
         if (index > -1) {
-            this.preferenceService.set('editor.wordWrap', values[index % values.length], PreferenceScope.User);
+            await this.preferenceService.set('editor.wordWrap', values[index % values.length], PreferenceScope.User);
         }
     }
 
@@ -210,7 +210,7 @@ export class EditorNavigationContribution implements Disposable, FrontendApplica
      */
     protected async toggleStickyScroll(): Promise<void> {
         const value: boolean | undefined = this.preferenceService.get('editor.stickyScroll.enabled');
-        this.preferenceService.set('editor.stickyScroll.enabled', !value, PreferenceScope.User);
+        await this.preferenceService.set('editor.stickyScroll.enabled', !value, PreferenceScope.User);
     }
 
     /**
@@ -218,7 +218,7 @@ export class EditorNavigationContribution implements Disposable, FrontendApplica
      */
     protected async toggleMinimap(): Promise<void> {
         const value: boolean | undefined = this.preferenceService.get('editor.minimap.enabled');
-        this.preferenceService.set('editor.minimap.enabled', !value, PreferenceScope.User);
+        await this.preferenceService.set('editor.minimap.enabled', !value, PreferenceScope.User);
     }
 
     /**
@@ -232,7 +232,7 @@ export class EditorNavigationContribution implements Disposable, FrontendApplica
         } else {
             updatedRenderWhitespace = 'none';
         }
-        this.preferenceService.set('editor.renderWhitespace', updatedRenderWhitespace, PreferenceScope.User);
+        await this.preferenceService.set('editor.renderWhitespace', updatedRenderWhitespace, PreferenceScope.User);
     }
 
     protected onCurrentEditorChanged(editorWidget: EditorWidget | undefined): void {

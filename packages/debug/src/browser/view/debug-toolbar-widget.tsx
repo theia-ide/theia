@@ -16,7 +16,7 @@
 
 import * as React from '@theia/core/shared/react';
 import { inject, postConstruct, injectable } from '@theia/core/shared/inversify';
-import { CommandMenuNode, CommandRegistry, CompoundMenuNode, Disposable, DisposableCollection, MenuModelRegistry, MenuPath } from '@theia/core';
+import { CommandMenu, CommandRegistry, CompoundMenuNode, Disposable, DisposableCollection, MenuModelRegistry, MenuPath } from '@theia/core';
 import { ContextKeyService } from '@theia/core/lib/browser/context-key-service';
 import { ReactWidget } from '@theia/core/lib/browser/widgets';
 import { DebugViewModel } from './debug-view-model';
@@ -85,11 +85,11 @@ export class DebugToolBar extends ReactWidget {
     protected renderContributedCommands(): React.ReactNode {
         const debugActions: React.ReactNode[] = [];
         // first, search for CompoundMenuNodes:
-        this.menuModelRegistry.getMenu(DebugToolBar.MENU).children.forEach(compoundMenuNode => {
-            if (CompoundMenuNode.is(compoundMenuNode) && this.matchContext(compoundMenuNode.when)) {
+        this.menuModelRegistry.getMenu(DebugToolBar.MENU)!.children.forEach(compoundMenuNode => {
+            if (CompoundMenuNode.is(compoundMenuNode) && compoundMenuNode.isVisible(DebugToolBar.MENU, this.contextKeyService, this.node)) {
                 // second, search for nested CommandMenuNodes:
                 compoundMenuNode.children.forEach(commandMenuNode => {
-                    if (CommandMenuNode.is(commandMenuNode) && this.matchContext(commandMenuNode.when)) {
+                    if (CommandMenu.is(commandMenuNode) && commandMenuNode.isVisible(DebugToolBar.MENU, this.contextKeyService, this.node)) {
                         debugActions.push(this.debugAction(commandMenuNode));
                     }
                 });
@@ -98,24 +98,13 @@ export class DebugToolBar extends ReactWidget {
         return debugActions;
     }
 
-    protected matchContext(when?: string): boolean {
-        return !when || this.contextKeyService.match(when);
-    }
-
-    protected debugAction(commandMenuNode: CommandMenuNode): React.ReactNode {
-        const { command, icon = '', label = '' } = commandMenuNode;
-        if (!label && !icon) {
-            const { when } = commandMenuNode;
-            console.warn(`Neither 'label' nor 'icon' properties were defined for the command menu node. (${JSON.stringify({ command, when })}}. Skipping.`);
-            return;
-        }
-        const run = () => this.commandRegistry.executeCommand(command);
+    protected debugAction(commandMenuNode: CommandMenu): React.ReactNode {
         return <DebugAction
-            key={command}
+            key={commandMenuNode.id}
             enabled={true}
-            label={label}
-            iconClass={icon}
-            run={run} />;
+            label={commandMenuNode.label}
+            iconClass={commandMenuNode.icon || ''}
+            run={commandMenuNode.run} />;
     }
 
     protected renderStart(): React.ReactNode {

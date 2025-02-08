@@ -19,7 +19,7 @@ import {
 } from '@theia/core/lib/browser';
 import { injectable, inject } from '@theia/core/shared/inversify';
 import * as monaco from '@theia/monaco-editor-core';
-import { MenuModelRegistry, CommandRegistry, MAIN_MENU_BAR, Command, Emitter, Mutable, CompoundMenuNodeRole } from '@theia/core/lib/common';
+import { MenuModelRegistry, CommandRegistry, MAIN_MENU_BAR, Command, Emitter, Mutable } from '@theia/core/lib/common';
 import { EDITOR_CONTEXT_MENU, EDITOR_LINENUMBER_CONTEXT_MENU, EditorManager } from '@theia/editor/lib/browser';
 import { DebugSessionManager } from './debug-session-manager';
 import { DebugWidget } from './view/debug-widget';
@@ -42,7 +42,7 @@ import { DebugConsoleContribution } from './console/debug-console-contribution';
 import { DebugService } from '../common/debug-service';
 import { DebugSchemaUpdater } from './debug-schema-updater';
 import { DebugPreferences } from './debug-preferences';
-import { TabBarToolbarContribution, TabBarToolbarRegistry, RenderedToolbarItem } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
+import { RenderedToolbarAction, TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { DebugWatchWidget } from './view/debug-watch-widget';
 import { DebugWatchExpression } from './view/debug-watch-expression';
 import { DebugWatchManager } from './debug-watch-manager';
@@ -55,6 +55,7 @@ import { nls } from '@theia/core/lib/common/nls';
 import { DebugInstructionBreakpoint } from './model/debug-instruction-breakpoint';
 import { DebugConfiguration } from '../common/debug-configuration';
 import { DebugExceptionBreakpoint } from './view/debug-exception-breakpoint';
+import { DebugToolBar } from './view/debug-toolbar-widget';
 
 export namespace DebugMenus {
     export const DEBUG = [...MAIN_MENU_BAR, '6_debug'];
@@ -640,7 +641,9 @@ export class DebugFrontendApplicationContribution extends AbstractViewContributi
             { ...DebugEditorContextCommands.DISABLE_LOGPOINT, label: nlsDisableBreakpoint('Logpoint') },
             { ...DebugEditorContextCommands.JUMP_TO_CURSOR, label: nls.localizeByDefault('Jump to Cursor') }
         );
-        menus.linkSubmenu(EDITOR_LINENUMBER_CONTEXT_MENU, DebugEditorModel.CONTEXT_MENU, { role: CompoundMenuNodeRole.Group });
+        menus.linkCompoundMenuNode({ newParentPath: EDITOR_LINENUMBER_CONTEXT_MENU, submenuPath: DebugEditorModel.CONTEXT_MENU });
+
+        menus.registerSubmenu(DebugToolBar.MENU, 'Debug Toolbar Menu');
     }
 
     override registerCommands(registry: CommandRegistry): void {
@@ -1116,7 +1119,7 @@ export class DebugFrontendApplicationContribution extends AbstractViewContributi
 
     registerToolbarItems(toolbar: TabBarToolbarRegistry): void {
         const onDidChangeToggleBreakpointsEnabled = new Emitter<void>();
-        const toggleBreakpointsEnabled: Mutable<RenderedToolbarItem> = {
+        const toggleBreakpointsEnabled: Mutable<RenderedToolbarAction> = {
             id: DebugCommands.TOGGLE_BREAKPOINTS_ENABLED.id,
             command: DebugCommands.TOGGLE_BREAKPOINTS_ENABLED.id,
             icon: codicon('activate-breakpoints'),

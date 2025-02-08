@@ -32,7 +32,7 @@ import { GIT_RESOURCE_SCHEME } from '../git-resource';
 import { Git, Repository } from '../../common';
 import { WorkspaceRootUriAwareCommandHandler } from '@theia/workspace/lib/browser/workspace-commands';
 import { WorkspaceService } from '@theia/workspace/lib/browser';
-import { TabBarToolbarContribution, TabBarToolbarRegistry, TabBarToolbarItem } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
+import { TabBarToolbarAction, TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { Emitter } from '@theia/core/lib/common/event';
 import { FileService } from '@theia/filesystem/lib/browser/file-service';
 import { nls } from '@theia/core/lib/common/nls';
@@ -192,7 +192,7 @@ export class GitDiffContribution extends AbstractViewContribution<GitDiffWidget>
         };
         const registerToggleViewItem = (command: Command, mode: 'tree' | 'list') => {
             const id = command.id;
-            const item: TabBarToolbarItem = {
+            const item: TabBarToolbarAction = {
                 id,
                 command: id,
                 tooltip: command.label,

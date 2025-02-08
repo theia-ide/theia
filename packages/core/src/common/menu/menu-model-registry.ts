@@ -15,13 +15,12 @@
 // *****************************************************************************
 
 import { inject, injectable, named } from 'inversify';
-import { Command, CommandRegistry } from '../command';
+import { CommandMenu, CompoundMenuNode, Group, MAIN_MENU_BAR, MenuAction, MenuNode, MenuPath, MutableCompoundMenuNode, Submenu } from './menu-types';
+import { Event } from 'vscode-languageserver-protocol';
 import { ContributionProvider } from '../contribution-provider';
+import { Command, CommandRegistry } from '../command';
+import { Emitter } from '../event';
 import { Disposable } from '../disposable';
-import { Emitter, Event } from '../event';
-import { ActionMenuNode } from './action-menu-node';
-import { CompositeMenuNode, CompositeMenuNodeWrapper } from './composite-menu-node';
-import { CompoundMenuNode, MenuAction, MenuNode, MenuNodeMetadata, MenuPath, MutableCompoundMenuNode, SubMenuOptions } from './menu-types';
 
 export const MenuContribution = Symbol('MenuContribution');
 
@@ -59,6 +58,16 @@ export interface MenuContribution {
     registerMenus(menus: MenuModelRegistry): void;
 }
 
+export const MenuNodeFactory = Symbol('MenuNodeFactory');
+
+export interface MenuNodeFactory {
+    createGroup(id: string, orderString?: string, when?: string): Group & MutableCompoundMenuNode;
+    createCommandMenu(item: MenuAction): CommandMenu;
+    createSubmenu(id: string, label: string, contextKeyOverlays: Record<string, string> | undefined,
+        orderString?: string, icon?: string, when?: string): Submenu & MutableCompoundMenuNode
+    createSubmenuLink(delegate: Submenu, sortString?: string, when?: string): MenuNode;
+}
+
 /**
  * The MenuModelRegistry allows to register and unregister menus, submenus and actions
  * via strings and {@link MenuAction}s without the need to access the underlying UI
@@ -66,22 +75,26 @@ export interface MenuContribution {
  */
 @injectable()
 export class MenuModelRegistry {
-    protected readonly root = new CompositeMenuNode('');
-    protected readonly independentSubmenus = new Map<string, MutableCompoundMenuNode>();
+    protected root: Group & MutableCompoundMenuNode;
 
     protected readonly onDidChangeEmitter = new Emitter<void>();
+
+    constructor(
+        @inject(ContributionProvider) @named(MenuContribution)
+        protected readonly contributions: ContributionProvider<MenuContribution>,
+        @inject(CommandRegistry)
+        protected readonly commands: CommandRegistry,
+        @inject(MenuNodeFactory)
+        protected readonly menuNodeFactory: MenuNodeFactory) {
+        this.root = this.menuNodeFactory.createGroup('root', 'root');
+        this.root.addNode(this.menuNodeFactory.createGroup(MAIN_MENU_BAR[0]));
+    }
 
     get onDidChange(): Event<void> {
         return this.onDidChangeEmitter.event;
     }
 
     protected isReady = false;
-
-    constructor(
-        @inject(ContributionProvider) @named(MenuContribution)
-        protected readonly contributions: ContributionProvider<MenuContribution>,
-        @inject(CommandRegistry) protected readonly commands: CommandRegistry
-    ) { }
 
     onStart(): void {
         for (const contrib of this.contributions.getContributions()) {
@@ -95,34 +108,40 @@ export class MenuModelRegistry {
      *
      * @returns a disposable which, when called, will remove the menu action again.
      */
-    registerMenuAction(menuPath: MenuPath, item: MenuAction): Disposable {
-        const menuNode = new ActionMenuNode(item, this.commands);
-        return this.registerMenuNode(menuPath, menuNode);
+    registerCommandMenu(menuPath: MenuPath, item: CommandMenu): Disposable {
+        const parent = this.root.getOrCreate(menuPath, 0, menuPath.length);
+        const existing = parent.children.find(node => node.id === menuPath[menuPath.length - 1]);
+        if (existing) {
+            throw new Error(`A menu node with path ${JSON.stringify(menuPath)} already exists`);
+        } else {
+            parent.addNode(item);
+            return Disposable.create(() => {
+                parent.removeNode(item);
+                this.fireChangeEvent();
+            });
+        }
+
     }
 
     /**
-     * Adds the given menu node to the menu denoted by the given path.
+     * Adds the given menu action to the menu denoted by the given path.
      *
-     * @returns a disposable which, when called, will remove the menu node again.
+     * @returns a disposable which, when called, will remove the menu action again.
      */
-    registerMenuNode(menuPath: MenuPath | string, menuNode: MenuNode, group?: string): Disposable {
-        const parent = this.getMenuNode(menuPath, group);
-        const disposable = parent.addNode(menuNode);
-        this.fireChangeEvent();
-        return this.changeEventOnDispose(disposable);
-    }
-
-    getMenuNode(menuPath: MenuPath | string, group?: string): MutableCompoundMenuNode {
-        if (typeof menuPath === 'string') {
-            const target = this.independentSubmenus.get(menuPath);
-            if (!target) { throw new Error(`Could not find submenu with id ${menuPath}`); }
-            if (group) {
-                return this.findSubMenu(target, group);
-            }
-            return target;
+    registerMenuAction(menuPath: MenuPath, item: MenuAction): Disposable {
+        const parent = this.root.getOrCreate(menuPath, 0, menuPath.length);
+        const existing = parent.children.find(node => node.id === item.commandId);
+        if (existing) {
+            throw new Error(`A menu node with id ${item.commandId} in path ${JSON.stringify(menuPath)} already exists`);
         } else {
-            return this.findGroup(group ? menuPath.concat(group) : menuPath);
+            const node = this.menuNodeFactory.createCommandMenu(item);
+            parent.addNode(node);
+            return Disposable.create(() => {
+                parent.removeNode(node);
+                this.fireChangeEvent();
+            });
         }
+
     }
 
     /**
@@ -140,58 +159,59 @@ export class MenuModelRegistry {
      * Note that if the menu already existed and was registered with a different label an error
      * will be thrown.
      */
-    registerSubmenu(menuPath: MenuPath, label: string, options?: SubMenuOptions): Disposable {
-        if (menuPath.length === 0) {
-            throw new Error('The sub menu path cannot be empty.');
-        }
-        const index = menuPath.length - 1;
-        const menuId = menuPath[index];
-        const groupPath = index === 0 ? [] : menuPath.slice(0, index);
-        const parent = this.findGroup(groupPath, options);
-        let groupNode = this.findSubMenu(parent, menuId, options);
-        let disposable = Disposable.NULL;
-        if (!groupNode) {
-            groupNode = new CompositeMenuNode(menuId, label, options, parent);
-            disposable = this.changeEventOnDispose(parent.addNode(groupNode));
+    registerSubmenu(menuPath: MenuPath, label: string,
+        options: { sortString?: string, icon?: string, when?: string, contextKeyOverlay?: Record<string, string> } = {}): Disposable {
+        const { contextKeyOverlay, sortString, icon, when } = options;
+
+        const parent = this.root.getOrCreate(menuPath, 0, menuPath.length - 1);
+        const existing = parent.children.find(node => node.id === menuPath[menuPath.length - 1]);
+        if (Group.is(existing)) {
+            parent.removeNode(existing);
+            const newMenu = this.menuNodeFactory.createSubmenu(menuPath[menuPath.length - 1], label, contextKeyOverlay, sortString, icon, when);
+            newMenu.addNode(...existing.children);
+            parent.addNode(newMenu);
+            return Disposable.create(() => {
+                parent.removeNode(newMenu);
+                this.fireChangeEvent();
+            });
         } else {
-            groupNode.updateOptions({ ...options, label });
+            const newMenu = this.menuNodeFactory.createSubmenu(menuPath[menuPath.length - 1], label, contextKeyOverlay, sortString, icon, when);
+            parent.addNode(newMenu);
+            return Disposable.create(() => {
+                parent.removeNode(newMenu);
+                this.fireChangeEvent();
+            });
         }
-        this.fireChangeEvent();
-        return disposable;
     }
 
-    registerIndependentSubmenu(id: string, label: string, options?: SubMenuOptions): Disposable {
-        if (this.independentSubmenus.has(id)) {
-            console.debug(`Independent submenu with path ${id} registered, but given ID already exists.`);
-        }
-        this.independentSubmenus.set(id, new CompositeMenuNode(id, label, options));
-        return this.changeEventOnDispose(Disposable.create(() => this.independentSubmenus.delete(id)));
-    }
-
-    linkSubmenu(parentPath: MenuPath | string, childId: string | MenuPath, options?: SubMenuOptions, group?: string): Disposable {
-        const child = this.getMenuNode(childId);
-        const parent = this.getMenuNode(parentPath, group);
-
-        const isRecursive = (node: MenuNodeMetadata, childNode: MenuNodeMetadata): boolean => {
-            if (node.id === childNode.id) {
-                return true;
-            }
-            if (node.parent) {
-                return isRecursive(node.parent, childNode);
-            }
-            return false;
-        };
-
-        // check for menu contribution recursion
-        if (isRecursive(parent, child)) {
-            console.warn(`Recursive menu contribution detected: ${child.id} is already in hierarchy of ${parent.id}.`);
-            return Disposable.NULL;
+    linkCompoundMenuNode(params: { newParentPath: MenuPath, submenuPath: MenuPath, order?: string, when?: string }): Disposable {
+        const { newParentPath, submenuPath, order, when } = params;
+        // add a wrapper here
+        let i = 0;
+        while (i < newParentPath.length && i < submenuPath.length && newParentPath[i] === submenuPath[i]) {
+            i++;
         }
 
-        const wrapper = new CompositeMenuNodeWrapper(child, parent, options);
-        const disposable = parent.addNode(wrapper);
-        this.fireChangeEvent();
-        return this.changeEventOnDispose(disposable);
+        if (i === newParentPath.length || i === submenuPath.length) {
+            throw new Error(`trying to recursively link ${JSON.stringify(submenuPath)} into ${JSON.stringify(newParentPath)}`);
+        }
+
+        const child = this.getMenu(submenuPath) as Submenu;
+        if (!child) {
+            throw new Error(`Not a menu node: ${JSON.stringify(submenuPath)}`);
+        }
+        const newParent = this.root.getOrCreate(newParentPath, 0, newParentPath.length);
+        if (MutableCompoundMenuNode.is(newParent)) {
+            const link = this.menuNodeFactory.createSubmenuLink(child, order, when);
+            newParent.addNode(link);
+            this.fireChangeEvent();
+            return Disposable.create(() => {
+                newParent.removeNode(link);
+                this.fireChangeEvent();
+            });
+        } else {
+            throw new Error(`Not a compound menu node: ${JSON.stringify(newParentPath)}`);
+        }
     }
 
     /**
@@ -215,78 +235,54 @@ export class MenuModelRegistry {
      * @param menuPath if specified only nodes within the path will be unregistered.
      */
     unregisterMenuAction(id: string, menuPath?: MenuPath): void;
-    unregisterMenuAction(itemOrCommandOrId: MenuAction | Command | string, menuPath?: MenuPath): void {
+    unregisterMenuAction(itemOrCommandOrId: MenuAction | Command | string, menuPath: MenuPath = []): void {
         const id = MenuAction.is(itemOrCommandOrId) ? itemOrCommandOrId.commandId
             : Command.is(itemOrCommandOrId) ? itemOrCommandOrId.id
                 : itemOrCommandOrId;
 
-        if (menuPath) {
-            const parent = this.findGroup(menuPath);
-            parent.removeNode(id);
-            this.fireChangeEvent();
-            return;
+        const parent = this.findInNode(this.root, menuPath, 0);
+        if (parent) {
+            this.removeActionInSubtree(parent, id);
         }
-
-        this.unregisterMenuNode(id);
     }
 
-    /**
-     * Recurse all menus, removing any menus matching the `id`.
-     *
-     * @param id technical identifier of the `MenuNode`.
-     */
-    unregisterMenuNode(id: string): void {
-        const recurse = (root: MutableCompoundMenuNode) => {
-            root.children.forEach(node => {
-                if (CompoundMenuNode.isMutable(node)) {
-                    node.removeNode(id);
-                    recurse(node);
-                }
-            });
-        };
-        recurse(this.root);
-        this.fireChangeEvent();
+    protected removeActionInSubtree(parent: MenuNode, id: string): void {
+        if (MutableCompoundMenuNode.is(parent) && CompoundMenuNode.is(parent)) {
+            const action = parent.children.find(child => child.id === id);
+            if (action) {
+                parent.removeNode(action);
+            }
+            parent.children.forEach(child => this.removeActionInSubtree(child, id));
+        }
     }
 
-    /**
-     * Finds a submenu as a descendant of the `root` node.
-     * See {@link MenuModelRegistry.findSubMenu findSubMenu}.
-     */
-    protected findGroup(menuPath: MenuPath, options?: SubMenuOptions): MutableCompoundMenuNode {
-        let currentMenu: MutableCompoundMenuNode = this.root;
-        for (const segment of menuPath) {
-            currentMenu = this.findSubMenu(currentMenu, segment, options);
+    protected findInNode(root: CompoundMenuNode, menuPath: MenuPath, pathIndex: number): MenuNode | undefined {
+        if (pathIndex === menuPath.length) {
+            return root;
         }
-        return currentMenu;
+        const child = root.children.find(c => c.id === menuPath[pathIndex]);
+        if (CompoundMenuNode.is(child)) {
+            return this.findInNode(child, menuPath, pathIndex + 1);
+        }
+        return undefined;
     }
 
-    /**
-     * Finds or creates a submenu as an immediate child of `current`.
-     * @throws if a node with the given `menuId` exists but is not a {@link MutableCompoundMenuNode}.
-     */
-    protected findSubMenu(current: MutableCompoundMenuNode, menuId: string, options?: SubMenuOptions): MutableCompoundMenuNode {
-        const sub = current.children.find(e => e.id === menuId);
-        if (CompoundMenuNode.isMutable(sub)) {
-            return sub;
-        }
-        if (sub) {
-            throw new Error(`'${menuId}' is not a menu group.`);
-        }
-        const newSub = new CompositeMenuNode(menuId, undefined, options, current);
-        current.addNode(newSub);
-        return newSub;
+    getMenuNode(menuPath: string[]): MenuNode | undefined {
+        return this.findInNode(this.root, menuPath, 0);
     }
 
-    /**
-     * Returns the menu at the given path.
-     *
-     * @param menuPath the path specifying the menu to return. If not given the empty path will be used.
-     *
-     * @returns the root menu when `menuPath` is empty. If `menuPath` is not empty the specified menu is
-     * returned if it exists, otherwise an error is thrown.
-     */
-    getMenu(menuPath: MenuPath = []): MutableCompoundMenuNode {
-        return this.findGroup(menuPath);
+    getMenu(menuPath: MenuPath): CompoundMenuNode {
+        const node = this.getMenuNode(menuPath);
+        if (!CompoundMenuNode.is(node)) {
+            throw new Error(`not a compound menu node: ${JSON.stringify(menuPath)}`);
+        }
+        return node;
+    }
+
+    protected fireChangeEvent(): void {
+        if (this.isReady) {
+            this.onDidChangeEmitter.fire();
+        }
     }
 
     /**
@@ -297,78 +293,40 @@ export class MenuModelRegistry {
      * @returns if the menu will show a single submenu this returns a menu that will show the child elements of the submenu,
      * otherwise the given `fullMenuModel` is return
      */
-    removeSingleRootNode(fullMenuModel: MutableCompoundMenuNode, menuPath: MenuPath): CompoundMenuNode {
-        // check whether all children are compound menus and that there is only one child that has further children
-        if (!this.allChildrenCompound(fullMenuModel.children)) {
-            return fullMenuModel;
-        }
-        let nonEmptyNode = undefined;
+    static removeSingleRootNode(fullMenuModel: CompoundMenuNode): CompoundMenuNode {
+
+        let singleChild = undefined;
+
         for (const child of fullMenuModel.children) {
-            if (!this.isEmpty(child.children || [])) {
-                if (nonEmptyNode === undefined) {
-                    nonEmptyNode = child;
-                } else {
-                    return fullMenuModel;
+            if (CompoundMenuNode.is(child)) {
+                if (!MenuModelRegistry.isEmpty(child)) {
+                    if (singleChild) {
+                        return fullMenuModel;
+                    } else {
+                        singleChild = child;
+                    }
+                }
+            } else {
+                return fullMenuModel;
+            }
+        }
+        return singleChild || fullMenuModel;
+    }
+
+    static isEmpty(node: MenuNode): boolean {
+        if (CompoundMenuNode.is(node)) {
+            if (node.children.length === 0) {
+                return true;
+            }
+            for (const child of node.children) {
+                if (!MenuModelRegistry.isEmpty(child)) {
+                    return false;
                 }
             }
-        }
-
-        if (CompoundMenuNode.is(nonEmptyNode) && nonEmptyNode.children.length === 1 && CompoundMenuNode.is(nonEmptyNode.children[0])) {
-            nonEmptyNode = nonEmptyNode.children[0];
-        }
-
-        return CompoundMenuNode.is(nonEmptyNode) ? nonEmptyNode : fullMenuModel;
-    }
-
-    protected allChildrenCompound(children: ReadonlyArray<MenuNode>): boolean {
-        return children.every(CompoundMenuNode.is);
-    }
-
-    protected isEmpty(children: ReadonlyArray<MenuNode>): boolean {
-        if (children.length === 0) {
-            return true;
-        }
-        if (!this.allChildrenCompound(children)) {
+        } else {
             return false;
-        }
-        for (const child of children) {
-            if (!this.isEmpty(child.children || [])) {
-                return false;
-            }
         }
         return true;
     }
 
-    protected changeEventOnDispose(disposable: Disposable): Disposable {
-        return Disposable.create(() => {
-            disposable.dispose();
-            this.fireChangeEvent();
-        });
-    }
-
-    protected fireChangeEvent(): void {
-        if (this.isReady) {
-            this.onDidChangeEmitter.fire();
-        }
-    }
-
-    /**
-     * Returns the {@link MenuPath path} at which a given menu node can be accessed from this registry, if it can be determined.
-     * Returns `undefined` if the `parent` of any node in the chain is unknown.
-     */
-    getPath(node: MenuNode): MenuPath | undefined {
-        const identifiers = [];
-        const visited: MenuNode[] = [];
-        let next: MenuNode | undefined = node;
-
-        while (next && !visited.includes(next)) {
-            if (next === this.root) {
-                return identifiers.reverse();
-            }
-            visited.push(next);
-            identifiers.push(next.id);
-            next = next.parent;
-        }
-        return undefined;
-    }
 }
