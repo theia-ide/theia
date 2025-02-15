@@ -14,16 +14,15 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { ContainerModule, interfaces } from '@theia/core/shared/inversify';
-import { bindOPFSInitialization } from './filesystem/example-filesystem-initialization';
-import { bindPluginInitialization } from './plugin-sample/example-plugin-initialization';
+import { ContainerModule } from '@theia/core/shared/inversify';
+import { HostedPluginServer, PluginServer } from './common/plugin-protocol';
+import { FrontendHostedPluginServer } from './hosted/browser-only/frontend-hosted-plugin-server';
+import { PluginPathsService } from './main/common/plugin-paths-protocol';
+import { FrontendPluginPathService } from './hosted/browser-only/frontend-plugin-path-service';
+import { FrontendPluginServer } from './hosted/browser-only/frontend-plugin-server';
 
-export default new ContainerModule((
-    bind: interfaces.Bind,
-    _unbind: interfaces.Unbind,
-    _isBound: interfaces.IsBound,
-    rebind: interfaces.Rebind,
-) => {
-    bindOPFSInitialization(bind, rebind);
-    bindPluginInitialization(bind, rebind);
+export default new ContainerModule((bind, unbind, isBound, rebind) => {
+    rebind(HostedPluginServer).to(FrontendHostedPluginServer).inSingletonScope();
+    rebind(PluginServer).to(FrontendPluginServer).inSingletonScope();
+    rebind(PluginPathsService).to(FrontendPluginPathService).inSingletonScope();
 });

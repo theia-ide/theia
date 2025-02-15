@@ -12,18 +12,15 @@
 // https://www.gnu.org/software/classpath/license.html.
 //
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
-// *****************************************************************************
+// ****************************************************************************
 
-import { ContainerModule, interfaces } from '@theia/core/shared/inversify';
-import { bindOPFSInitialization } from './filesystem/example-filesystem-initialization';
-import { bindPluginInitialization } from './plugin-sample/example-plugin-initialization';
+import { interfaces } from '@theia/core/shared/inversify';
+import { PluginLocalOptions } from '@theia/plugin-ext/lib/hosted/browser-only/frontend-hosted-plugin-server';
+import { staticMetadata } from './example-static-plugin-metadata';
 
-export default new ContainerModule((
-    bind: interfaces.Bind,
-    _unbind: interfaces.Unbind,
-    _isBound: interfaces.IsBound,
-    rebind: interfaces.Rebind,
-) => {
-    bindOPFSInitialization(bind, rebind);
-    bindPluginInitialization(bind, rebind);
-});
+export const bindPluginInitialization = (bind: interfaces.Bind, rebind: interfaces.Rebind): void => {
+    const pluginLocalOptions = {
+        pluginMetadata: staticMetadata,
+    };
+    bind(PluginLocalOptions).toConstantValue(pluginLocalOptions);
+};

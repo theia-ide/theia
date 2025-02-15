@@ -1,5 +1,5 @@
 // *****************************************************************************
-// Copyright (C) 2023 EclipseSource and others.
+// Copyright (C) 2024 robertjndw
 //
 // This program and the accompanying materials are made available under the
 // terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,16 +14,11 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { ContainerModule, interfaces } from '@theia/core/shared/inversify';
-import { bindOPFSInitialization } from './filesystem/example-filesystem-initialization';
-import { bindPluginInitialization } from './plugin-sample/example-plugin-initialization';
+import { ContainerModule } from '@theia/core/shared/inversify';
+import { TerminalFrontendOnlyContribution } from './terminal-frontend-only-contribution';
+import { TerminalService } from '../browser/base/terminal-service';
 
-export default new ContainerModule((
-    bind: interfaces.Bind,
-    _unbind: interfaces.Unbind,
-    _isBound: interfaces.IsBound,
-    rebind: interfaces.Rebind,
-) => {
-    bindOPFSInitialization(bind, rebind);
-    bindPluginInitialization(bind, rebind);
+export default new ContainerModule((bind, unbind, isBound, rebind) => {
+    bind(TerminalFrontendOnlyContribution).toSelf().inSingletonScope();
+    rebind(TerminalService).toService(TerminalFrontendOnlyContribution);
 });

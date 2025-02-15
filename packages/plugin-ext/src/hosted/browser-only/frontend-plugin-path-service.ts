@@ -12,18 +12,18 @@
 // https://www.gnu.org/software/classpath/license.html.
 //
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
-// *****************************************************************************
+// ****************************************************************************
 
-import { ContainerModule, interfaces } from '@theia/core/shared/inversify';
-import { bindOPFSInitialization } from './filesystem/example-filesystem-initialization';
-import { bindPluginInitialization } from './plugin-sample/example-plugin-initialization';
+import { injectable } from '@theia/core/shared/inversify';
+import { PluginPathsService } from '../../main/common/plugin-paths-protocol';
 
-export default new ContainerModule((
-    bind: interfaces.Bind,
-    _unbind: interfaces.Unbind,
-    _isBound: interfaces.IsBound,
-    rebind: interfaces.Rebind,
-) => {
-    bindOPFSInitialization(bind, rebind);
-    bindPluginInitialization(bind, rebind);
-});
+@injectable()
+export class FrontendPluginPathService implements PluginPathsService {
+    async getHostLogPath(): Promise<string> {
+        return '';
+    }
+    async getHostStoragePath(workspaceUri: string | undefined, rootUris: string[]): Promise<string | undefined> {
+        return '';
+    }
+
+}

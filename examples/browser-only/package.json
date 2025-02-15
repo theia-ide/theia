@@ -14,6 +14,11 @@
       }
     }
   },
+  "theiaPluginsDir": "plugins",
+  "theiaPlugins": {
+    "vscode.typescript": "https://open-vsx.org/api/vscode/typescript/1.95.3/file/vscode.typescript-1.95.3.vsix",
+    "vscode.typescript-language-features": "https://open-vsx.org/api/vscode/typescript-language-features/1.95.3/file/vscode.typescript-language-features-1.95.3.vsix"
+  },
   "dependencies": {
     "@theia/ai-chat": "1.58.0",
     "@theia/ai-chat-ui": "1.58.0",
@@ -72,8 +77,10 @@
   "scripts": {
     "prepare:no-native": "lerna run prepare --scope=\"@theia/re-exports\" && lerna run generate-theia-re-exports --scope=\"@theia/core\"",
     "clean": "theia clean",
-    "build": "theiaext build && npm run -s bundle",
+    "build": "theiaext build && npm run package:plugins && npm run -s bundle",
     "bundle": "theia build --mode development",
+    "download:plugins": "theia download:plugins",
+    "package:plugins": "node ./prepare-plugins.js",
     "compile": "theiaext compile",
     "start": "theia start",
     "start:debug": "npm run -s start --log-level=debug",
