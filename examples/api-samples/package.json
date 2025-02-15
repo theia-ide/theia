@@ -35,6 +35,9 @@
     },
     {
       "frontendOnly": "lib/browser-only/api-samples-frontend-only-module"
+    },
+    {
+      "frontendPreload": "lib/browser/api-samples-preload-module"
     }
   ],
   "keywords": [

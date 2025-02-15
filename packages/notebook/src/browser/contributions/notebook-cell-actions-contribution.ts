@@ -65,19 +65,19 @@ export namespace NotebookCellCommands {
     export const EXECUTE_SINGLE_CELL_COMMAND = Command.toDefaultLocalizedCommand({
         id: 'notebook.cell.execute-cell',
         category: 'Notebook',
-        label: nls.localizeByDefault('Execute Cell'),
+        label: 'Execute Cell',
         iconClass: codicon('play'),
     });
     /** Parameters: notebookModel: NotebookModel, cell: NotebookCellModel */
     export const EXECUTE_SINGLE_CELL_AND_FOCUS_NEXT_COMMAND = Command.toDefaultLocalizedCommand({
         id: 'notebook.cell.execute-cell-and-focus-next',
-        label: nls.localizeByDefault('Execute Notebook Cell and Select Below'),
+        label: 'Execute Notebook Cell and Select Below',
         category: 'Notebook',
     });
     /** Parameters: notebookModel: NotebookModel, cell: NotebookCellModel */
     export const EXECUTE_SINGLE_CELL_AND_INSERT_BELOW_COMMAND = Command.toDefaultLocalizedCommand({
         id: 'notebook.cell.execute-cell-and-insert-below',
-        label: nls.localizeByDefault('Execute Notebook Cell and Insert Below'),
+        label: 'Execute Notebook Cell and Insert Below',
         category: 'Notebook',
     });
 

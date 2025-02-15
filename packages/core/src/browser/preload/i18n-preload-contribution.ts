@@ -17,14 +17,19 @@
 import { PreloadContribution } from './preloader';
 import { FrontendApplicationConfigProvider } from '../frontend-application-config-provider';
 import { nls } from '../../common/nls';
-import { inject, injectable } from 'inversify';
+import { inject, injectable, named } from 'inversify';
 import { LocalizationServer } from '../../common/i18n/localization-server';
+import { ContributionProvider } from '../../common';
+import { TextReplacementContribution } from './text-replacement-contribution';
 
 @injectable()
 export class I18nPreloadContribution implements PreloadContribution {
 
     @inject(LocalizationServer)
     protected readonly localizationServer: LocalizationServer;
+
+    @inject(ContributionProvider) @named(TextReplacementContribution)
+    protected readonly replacementContributions: ContributionProvider<TextReplacementContribution>;
 
     async initialize(): Promise<void> {
         const defaultLocale = FrontendApplicationConfigProvider.get().defaultLocale;
@@ -33,8 +38,9 @@ export class I18nPreloadContribution implements PreloadContribution {
                 locale: defaultLocale
             });
         }
+        let locale = nls.locale ?? nls.defaultLocale;
         if (nls.locale && nls.locale !== nls.defaultLocale) {
-            const localization = await this.localizationServer.loadLocalization(nls.locale);
+            const localization = await this.localizationServer.loadLocalization(locale);
             if (localization.languagePack) {
                 nls.localization = localization;
             } else {
@@ -43,8 +49,22 @@ export class I18nPreloadContribution implements PreloadContribution {
                 Object.assign(nls, {
                     locale: defaultLocale || undefined
                 });
+                locale = defaultLocale;
             }
         }
+        const replacements = this.getReplacements(locale);
+        if (Object.keys(replacements).length > 0) {
+            nls.localization ??= { translations: {}, languageId: locale };
+            nls.localization.replacements = replacements;
+        }
+    }
+
+    protected getReplacements(locale: string): Record<string, string> {
+        const replacements: Record<string, string> = {};
+        for (const contribution of this.replacementContributions.getContributions()) {
+            Object.assign(replacements, contribution.getReplacement(locale));
+        }
+        return replacements;
     }
 
 }
