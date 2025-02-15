@@ -15,6 +15,7 @@
 // *****************************************************************************
 
 import URI from '@theia/core/lib/common/uri';
+import { PluginIdentifiers } from '@theia/plugin-ext';
 
 /**
  * Static methods for identifying a plugin as the target of the VSCode deployment system.
@@ -32,7 +33,7 @@ export namespace VSCodeExtensionUri {
     }
 
     export function fromVersionedId(versionedId: string): URI {
-        const versionAndId = versionedId.split('@');
+        const versionAndId = PluginIdentifiers.getIdAndVersion(versionedId);
         return fromId(versionAndId[0], versionAndId[1]);
     }
 
