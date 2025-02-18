@@ -38,5 +38,4 @@ export class CoderAgent extends AbstractStreamParsingChatAgent {
     override promptTemplates = [getCoderReplacePromptTemplate(true), getCoderReplacePromptTemplate(false)];
     override functions = [GET_WORKSPACE_DIRECTORY_STRUCTURE_FUNCTION_ID, GET_WORKSPACE_FILE_LIST_FUNCTION_ID, FILE_CONTENT_FUNCTION_ID, WriteChangeToFileProvider.ID];
     protected override systemPromptId: string | undefined = CODER_REPLACE_PROMPT_TEMPLATE_ID;
-
 }

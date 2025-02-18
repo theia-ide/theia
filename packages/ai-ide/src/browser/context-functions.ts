@@ -17,10 +17,12 @@
 import { MutableChatRequestModel } from '@theia/ai-chat';
 import { ToolProvider, ToolRequest } from '@theia/ai-core';
 import { injectable } from '@theia/core/shared/inversify';
+import { LIST_CHAT_CONTEXT_FUNCTION_ID, RESOLVE_CHAT_CONTEXT_FUNCTION_ID, UPDATE_CONTEXT_FILES_FUNCTION_ID } from '../common/context-functions';
+import { FILE_VARIABLE } from '@theia/ai-core/lib/browser/file-variable-contribution';
 
 @injectable()
 export class ListChatContext implements ToolProvider {
-    static ID = 'context_ListChatContext';
+    static ID = LIST_CHAT_CONTEXT_FUNCTION_ID;
 
     getTool(): ToolRequest {
         return {
@@ -40,7 +42,7 @@ export class ListChatContext implements ToolProvider {
 
 @injectable()
 export class ResolveChatContext implements ToolProvider {
-    static ID = 'context_ResolveChatContext';
+    static ID = RESOLVE_CHAT_CONTEXT_FUNCTION_ID;
 
     getTool(): ToolRequest {
         return {
@@ -76,3 +78,35 @@ export class ResolveChatContext implements ToolProvider {
     }
 }
 
+@injectable()
+export class AddFileToChatContext implements ToolProvider {
+    static ID = UPDATE_CONTEXT_FILES_FUNCTION_ID;
+
+    getTool(): ToolRequest {
+        return {
+            id: AddFileToChatContext.ID,
+            name: AddFileToChatContext.ID,
+            parameters: {
+                type: 'object',
+                properties: {
+                    filesToAdd: {
+                        type: 'array',
+                        description: 'The absolute paths of files to add to the context of the current chat.',
+                        items: { type: 'string' }
+                    }
+                },
+                required: ['filesToAdd']
+            },
+            description: 'Adds one or more files to the context of the current chat session, and returns the current list of files in the context.',
+            handler: async (arg: string, ctx: MutableChatRequestModel): Promise<string> => {
+                const { filesToAdd } = JSON.parse(arg) as { filesToAdd: string[] };
+
+                ctx.session.context.addVariables(...filesToAdd.map(file => ({ arg: file, variable: FILE_VARIABLE })));
+                const result = ctx.session.context.getVariables().filter(candidate => candidate.variable.id === FILE_VARIABLE.id && !!candidate.arg)
+                    .map(fileRequest => fileRequest.arg);
+
+                return JSON.stringify(result);
+            }
+        };
+    }
+}

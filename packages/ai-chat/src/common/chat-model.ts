@@ -24,7 +24,7 @@ import { MarkdownString, MarkdownStringImpl } from '@theia/core/lib/common/markd
 import { Position } from '@theia/core/shared/vscode-languageserver-protocol';
 import { ChatAgentLocation } from './chat-agents';
 import { ParsedChatRequest } from './parsed-chat-request';
-import { ResolvedAIContextVariable } from '@theia/ai-core';
+import { AIVariableResolutionRequest, ResolvedAIContextVariable } from '@theia/ai-core';
 
 /**********************
  * INTERFACES AND TYPE GUARDS
@@ -33,6 +33,8 @@ import { ResolvedAIContextVariable } from '@theia/ai-core';
 export type ChatChangeEvent =
     | ChatAddRequestEvent
     | ChatAddResponseEvent
+    | ChatAddVariableEvent
+    | ChatRemoveVariableEvent
     | ChatRemoveRequestEvent
     | ChatSetChangeSetEvent
     | ChatUpdateChangeSetEvent
@@ -64,6 +66,14 @@ export interface ChatRemoveChangeSetEvent {
     changeSet: ChangeSet;
 }
 
+export interface ChatAddVariableEvent {
+    kind: 'addVariable';
+}
+
+export interface ChatRemoveVariableEvent {
+    kind: 'removeVariable';
+}
+
 export namespace ChatChangeEvent {
     export function isChangeSetEvent(event: ChatChangeEvent): event is ChatSetChangeSetEvent | ChatUpdateChangeSetEvent | ChatRemoveChangeSetEvent {
         return event.kind === 'setChangeSet' || event.kind === 'removeChangeSet' || event.kind === 'updateChangeSet';
@@ -84,6 +94,7 @@ export interface ChatModel {
     readonly id: string;
     readonly location: ChatAgentLocation;
     readonly changeSet?: ChangeSet;
+    readonly context: ChatContextManager;
     getRequests(): ChatRequestModel[];
     isEmpty(): boolean;
 }
@@ -93,6 +104,14 @@ export interface ChangeSet {
     readonly title: string;
     getElements(): ChangeSetElement[];
     dispose(): void;
+}
+
+export interface ChatContextManager {
+    onDidChange: Event<ChatAddVariableEvent | ChatRemoveVariableEvent>;
+    getVariables(): readonly AIVariableResolutionRequest[]
+    addVariables(...variables: AIVariableResolutionRequest[]): void;
+    deleteVariables(...indices: number[]): void;
+    clear(): void;
 }
 
 export interface ChangeSetElement {
@@ -478,11 +497,13 @@ export class MutableChatModel implements ChatModel, Disposable {
     protected _requests: MutableChatRequestModel[];
     protected _id: string;
     protected _changeSet?: ChangeSetImpl;
+    protected readonly _contextManager = new ChatContextManagerImpl();
 
     constructor(public readonly location = ChatAgentLocation.Panel) {
         // TODO accept serialized data as a parameter to restore a previously saved ChatModel
         this._requests = [];
         this._id = generateUuid();
+        this._contextManager.onDidChange(e => this._onDidChangeEmitter.fire(e));
     }
 
     getRequests(): MutableChatRequestModel[] {
@@ -499,6 +520,10 @@ export class MutableChatModel implements ChatModel, Disposable {
 
     get changeSet(): ChangeSetImpl | undefined {
         return this._changeSet;
+    }
+
+    get context(): ChatContextManager {
+        return this._contextManager;
     }
 
     setChangeSet(changeSet: ChangeSetImpl | undefined): void {
@@ -612,6 +637,51 @@ export class ChangeSetImpl implements ChangeSet {
     dispose(): void {
         this._elements.forEach(element => element.dispose?.());
         this._onDidChangeEmitter.dispose();
+    }
+}
+
+export class ChatContextManagerImpl implements ChatContextManager {
+    protected readonly variables = new Array<AIVariableResolutionRequest>();
+    protected readonly onDidChangeEmitter = new Emitter<ChatAddVariableEvent | ChatRemoveVariableEvent>();
+    get onDidChange(): Event<ChatAddVariableEvent | ChatRemoveVariableEvent> {
+        return this.onDidChangeEmitter.event;
+    }
+
+    getVariables(): readonly AIVariableResolutionRequest[] {
+        const result = this.variables.slice();
+        Object.freeze(result);
+        return result;
+    }
+
+    addVariables(...variables: AIVariableResolutionRequest[]): void {
+        let modified = false;
+        variables.forEach(variable => {
+            if (this.variables.some(existing => existing.variable.id === variable.variable.id && existing.arg === variable.arg)) {
+                return;
+            }
+            this.variables.push(variable);
+            modified = true;
+        });
+        if (modified) {
+            this.onDidChangeEmitter.fire({ kind: 'addVariable' });
+        }
+    }
+
+    deleteVariables(...indices: number[]): void {
+        const toDelete = indices.filter(candidate => candidate <= this.variables.length).sort((left, right) => right - left);
+        if (toDelete.length) {
+            toDelete.forEach(index => {
+                this.variables.splice(index, 1);
+            });
+            this.onDidChangeEmitter.fire({ kind: 'removeVariable' });
+        }
+    }
+
+    clear(): void {
+        if (this.variables.length) {
+            this.variables.length = 0;
+            this.onDidChangeEmitter.fire({ kind: 'removeVariable' });
+        }
     }
 }
 

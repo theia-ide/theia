@@ -14,7 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 import { ChangeSet, ChangeSetElement, ChatAgent, ChatChangeEvent, ChatModel, ChatRequestModel } from '@theia/ai-chat';
-import { Disposable, InMemoryResources, URI, nls } from '@theia/core';
+import { Disposable, DisposableCollection, InMemoryResources, URI, nls } from '@theia/core';
 import { ContextMenuRenderer, LabelProvider, Message, ReactWidget } from '@theia/core/lib/browser';
 import { Deferred } from '@theia/core/lib/common/promise-util';
 import { inject, injectable, optional, postConstruct } from '@theia/core/shared/inversify';
@@ -70,8 +70,6 @@ export class AIChatInputWidget extends ReactWidget {
 
     protected isEnabled = false;
 
-    protected context: AIVariableResolutionRequest[] = [];
-
     private _onQuery: Query;
     set onQuery(query: Query) {
         this._onQuery = query;
@@ -93,8 +91,16 @@ export class AIChatInputWidget extends ReactWidget {
         this._onDeleteChangeSetElement = deleteChangeSetElement;
     }
 
+    protected onDisposeForChatModel = new DisposableCollection();
     private _chatModel: ChatModel;
     set chatModel(chatModel: ChatModel) {
+        this.onDisposeForChatModel.dispose();
+        this.onDisposeForChatModel = new DisposableCollection();
+        this.onDisposeForChatModel.push(chatModel.onDidChange(event => {
+            if (event.kind === 'addVariable' || event.kind === 'removeVariable') {
+                this.update();
+            }
+        }));
         this._chatModel = chatModel;
         this.update();
     }
@@ -132,7 +138,7 @@ export class AIChatInputWidget extends ReactWidget {
                 onDeleteChangeSetElement={this._onDeleteChangeSetElement.bind(this)}
                 onAddContextElement={this.addContextElement.bind(this)}
                 onDeleteContextElement={this.deleteContextElement.bind(this)}
-                context={this.context}
+                context={this._chatModel.context.getVariables()}
                 chatModel={this._chatModel}
                 pinnedAgent={this._pinnedAgent}
                 editorProvider={this.editorProvider}
@@ -192,14 +198,13 @@ export class AIChatInputWidget extends ReactWidget {
     protected addContextElement(): void {
         this.contextVariablePicker.pickContextVariable().then(contextElement => {
             if (contextElement) {
-                this.addContext(contextElement);
+                this._chatModel.context.addVariables(contextElement);
             }
         });
     }
 
     protected deleteContextElement(index: number): void {
-        this.context.splice(index, 1);
-        this.update();
+        this._chatModel.context.deleteVariables(index);
     }
 
     protected handleContextMenu(event: IMouseEvent): void {
@@ -210,18 +215,14 @@ export class AIChatInputWidget extends ReactWidget {
         event.preventDefault();
     }
 
-    addContext(variableRequest: AIVariableResolutionRequest): void {
-        if (this.context.some(existing => existing.variable.id === variableRequest.variable.id && existing.arg === variableRequest.arg)) {
-            return;
-        }
-        this.context.push(variableRequest);
-        this.update();
+    addContext(variable: AIVariableResolutionRequest): void {
+        this._chatModel.context.addVariables(variable);
     }
 }
 
 interface ChatInputProperties {
     onCancel: (requestModel: ChatRequestModel) => void;
-    onQuery: (query: string, context?: AIVariableResolutionRequest[]) => void;
+    onQuery: (query: string, context?: readonly AIVariableResolutionRequest[]) => void;
     onUnpin: () => void;
     onDragOver: (event: React.DragEvent) => void;
     onDrop: (event: React.DragEvent) => void;
@@ -229,7 +230,7 @@ interface ChatInputProperties {
     onDeleteChangeSetElement: (sessionId: string, index: number) => void;
     onAddContextElement: () => void;
     onDeleteContextElement: (index: number) => void;
-    context?: AIVariableResolutionRequest[];
+    context?: readonly AIVariableResolutionRequest[];
     isEnabled?: boolean;
     chatModel: ChatModel;
     pinnedAgent?: ChatAgent;
@@ -368,7 +369,7 @@ const ChatInput: React.FunctionComponent<ChatInputProperties> = (props: ChatInpu
         };
     }, [props.chatModel]);
 
-    function submit(value: string): void {
+    const submit = React.useCallback(function submit(value: string): void {
         if (!value || value.trim().length === 0) {
             return;
         }
@@ -377,7 +378,7 @@ const ChatInput: React.FunctionComponent<ChatInputProperties> = (props: ChatInpu
         if (editorRef.current) {
             editorRef.current.document.textEditorModel.setValue('');
         }
-    }
+    }, [props.context, props.onQuery, editorRef]);
 
     const onKeyDown = React.useCallback((event: React.KeyboardEvent) => {
         if (!props.isEnabled) {
@@ -387,7 +388,7 @@ const ChatInput: React.FunctionComponent<ChatInputProperties> = (props: ChatInpu
             event.preventDefault();
             submit(editorRef.current?.document.textEditorModel.getValue() || '');
         }
-    }, [props.isEnabled]);
+    }, [props.isEnabled, submit]);
 
     const handleInputFocus = () => {
         hidePlaceholderIfEditorFilled();
@@ -657,7 +658,7 @@ function getLatestRequest(chatModel: ChatModel): ChatRequestModel | undefined {
     return requests.length > 0 ? requests[requests.length - 1] : undefined;
 }
 
-function buildContextUI(context: AIVariableResolutionRequest[] | undefined, labelProvider: LabelProvider, onDeleteContextElement: (index: number) => void): ChatContextUI {
+function buildContextUI(context: readonly AIVariableResolutionRequest[] | undefined, labelProvider: LabelProvider, onDeleteContextElement: (index: number) => void): ChatContextUI {
     if (!context) {
         return { context: [] };
     }

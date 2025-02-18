@@ -21,6 +21,7 @@
 
 import {
     AgentSpecificVariables,
+    AIVariableContext,
     CommunicationRecordingService,
     getTextOfResponse,
     LanguageModel,
@@ -169,7 +170,7 @@ export abstract class AbstractChatAgent implements ChatAgent {
                 throw new Error('Couldn\'t find a matching language model. Please check your setup!');
             }
 
-            const systemMessageDescription = await this.getSystemMessageDescription();
+            const systemMessageDescription = await this.getSystemMessageDescription({ request, session: request.session });
             const messages = await this.getMessages(request.session);
             if (this.defaultLogging) {
                 this.recordingService.recordRequest(
@@ -244,11 +245,11 @@ export abstract class AbstractChatAgent implements ChatAgent {
         return languageModel;
     }
 
-    protected async getSystemMessageDescription(): Promise<SystemMessageDescription | undefined> {
+    protected async getSystemMessageDescription(context: AIVariableContext): Promise<SystemMessageDescription | undefined> {
         if (this.systemPromptId === undefined) {
             return undefined;
         }
-        const resolvedPrompt = await this.promptService.getPrompt(this.systemPromptId);
+        const resolvedPrompt = await this.promptService.getPrompt(this.systemPromptId, undefined, context);
         return resolvedPrompt ? SystemMessageDescription.fromResolvedPromptTemplate(resolvedPrompt) : undefined;
     }
 
