@@ -9,6 +9,7 @@
     "@theia/process": "1.58.0",
     "@theia/workspace": "1.58.0",
     "@vscode/ripgrep": "^1.14.2",
+    "minimatch": "^5.1.0",
     "tslib": "^2.6.2"
   },
   "publishConfig": {
@@ -18,6 +19,9 @@
     {
       "frontend": "lib/browser/file-search-frontend-module",
       "backend": "lib/node/file-search-backend-module"
+    },
+    {
+      "frontendOnly": "lib/browser-only/file-search-backend-module"
     }
   ],
   "keywords": [
