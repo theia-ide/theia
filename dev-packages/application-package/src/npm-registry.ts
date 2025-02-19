@@ -39,6 +39,10 @@ export interface Dependencies {
     [name: string]: string | undefined;
 }
 
+export interface PeerDependenciesMeta {
+    [name: string]: { optional: boolean } | undefined;
+}
+
 export interface NodePackage {
     name?: string;
     version?: string;
@@ -49,6 +53,7 @@ export interface NodePackage {
     keywords?: string[];
     dependencies?: Dependencies;
     peerDependencies?: Dependencies;
+    peerDependenciesMeta?: PeerDependenciesMeta;
     [property: string]: any;
 }
 

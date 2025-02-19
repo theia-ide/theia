@@ -315,12 +315,10 @@ export class ApplicationPackage {
      */
     get resolveModule(): ApplicationModuleResolver {
         if (!this._moduleResolver) {
-
             this._moduleResolver = (parentPackagePath, modulePath) => {
                 const resolved = resolvePackagePath(modulePath, parentPackagePath);
                 if (!resolved) {
-                    console.error(`cannot resolve ${modulePath} relative to ${parentPackagePath}`);
-                    throw new Error('Could not resolve module: ' + modulePath);
+                    throw new Error(`Cannot resolve package ${modulePath} relative to ${parentPackagePath}`);
                 }
                 return resolved;
             };

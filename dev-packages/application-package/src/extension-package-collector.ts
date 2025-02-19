@@ -21,7 +21,7 @@ import { ExtensionPackage, ExtensionPackageOptions, RawExtensionPackage } from '
 export class ExtensionPackageCollector {
 
     protected readonly sorted: ExtensionPackage[] = [];
-    protected readonly visited = new Map<string, boolean>();
+    protected readonly visited = new Set<string>();
 
     constructor(
         protected readonly extensionPackageFactory: (raw: PublishedNodePackage, options?: ExtensionPackageOptions) => ExtensionPackage,
@@ -40,7 +40,8 @@ export class ExtensionPackageCollector {
             ...Object.entries(pck.dependencies ?? {}),
             ...Object.entries(pck.peerDependencies ?? {})
         ]) {
-            this.collectPackage(packagePath, dependency, versionRange!);
+            const optional = pck.peerDependenciesMeta?.[dependency]?.optional || false;
+            this.collectPackage(packagePath, dependency, versionRange!, optional);
         }
     }
 
@@ -52,17 +53,21 @@ export class ExtensionPackageCollector {
         this.parent = current;
     }
 
-    protected collectPackage(parentPackagePath: string, name: string, versionRange: string): void {
+    protected collectPackage(parentPackagePath: string, name: string, versionRange: string, optional: boolean): void {
         if (this.visited.has(name)) {
             return;
         }
-        this.visited.set(name, true);
+        this.visited.add(name);
 
         let packagePath: string | undefined;
         try {
             packagePath = this.resolveModule(parentPackagePath, name);
-        } catch {
-            console.debug(`Failed to resolve module: ${name}`);
+        } catch (err) {
+            if (optional) {
+                console.log(`Could not resolve optional peer dependency '${name}'. Skipping...`);
+            } else {
+                console.error(err.message);
+            }
         }
         if (!packagePath) {
             return;
