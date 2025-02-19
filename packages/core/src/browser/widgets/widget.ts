@@ -17,20 +17,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { injectable, decorate, unmanaged } from 'inversify';
-import { Title, Widget } from '@phosphor/widgets';
-import { Message, MessageLoop } from '@phosphor/messaging';
+import { Title, Widget } from '@lumino/widgets';
+import { Message, MessageLoop } from '@lumino/messaging';
 import { Emitter, Event, Disposable, DisposableCollection, MaybePromise, isObject } from '../../common';
 import { KeyCode, KeysOrKeyCodes } from '../keyboard/keys';
 
 import PerfectScrollbar from 'perfect-scrollbar';
 import { PreviewableWidget } from '../widgets/previewable-widget';
-import { Slot } from '@phosphor/signaling';
+import { Slot } from '@lumino/signaling';
 
 decorate(injectable(), Widget);
 decorate(unmanaged(), Widget, 0);
 
-export * from '@phosphor/widgets';
-export * from '@phosphor/messaging';
+export * from '@lumino/widgets';
+export * from '@lumino/messaging';
 
 export const ACTION_ITEM = 'action-label';
 
@@ -62,8 +62,8 @@ export const DEFAULT_SCROLL_OPTIONS: PerfectScrollbar.Options = {
 };
 
 /**
- * At a number of places in the code, we have effectively reimplemented Phosphor's Widget.attach and Widget.detach,
- * but omitted the checks that Phosphor expects to be performed for those operations. That is a bad idea, because it
+ * At a number of places in the code, we have effectively reimplemented Lumino's Widget.attach and Widget.detach,
+ * but omitted the checks that Lumino expects to be performed for those operations. That is a bad idea, because it
  * means that we are telling widgets that they are attached or detached when not all the conditions that should apply
  * do apply. We should explicitly mark those locations so that we know where we should go fix them later.
  */

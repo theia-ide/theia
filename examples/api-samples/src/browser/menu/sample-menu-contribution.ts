@@ -225,36 +225,38 @@ export class SampleCommandContribution implements CommandContribution {
 @injectable()
 export class SampleMenuContribution implements MenuContribution {
     registerMenus(menus: MenuModelRegistry): void {
-        const subMenuPath = [...MAIN_MENU_BAR, 'sample-menu'];
-        menus.registerSubmenu(subMenuPath, 'Sample Menu', {
-            order: '2' // that should put the menu right next to the File menu
-        });
-        menus.registerMenuAction(subMenuPath, {
-            commandId: SampleCommand.id,
-            order: '0'
-        });
-        menus.registerMenuAction(subMenuPath, {
-            commandId: SampleCommand2.id,
-            order: '2'
-        });
-        const subSubMenuPath = [...subMenuPath, 'sample-sub-menu'];
-        menus.registerSubmenu(subSubMenuPath, 'Sample sub menu', { order: '2' });
-        menus.registerMenuAction(subSubMenuPath, {
-            commandId: SampleCommand.id,
-            order: '1'
-        });
-        menus.registerMenuAction(subSubMenuPath, {
-            commandId: SampleCommand2.id,
-            order: '3'
-        });
-        const placeholder = new PlaceholderMenuNode([...subSubMenuPath, 'placeholder'].join('-'), 'Placeholder', { order: '0' });
-        menus.registerMenuNode(subSubMenuPath, placeholder);
+        setTimeout(() => {
+            const subMenuPath = [...MAIN_MENU_BAR, 'sample-menu'];
+            menus.registerSubmenu(subMenuPath, 'Sample Menu', {
+                order: '2' // that should put the menu right next to the File menu
+            });
+            menus.registerMenuAction(subMenuPath, {
+                commandId: SampleCommand.id,
+                order: '0'
+            });
+            menus.registerMenuAction(subMenuPath, {
+                commandId: SampleCommand2.id,
+                order: '2'
+            });
+            const subSubMenuPath = [...subMenuPath, 'sample-sub-menu'];
+            menus.registerSubmenu(subSubMenuPath, 'Sample sub menu', { order: '2' });
+            menus.registerMenuAction(subSubMenuPath, {
+                commandId: SampleCommand.id,
+                order: '1'
+            });
+            menus.registerMenuAction(subSubMenuPath, {
+                commandId: SampleCommand2.id,
+                order: '3'
+            });
+            const placeholder = new PlaceholderMenuNode([...subSubMenuPath, 'placeholder'].join('-'), 'Placeholder', { order: '0' });
+            menus.registerMenuNode(subSubMenuPath, placeholder);
 
-        /**
-         * Register an action menu with an invalid command (un-registered and without a label) in order
-         * to determine that menus and the layout does not break on startup.
-         */
-        menus.registerMenuAction(subMenuPath, { commandId: 'invalid-command' });
+            /**
+             * Register an action menu with an invalid command (un-registered and without a label) in order
+             * to determine that menus and the layout does not break on startup.
+             */
+            menus.registerMenuAction(subMenuPath, { commandId: 'invalid-command' });
+        }, 10000);
     }
 
 }

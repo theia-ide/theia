@@ -15,13 +15,13 @@
 // *****************************************************************************
 
 import { injectable, inject, optional, postConstruct } from 'inversify';
-import { ArrayExt, find, toArray, each } from '@phosphor/algorithm';
+import { ArrayExt, find, toArray, each } from '@lumino/algorithm';
 import {
     BoxLayout, BoxPanel, DockLayout, DockPanel, FocusTracker, Layout, Panel, SplitLayout,
     SplitPanel, TabBar, Widget, Title
-} from '@phosphor/widgets';
-import { Message } from '@phosphor/messaging';
-import { IDragEvent } from '@phosphor/dragdrop';
+} from '@lumino/widgets';
+import { Message } from '@lumino/messaging';
+import { Drag } from '@lumino/dragdrop';
 import { RecursivePartial, Event as CommonEvent, DisposableCollection, Disposable, environment, isObject, UntitledResourceResolver, UNTITLED_SCHEME } from '../../common';
 import { animationFrame } from '../browser';
 import { Saveable, SaveableWidget, SaveOptions } from '../saveable';
@@ -169,7 +169,7 @@ interface WidgetDragState {
     leftExpanded: boolean;
     rightExpanded: boolean;
     bottomExpanded: boolean;
-    lastDragOver?: IDragEvent;
+    lastDragOver?: Drag.Event;
     leaveTimeout?: number;
 }
 
@@ -264,6 +264,9 @@ export class ApplicationShell extends Widget {
         return this._mainPanelRenderer;
     }
 
+    private setInitialized: () => void;
+    initialized: Promise<void> = new Promise(resolve => { this.setInitialized = resolve; });
+
     /**
      * Construct a new application shell.
      */
@@ -322,6 +325,7 @@ export class ApplicationShell extends Widget {
                 });
             }
         });
+        this.setInitialized();
     }
 
     protected initializeShell(): void {
@@ -386,39 +390,39 @@ export class ApplicationShell extends Widget {
     }
 
     protected override onBeforeAttach(msg: Message): void {
-        document.addEventListener('p-dragenter', this, true);
-        document.addEventListener('p-dragover', this, true);
-        document.addEventListener('p-dragleave', this, true);
-        document.addEventListener('p-drop', this, true);
+        document.addEventListener('lm-dragenter', this, true);
+        document.addEventListener('lm-dragover', this, true);
+        document.addEventListener('lm-dragleave', this, true);
+        document.addEventListener('lm-drop', this, true);
     }
 
     protected override onAfterDetach(msg: Message): void {
-        document.removeEventListener('p-dragenter', this, true);
-        document.removeEventListener('p-dragover', this, true);
-        document.removeEventListener('p-dragleave', this, true);
-        document.removeEventListener('p-drop', this, true);
+        document.removeEventListener('lm-dragenter', this, true);
+        document.removeEventListener('lm-dragover', this, true);
+        document.removeEventListener('lm-dragleave', this, true);
+        document.removeEventListener('lm-drop', this, true);
     }
 
     handleEvent(event: Event): void {
         switch (event.type) {
-            case 'p-dragenter':
-                this.onDragEnter(event as IDragEvent);
+            case 'lm-dragenter':
+                this.onDragEnter(event as Drag.Event);
                 break;
-            case 'p-dragover':
-                this.onDragOver(event as IDragEvent);
+            case 'lm-dragover':
+                this.onDragOver(event as Drag.Event);
                 break;
-            case 'p-drop':
-                this.onDrop(event as IDragEvent);
+            case 'lm-drop':
+                this.onDrop(event as Drag.Event);
                 break;
-            case 'p-dragleave':
-                this.onDragLeave(event as IDragEvent);
+            case 'lm-dragleave':
+                this.onDragLeave(event as Drag.Event);
                 break;
         }
     }
 
-    protected onDragEnter({ mimeData }: IDragEvent): void {
+    protected onDragEnter({ mimeData }: Drag.Event): void {
         if (!this.dragState) {
-            if (mimeData && mimeData.hasData('application/vnd.phosphor.widget-factory')) {
+            if (mimeData && mimeData.hasData('application/vnd.lumino.widget-factory')) {
                 // The drag contains a widget, so we'll track it and expand side panels as needed
                 this.dragState = {
                     startTime: performance.now(),
@@ -430,7 +434,7 @@ export class ApplicationShell extends Widget {
         }
     }
 
-    protected onDragOver(event: IDragEvent): void {
+    protected onDragOver(event: Drag.Event): void {
         const state = this.dragState;
         if (state) {
             state.lastDragOver = event;
@@ -499,7 +503,7 @@ export class ApplicationShell extends Widget {
         }
     }
 
-    protected onDrop(event: IDragEvent): void {
+    protected onDrop(event: Drag.Event): void {
         const state = this.dragState;
         if (state) {
             if (state.leaveTimeout) {
@@ -521,7 +525,7 @@ export class ApplicationShell extends Widget {
         }
     }
 
-    protected onDragLeave(event: IDragEvent): void {
+    protected onDragLeave(event: Drag.Event): void {
         const state = this.dragState;
         if (state) {
             state.lastDragOver = undefined;
@@ -606,7 +610,7 @@ export class ApplicationShell extends Widget {
 
         dockPanel.node.addEventListener('dblclick', event => {
             const el = event.target as Element;
-            if (el.id === MAIN_AREA_ID || el.classList.contains('p-TabBar-content')) {
+            if (el.id === MAIN_AREA_ID || el.classList.contains('lm-TabBar-content')) {
                 this.onDidDoubleClickMainAreaEmitter.fire();
             }
         });
@@ -663,7 +667,7 @@ export class ApplicationShell extends Widget {
             }
             this.refreshBottomPanelToggleButton();
         }, this);
-        dockPanel.node.addEventListener('p-dragenter', event => {
+        dockPanel.node.addEventListener('lm-dragenter', event => {
             // Make sure that the main panel hides its overlay when the bottom panel is expanded
             this.mainPanel.overlay.hide(0);
         });
@@ -796,7 +800,7 @@ export class ApplicationShell extends Widget {
             const index = parent.widgets.indexOf(this.bottomPanel) - 1;
             if (index >= 0) {
                 const handle = parent.handles[index];
-                if (!handle.classList.contains('p-mod-hidden')) {
+                if (!handle.classList.contains('lm-mod-hidden')) {
                     const parentHeight = parent.node.clientHeight;
                     return parentHeight - handle.offsetTop;
                 }
@@ -1037,7 +1041,7 @@ export class ApplicationShell extends Widget {
      */
     findWidgetForElement(element: HTMLElement): Widget | undefined {
         let widgetNode: HTMLElement | null = element;
-        while (widgetNode && !widgetNode.classList.contains('p-Widget')) {
+        while (widgetNode && !widgetNode.classList.contains('lm-Widget')) {
             widgetNode = widgetNode.parentElement;
         }
         if (widgetNode) {
@@ -1067,7 +1071,7 @@ export class ApplicationShell extends Widget {
         if (event?.target instanceof HTMLElement) {
             const tabNode = event.target;
 
-            const titleIndex = Array.from(tabBar.contentNode.getElementsByClassName('p-TabBar-tab'))
+            const titleIndex = Array.from(tabBar.contentNode.getElementsByClassName('lm-TabBar-tab'))
                 .findIndex(node => node.contains(tabNode));
 
             if (titleIndex !== -1) {
@@ -1198,7 +1202,7 @@ export class ApplicationShell extends Widget {
                 panel.markAsCurrent(widget!.title);
             }
             // Add checks to ensure that the 'sash' for left panel is displayed correctly
-            if (newValue.node.className === 'p-Widget theia-view-container p-DockPanel-widget') {
+            if (newValue.node.className === 'lm-Widget theia-view-container lm-DockPanel-widget') {
                 // Set the z-index so elements with `position: fixed` contained in the active widget are displayed correctly
                 this.setZIndex(newValue.node, '1');
             }

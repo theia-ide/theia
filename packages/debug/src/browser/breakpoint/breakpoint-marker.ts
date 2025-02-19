@@ -14,7 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { UUID } from '@theia/core/shared/@phosphor/coreutils';
+import { UUID } from '@theia/core/shared/@lumino/coreutils';
 import { Marker } from '@theia/markers/lib/common/marker';
 import { DebugProtocol } from '@vscode/debugprotocol/lib/debugProtocol';
 import { isObject, isString, URI } from '@theia/core/lib/common';

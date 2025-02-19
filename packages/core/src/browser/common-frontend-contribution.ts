@@ -483,28 +483,30 @@ export class CommonFrontendContribution implements FrontendApplicationContributi
         this.preferences.ready.then(() => this.setSashProperties());
         this.preferences.onPreferenceChanged(e => this.handlePreferenceChange(e, app));
 
-        app.shell.leftPanelHandler.addBottomMenu({
-            id: 'settings-menu',
-            iconClass: codicon('settings-gear'),
-            title: nls.localizeByDefault(CommonCommands.MANAGE_CATEGORY),
-            menuPath: MANAGE_MENU,
-            order: 0,
-        });
-        const accountsMenu: SidebarMenu = {
-            id: 'accounts-menu',
-            iconClass: codicon('account'),
-            title: nls.localizeByDefault('Accounts'),
-            menuPath: ACCOUNTS_MENU,
-            order: 1,
-            onDidBadgeChange: this.authenticationService.onDidUpdateSignInCount
-        };
-        this.authenticationService.onDidRegisterAuthenticationProvider(() => {
-            app.shell.leftPanelHandler.addBottomMenu(accountsMenu);
-        });
-        this.authenticationService.onDidUnregisterAuthenticationProvider(() => {
-            if (this.authenticationService.getProviderIds().length === 0) {
-                app.shell.leftPanelHandler.removeBottomMenu(accountsMenu.id);
-            }
+        app.shell.initialized.then(() => {
+            app.shell.leftPanelHandler.addBottomMenu({
+                id: 'settings-menu',
+                iconClass: codicon('settings-gear'),
+                title: nls.localizeByDefault(CommonCommands.MANAGE_CATEGORY),
+                menuPath: MANAGE_MENU,
+                order: 0,
+            });
+            const accountsMenu: SidebarMenu = {
+                id: 'accounts-menu',
+                iconClass: codicon('account'),
+                title: nls.localizeByDefault('Accounts'),
+                menuPath: ACCOUNTS_MENU,
+                order: 1,
+                onDidBadgeChange: this.authenticationService.onDidUpdateSignInCount
+            };
+            this.authenticationService.onDidRegisterAuthenticationProvider(() => {
+                app.shell.leftPanelHandler.addBottomMenu(accountsMenu);
+            });
+            this.authenticationService.onDidUnregisterAuthenticationProvider(() => {
+                if (this.authenticationService.getProviderIds().length === 0) {
+                    app.shell.leftPanelHandler.removeBottomMenu(accountsMenu.id);
+                }
+            });
         });
     }
 

@@ -18,7 +18,7 @@
 
 import * as debounce from 'p-debounce';
 import { Disposable, DisposableCollection, Emitter } from '@theia/core/lib/common';
-import { JSONExt, JSONObject } from '@theia/core/shared/@phosphor/coreutils';
+import { JSONExt, JSONObject } from '@theia/core/shared/@lumino/coreutils';
 
 export interface ScmInputIssue {
     message: string;

@@ -36,7 +36,7 @@
   text-align: center;
 }
 
-.p-Widget .open-workspace-button {
+.lm-Widget .open-workspace-button {
   padding: 4px 12px;
   width: calc(100% - var(--theia-ui-padding) * 4);
   margin-left: 0;

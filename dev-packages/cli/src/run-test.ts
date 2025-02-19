@@ -49,7 +49,7 @@ export default async function runTest(options: TestOptions): Promise<void> {
             // When launching in non-headless mode (with a UI and dev-tools open), make sure
             // the app has focus, to avoid failures of tests that query the UI's state.
             if (launch && launch.devtools) {
-                promises.push(testPage.waitForSelector('#theia-app-shell.p-Widget.theia-ApplicationShell')
+                promises.push(testPage.waitForSelector('#theia-app-shell.lm-Widget.theia-ApplicationShell')
                     .then(e => {
                         // eslint-disable-next-line no-null/no-null
                         if (e !== null) {

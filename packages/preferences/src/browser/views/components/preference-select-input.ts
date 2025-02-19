@@ -16,7 +16,7 @@
 
 import { PreferenceLeafNodeRenderer, PreferenceNodeRenderer } from './preference-node-renderer';
 import { injectable, interfaces } from '@theia/core/shared/inversify';
-import { JSONValue } from '@theia/core/shared/@phosphor/coreutils';
+import { JSONValue } from '@theia/core/shared/@lumino/coreutils';
 import { PreferenceProvider } from '@theia/core/lib/browser/preferences/preference-provider';
 import { SelectComponent, SelectOption } from '@theia/core/lib/browser/widgets/select-component';
 import { Preference } from '../../util/preference-types';

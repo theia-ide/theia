@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { injectable, inject, unmanaged } from '@theia/core/shared/inversify';
-import { ElementExt } from '@theia/core/shared/@phosphor/domutils';
+import { ElementExt } from '@theia/core/shared/@lumino/domutils';
 import URI from '@theia/core/lib/common/uri';
 import { ContextKeyService } from '@theia/core/lib/browser/context-key-service';
 import { DisposableCollection, Disposable, Emitter, Event, nullToUndefined, MaybeNull } from '@theia/core/lib/common';
@@ -174,7 +174,7 @@ export class MonacoEditor extends MonacoEditorServices implements TextEditor {
         const combinedOptions = {
             ...options,
             lightbulb: { enabled: ShowLightbulbIconMode.On },
-            fixedOverflowWidgets: true,
+            fixedOverflowWidgets: false,
             scrollbar: {
                 useShadows: false,
                 verticalHasArrows: false,

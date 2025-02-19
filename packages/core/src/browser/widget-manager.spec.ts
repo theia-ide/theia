@@ -20,7 +20,7 @@ let disableJsDom = enableJSDOM();
 import { Container, ContainerModule } from 'inversify';
 import { expect } from 'chai';
 import { WidgetManager, WidgetFactory } from './widget-manager';
-import { Widget } from '@phosphor/widgets';
+import { Widget } from '@lumino/widgets';
 import { ILogger } from '../common/logger';
 import { MockLogger } from '../common/test/mock-logger';
 import { bindContributionProvider } from '../common';

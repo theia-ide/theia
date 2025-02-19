@@ -68,6 +68,7 @@ export class EditorLineNumberContribution implements FrontendApplicationContribu
                     this.contextMenuRenderer.render({
                         menuPath: EDITOR_LINENUMBER_CONTEXT_MENU,
                         anchor: event.event,
+                        context: editor.node,
                         args,
                         contextKeyService
                     });

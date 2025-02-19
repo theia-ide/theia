@@ -47,7 +47,7 @@ export class TheiaOutputView extends TheiaView {
         await this.activate();
         const channel = new TheiaOutputViewChannel(
             {
-                viewSelector: 'div.p-Widget.theia-editor.p-DockPanel-widget > div.monaco-editor',
+                viewSelector: 'div.lm-Widget.theia-editor.lm-DockPanel-widget > div.monaco-editor',
                 dataUri: normalizeId(`output:/${encodeURIComponent(outputChannelName)}`),
                 channelName: outputChannelName
             },

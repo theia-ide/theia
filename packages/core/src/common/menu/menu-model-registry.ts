@@ -59,6 +59,29 @@ export interface MenuContribution {
     registerMenus(menus: MenuModelRegistry): void;
 }
 
+export enum ChangeKind {
+    ADDED,
+    REMOVED,
+    CHANGED,
+    LINKED
+}
+
+export interface MenuChangedEvent {
+    kind: ChangeKind;
+    path: MenuPath
+}
+
+export interface StructuralMenuChange extends MenuChangedEvent {
+    kind: ChangeKind.ADDED | ChangeKind.REMOVED | ChangeKind.LINKED;
+    affectedChildId: string
+}
+
+export namespace StructuralMenuChange {
+    export function is(evt: MenuChangedEvent): evt is StructuralMenuChange {
+        return evt.kind !== ChangeKind.CHANGED;
+    }
+}
+
 /**
  * The MenuModelRegistry allows to register and unregister menus, submenus and actions
  * via strings and {@link MenuAction}s without the need to access the underlying UI
@@ -69,9 +92,9 @@ export class MenuModelRegistry {
     protected readonly root = new CompositeMenuNode('');
     protected readonly independentSubmenus = new Map<string, MutableCompoundMenuNode>();
 
-    protected readonly onDidChangeEmitter = new Emitter<void>();
+    protected readonly onDidChangeEmitter = new Emitter<MenuChangedEvent>();
 
-    get onDidChange(): Event<void> {
+    get onDidChange(): Event<MenuChangedEvent> {
         return this.onDidChangeEmitter.event;
     }
 
@@ -108,8 +131,21 @@ export class MenuModelRegistry {
     registerMenuNode(menuPath: MenuPath | string, menuNode: MenuNode, group?: string): Disposable {
         const parent = this.getMenuNode(menuPath, group);
         const disposable = parent.addNode(menuNode);
-        this.fireChangeEvent();
-        return this.changeEventOnDispose(disposable);
+        const parentPath = this.getParentPath(menuPath, group);
+        this.fireChangeEvent({
+            kind: ChangeKind.ADDED,
+            path: parentPath,
+            affectedChildId: menuNode.id
+        });
+        return this.changeEventOnDispose(parentPath, menuNode.id, disposable);
+    }
+
+    protected getParentPath(menuPath: MenuPath | string, group?: string): string[] {
+        if (typeof menuPath === 'string') {
+            return group ? [menuPath, group] : [menuPath];
+        } else {
+            return group ? menuPath.concat(group) : menuPath;
+        }
     }
 
     getMenuNode(menuPath: MenuPath | string, group?: string): MutableCompoundMenuNode {
@@ -152,11 +188,19 @@ export class MenuModelRegistry {
         let disposable = Disposable.NULL;
         if (!groupNode) {
             groupNode = new CompositeMenuNode(menuId, label, options, parent);
-            disposable = this.changeEventOnDispose(parent.addNode(groupNode));
+            disposable = this.changeEventOnDispose(groupPath, menuId, parent.addNode(groupNode));
+            this.fireChangeEvent({
+                kind: ChangeKind.ADDED,
+                path: groupPath,
+                affectedChildId: menuId
+            });
         } else {
+            this.fireChangeEvent({
+                kind: ChangeKind.CHANGED,
+                path: groupPath,
+            });
             groupNode.updateOptions({ ...options, label });
         }
-        this.fireChangeEvent();
         return disposable;
     }
 
@@ -165,12 +209,13 @@ export class MenuModelRegistry {
             console.debug(`Independent submenu with path ${id} registered, but given ID already exists.`);
         }
         this.independentSubmenus.set(id, new CompositeMenuNode(id, label, options));
-        return this.changeEventOnDispose(Disposable.create(() => this.independentSubmenus.delete(id)));
+        return this.changeEventOnDispose([], id, Disposable.create(() => this.independentSubmenus.delete(id)));
     }
 
     linkSubmenu(parentPath: MenuPath | string, childId: string | MenuPath, options?: SubMenuOptions, group?: string): Disposable {
         const child = this.getMenuNode(childId);
         const parent = this.getMenuNode(parentPath, group);
+        const affectedPath = this.getParentPath(parentPath, group);
 
         const isRecursive = (node: MenuNodeMetadata, childNode: MenuNodeMetadata): boolean => {
             if (node.id === childNode.id) {
@@ -190,8 +235,13 @@ export class MenuModelRegistry {
 
         const wrapper = new CompositeMenuNodeWrapper(child, parent, options);
         const disposable = parent.addNode(wrapper);
-        this.fireChangeEvent();
-        return this.changeEventOnDispose(disposable);
+        this.fireChangeEvent({
+            kind: ChangeKind.LINKED,
+            path: affectedPath,
+            affectedChildId: child.id
+
+        });
+        return this.changeEventOnDispose(affectedPath, child.id, disposable);
     }
 
     /**
@@ -223,11 +273,14 @@ export class MenuModelRegistry {
         if (menuPath) {
             const parent = this.findGroup(menuPath);
             parent.removeNode(id);
-            this.fireChangeEvent();
-            return;
+            this.fireChangeEvent({
+                kind: ChangeKind.REMOVED,
+                path: menuPath,
+                affectedChildId: id
+            });
+        } else {
+            this.unregisterMenuNode(id);
         }
-
-        this.unregisterMenuNode(id);
     }
 
     /**
@@ -236,16 +289,24 @@ export class MenuModelRegistry {
      * @param id technical identifier of the `MenuNode`.
      */
     unregisterMenuNode(id: string): void {
+        const parentPath: string[] = [];
         const recurse = (root: MutableCompoundMenuNode) => {
             root.children.forEach(node => {
                 if (CompoundMenuNode.isMutable(node)) {
-                    node.removeNode(id);
+                    if (node.removeNode(id)) {
+                        this.fireChangeEvent({
+                            kind: ChangeKind.REMOVED,
+                            path: parentPath,
+                            affectedChildId: id
+                        });
+                    }
+                    parentPath.push(node.id);
                     recurse(node);
+                    parentPath.pop();
                 }
             });
         };
         recurse(this.root);
-        this.fireChangeEvent();
     }
 
     /**
@@ -339,16 +400,20 @@ export class MenuModelRegistry {
         return true;
     }
 
-    protected changeEventOnDispose(disposable: Disposable): Disposable {
+    protected changeEventOnDispose(path: MenuPath, id: string, disposable: Disposable): Disposable {
         return Disposable.create(() => {
             disposable.dispose();
-            this.fireChangeEvent();
+            this.fireChangeEvent({
+                path,
+                affectedChildId: id,
+                kind: ChangeKind.REMOVED
+            });
         });
     }
 
-    protected fireChangeEvent(): void {
+    protected fireChangeEvent<T extends MenuChangedEvent>(evt: T): void {
         if (this.isReady) {
-            this.onDidChangeEmitter.fire();
+            this.onDidChangeEmitter.fire(evt);
         }
     }
 

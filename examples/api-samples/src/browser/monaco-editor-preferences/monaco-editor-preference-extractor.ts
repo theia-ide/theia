@@ -29,7 +29,7 @@ import { inject, injectable, interfaces } from '@theia/core/shared/inversify';
 import { FileService } from '@theia/filesystem/lib/browser/file-service';
 import { WorkspaceService } from '@theia/workspace/lib/browser';
 import { PreferenceItem, PreferenceValidationService } from '@theia/core/lib/browser';
-import { JSONValue } from '@theia/core/shared/@phosphor/coreutils';
+import { JSONValue } from '@theia/core/shared/@lumino/coreutils';
 import { JsonType } from '@theia/core/lib/common/json-schema';
 import { editorOptionsRegistry } from '@theia/monaco-editor-core/esm/vs/editor/common/config/editorOptions';
 import { MonacoEditorProvider } from '@theia/monaco/lib/browser/monaco-editor-provider';

@@ -28,7 +28,7 @@ type TextareaAttributes = Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>
 export class SearchInWorkspaceTextArea extends React.Component<TextareaAttributes, HistoryState> {
     static LIMIT = 100;
 
-    private textarea = React.createRef<HTMLTextAreaElement>();
+    textarea = React.createRef<HTMLTextAreaElement>();
 
     constructor(props: TextareaAttributes) {
         super(props);

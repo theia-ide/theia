@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { injectable, inject, postConstruct } from 'inversify';
-import { Message } from '@phosphor/messaging';
+import { Message } from '@lumino/messaging';
 import { Disposable, MenuPath, SelectionService } from '../../common';
 import { Key, KeyCode, KeyModifier } from '../keyboard/keys';
 import { ContextMenuRenderer } from '../context-menu-renderer';
@@ -36,7 +36,7 @@ import { Virtuoso, VirtuosoHandle, VirtuosoProps } from 'react-virtuoso';
 import { TopDownTreeIterator } from './tree-iterator';
 import { SearchBox, SearchBoxFactory, SearchBoxProps } from './search-box';
 import { TreeSearch } from './tree-search';
-import { ElementExt } from '@phosphor/domutils';
+import { ElementExt } from '@lumino/domutils';
 import { TreeWidgetSelection } from './tree-widget-selection';
 import { MaybePromise } from '../../common/types';
 import { LabelProvider } from '../label-provider';
@@ -1362,6 +1362,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
                 const args = this.toContextMenuArgs(node);
                 setTimeout(() => this.contextMenuRenderer.render({
                     menuPath: contextMenuPath,
+                    context: event.currentTarget,
                     anchor: { x, y },
                     args
                 }), 10);

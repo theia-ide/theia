@@ -14,9 +14,9 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { find, toArray } from '@phosphor/algorithm';
-import { TabBar, Widget, DockPanel, Title, DockLayout } from '@phosphor/widgets';
-import { Signal } from '@phosphor/signaling';
+import { find, toArray } from '@lumino/algorithm';
+import { TabBar, Widget, DockPanel, Title, DockLayout } from '@lumino/widgets';
+import { Signal } from '@lumino/signaling';
 import { Disposable, DisposableCollection } from '../../common/disposable';
 import { UnsafeWidgetUtilities } from '../widgets';
 import { CorePreferences } from '../core-preferences';

@@ -29,7 +29,6 @@ export class CustomEditorWidget extends WebviewWidget implements CustomEditorWid
     static override FACTORY_ID = 'plugin-custom-editor';
     static readonly SIDE_BY_SIDE_FACTORY_ID = CustomEditorWidget.FACTORY_ID + '.side-by-side';
 
-    override id: string;
     resource: URI;
 
     protected _modelRef: Reference<CustomEditorModel | undefined> = { object: undefined, dispose: () => { } };

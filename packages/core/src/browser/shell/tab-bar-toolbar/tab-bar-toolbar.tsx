@@ -436,7 +436,7 @@ export namespace TabBarToolbar {
 
     export namespace Styles {
 
-        export const TAB_BAR_TOOLBAR = 'p-TabBar-toolbar';
+        export const TAB_BAR_TOOLBAR = 'lm-TabBar-toolbar';
         export const TAB_BAR_TOOLBAR_ITEM = 'item';
 
     }

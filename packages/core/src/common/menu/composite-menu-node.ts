@@ -54,11 +54,13 @@ export class CompositeMenuNode implements MutableCompoundMenuNode {
         };
     }
 
-    removeNode(id: string): void {
+    removeNode(id: string): boolean {
         const idx = this._children.findIndex(n => n.id === id);
         if (idx >= 0) {
             this._children.splice(idx, 1);
+            return true;
         }
+        return false;
     }
 
     updateOptions(options?: SubMenuOptions): void {
@@ -108,7 +110,7 @@ export class CompositeMenuNodeWrapper implements MutableCompoundMenuNode {
 
     addNode(node: MenuNode): Disposable { return this.wrapped.addNode(node); }
 
-    removeNode(id: string): void { return this.wrapped.removeNode(id); }
+    removeNode(id: string): boolean { return this.wrapped.removeNode(id); }
 
     updateOptions(options: SubMenuOptions): void { return this.wrapped.updateOptions(options); }
 }

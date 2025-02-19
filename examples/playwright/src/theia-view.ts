@@ -84,11 +84,11 @@ export class TheiaView extends TheiaPageObject {
     }
 
     async isActive(): Promise<boolean> {
-        return await this.isTabVisible() && containsClass(this.tabElement(), 'p-mod-current');
+        return await this.isTabVisible() && containsClass(this.tabElement(), 'lm-mod-current');
     }
 
     async isClosable(): Promise<boolean> {
-        return await this.isTabVisible() && containsClass(this.tabElement(), 'p-mod-closable');
+        return await this.isTabVisible() && containsClass(this.tabElement(), 'lm-mod-closable');
     }
 
     async close(waitForClosed = true): Promise<void> {
@@ -101,7 +101,7 @@ export class TheiaView extends TheiaPageObject {
         const tab = await this.tabElement();
         const side = await this.side();
         if (side === 'main' || side === 'bottom') {
-            const closeIcon = await tab?.waitForSelector('div.p-TabBar-tabCloseIcon');
+            const closeIcon = await tab?.waitForSelector('div.lm-TabBar-tabCloseIcon');
             await closeIcon?.click();
         } else {
             const menu = await this.openContextMenuOnTab();
@@ -130,7 +130,7 @@ export class TheiaView extends TheiaPageObject {
         }
         const tab = await this.tabElement();
         if (tab) {
-            return textContent(tab.waitForSelector('div.theia-tab-icon-label > div.p-TabBar-tabLabel'));
+            return textContent(tab.waitForSelector('div.theia-tab-icon-label > div.lm-TabBar-tabLabel'));
         }
         return undefined;
     }

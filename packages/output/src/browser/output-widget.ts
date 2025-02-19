@@ -16,7 +16,7 @@
 
 import '../../src/browser/style/output.css';
 import { inject, injectable, postConstruct } from '@theia/core/shared/inversify';
-import { toArray } from '@theia/core/shared/@phosphor/algorithm';
+import { toArray } from '@theia/core/shared/@lumino/algorithm';
 import { EditorWidget } from '@theia/editor/lib/browser';
 import { MonacoEditor } from '@theia/monaco/lib/browser/monaco-editor';
 import { SelectionService } from '@theia/core/lib/common/selection-service';

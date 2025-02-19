@@ -16,7 +16,7 @@
 import * as theia from '@theia/plugin';
 import { ThemeColor, StatusBarAlignment } from '../types-impl';
 import { StatusBarMessageRegistryMain } from '../../common/plugin-api-rpc';
-import { UUID } from '@theia/core/shared/@phosphor/coreutils';
+import { UUID } from '@theia/core/shared/@lumino/coreutils';
 
 export class StatusBarItemImpl implements theia.StatusBarItem {
 

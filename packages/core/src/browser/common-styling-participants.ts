@@ -138,14 +138,14 @@ export class MenuStylingParticipant implements StylingParticipant {
         if (isHighContrast(theme.type) && focusBorder) {
             // Menu items
             collector.addRule(`
-                .p-Menu .p-Menu-item.p-mod-active {
+                .lm-Menu .lm-Menu-item.lm-mod-active {
                     outline: 1px solid ${focusBorder};
                     outline-offset: -1px;
                 }
-                .p-MenuBar .p-MenuBar-item.p-mod-active {
+                .lm-MenuBar .lm-MenuBar-item.lm-mod-active {
                     outline: 1px dashed ${focusBorder};
                 }
-                .p-MenuBar.p-mod-active .p-MenuBar-item.p-mod-active {
+                .lm-MenuBar.lm-mod-active .lm-MenuBar-item.lm-mod-active {
                     outline: 1px solid ${focusBorder};
                 }
             `);
@@ -166,7 +166,7 @@ export class BadgeStylingParticipant implements StylingParticipant {
         const contrastBorder = theme.getColor('contrastBorder');
 
         if (isHighContrast(theme.type) && contrastBorder) {
-            collector.addRule(`.p-TabBar .theia-badge-decorator-sidebar {
+            collector.addRule(`.lm-TabBar .theia-badge-decorator-sidebar {
                 outline: 1px solid ${contrastBorder};
             }`);
         }
@@ -182,20 +182,20 @@ export class TabbarStylingParticipant implements StylingParticipant {
 
         if (highContrast && focusBorder) {
             collector.addRule(`
-                #theia-bottom-content-panel .p-TabBar .p-TabBar-tab,
-                #theia-main-content-panel .p-TabBar .p-TabBar-tab {
+                #theia-bottom-content-panel .lm-TabBar .lm-TabBar-tab,
+                #theia-main-content-panel .lm-TabBar .lm-TabBar-tab {
                     outline-offset: -4px;
                 }
-                #theia-bottom-content-panel .p-TabBar .p-TabBar-tab.p-mod-current,
-                #theia-main-content-panel .p-TabBar .p-TabBar-tab.p-mod-current {
+                #theia-bottom-content-panel .lm-TabBar .lm-TabBar-tab.lm-mod-current,
+                #theia-main-content-panel .lm-TabBar .lm-TabBar-tab.lm-mod-current {
                     outline: 1px solid ${focusBorder};
                 }
-                #theia-bottom-content-panel .p-TabBar:not(.theia-tabBar-active) .p-TabBar-tab.p-mod-current,
-                #theia-main-content-panel .p-TabBar:not(.theia-tabBar-active) .p-TabBar-tab.p-mod-current {
+                #theia-bottom-content-panel .lm-TabBar:not(.theia-tabBar-active) .lm-TabBar-tab.lm-mod-current,
+                #theia-main-content-panel .lm-TabBar:not(.theia-tabBar-active) .lm-TabBar-tab.lm-mod-current {
                     outline: 1px dotted ${focusBorder};
                 }
-                #theia-bottom-content-panel .p-TabBar .p-TabBar-tab:not(.p-mod-current):hover,
-                #theia-main-content-panel .p-TabBar .p-TabBar-tab:not(.p-mod-current):hover {
+                #theia-bottom-content-panel .lm-TabBar .lm-TabBar-tab:not(.lm-mod-current):hover,
+                #theia-main-content-panel .lm-TabBar .lm-TabBar-tab:not(.lm-mod-current):hover {
                     outline: 1px dashed ${focusBorder};
                 }
             `);
@@ -206,13 +206,13 @@ export class TabbarStylingParticipant implements StylingParticipant {
         const tabActiveBorder = theme.getColor('tab.activeBorder') || (highContrast && contrastBorder) || 'transparent';
         const tabUnfocusedActiveBorder = theme.getColor('tab.unfocusedActiveBorder') || (highContrast && contrastBorder) || 'transparent';
         collector.addRule(`
-            #theia-main-content-panel .p-TabBar .p-TabBar-tab.p-mod-current {
+            #theia-main-content-panel .lm-TabBar .lm-TabBar-tab.lm-mod-current {
                 color: var(--theia-tab-activeForeground);
                 ${tabActiveBackground ? `background: ${tabActiveBackground};` : ''}
                 ${tabActiveBorderTop ? `border-top: 1px solid ${tabActiveBorderTop};` : ''}
                 border-bottom: 1px solid ${tabActiveBorder};
             }
-            #theia-main-content-panel .p-TabBar:not(.theia-tabBar-active) .p-TabBar-tab.p-mod-current {
+            #theia-main-content-panel .lm-TabBar:not(.theia-tabBar-active) .lm-TabBar-tab.lm-mod-current {
                 background: var(--theia-tab-unfocusedActiveBackground);
                 color: var(--theia-tab-unfocusedActiveForeground);
                 ${tabUnfocusedActiveBorderTop ? `border-top: 1px solid ${tabUnfocusedActiveBorderTop};` : ''}
@@ -227,18 +227,18 @@ export class TabbarStylingParticipant implements StylingParticipant {
         if (tabActiveModifiedBorder || tabInactiveModifiedBorder) {
             collector.addRule(`
                 body.theia-editor-highlightModifiedTabs
-                #theia-main-content-panel .p-TabBar .p-TabBar-tab.theia-mod-dirty {
+                #theia-main-content-panel .lm-TabBar .lm-TabBar-tab.theia-mod-dirty {
                     border-top: 2px solid ${tabInactiveModifiedBorder};
                     padding-bottom: 1px;
                 }
 
                 body.theia-editor-highlightModifiedTabs
-                #theia-main-content-panel .p-TabBar.theia-tabBar-active .p-TabBar-tab.theia-mod-dirty.p-mod-current {
+                #theia-main-content-panel .lm-TabBar.theia-tabBar-active .lm-TabBar-tab.theia-mod-dirty.lm-mod-current {
                     border-top: 2px solid ${tabActiveModifiedBorder};
                 }
                 
                 body.theia-editor-highlightModifiedTabs
-                #theia-main-content-panel .p-TabBar:not(.theia-tabBar-active) .p-TabBar-tab.theia-mod-dirty:not(.p-mod-current) {
+                #theia-main-content-panel .lm-TabBar:not(.theia-tabBar-active) .lm-TabBar-tab.theia-mod-dirty:not(.lm-mod-current) {
                     border-top: 2px solid ${tabUnfocusedInactiveModifiedBorder};
                 }
             `);
@@ -247,12 +247,12 @@ export class TabbarStylingParticipant implements StylingParticipant {
         // Activity Bar Active Border
         const activityBarActiveBorder = theme.getColor('activityBar.activeBorder') || 'var(--theia-activityBar-foreground)';
         collector.addRule(`
-            .p-TabBar.theia-app-left .p-TabBar-tab.p-mod-current {
+            .lm-TabBar.theia-app-left .lm-TabBar-tab.lm-mod-current {
                 border-top-color: transparent;
                 box-shadow: 2px 0 0 ${activityBarActiveBorder} inset;
             }
           
-            .p-TabBar.theia-app-right .p-TabBar-tab.p-mod-current {
+            .lm-TabBar.theia-app-right .lm-TabBar-tab.lm-mod-current {
                 border-top-color: transparent;
                 box-shadow: -2px 0 0 ${activityBarActiveBorder} inset;
             }
@@ -261,7 +261,7 @@ export class TabbarStylingParticipant implements StylingParticipant {
         const tabHoverBackground = theme.getColor('tab.hoverBackground');
         if (tabHoverBackground) {
             collector.addRule(`
-                #theia-main-content-panel .p-TabBar .p-TabBar-tab:hover {
+                #theia-main-content-panel .lm-TabBar .lm-TabBar-tab:hover {
                     background-color: ${tabHoverBackground};
                 }
             `);
@@ -270,7 +270,7 @@ export class TabbarStylingParticipant implements StylingParticipant {
         const tabUnfocusedHoverBackground = theme.getColor('tab.unfocusedHoverBackground');
         if (tabUnfocusedHoverBackground) {
             collector.addRule(`
-                #theia-main-content-panel .p-TabBar:not(.theia-tabBar-active) .p-TabBar-tab:hover {
+                #theia-main-content-panel .lm-TabBar:not(.theia-tabBar-active) .lm-TabBar-tab:hover {
                     background-color: ${tabUnfocusedHoverBackground};
                 }
             `);
@@ -280,7 +280,7 @@ export class TabbarStylingParticipant implements StylingParticipant {
         const tabHoverForeground = theme.getColor('tab.hoverForeground');
         if (tabHoverForeground) {
             collector.addRule(`
-                #theia-main-content-panel .p-TabBar .p-TabBar-tab:hover {
+                #theia-main-content-panel .lm-TabBar .lm-TabBar-tab:hover {
                     color: ${tabHoverForeground};
                 }
             `);
@@ -289,7 +289,7 @@ export class TabbarStylingParticipant implements StylingParticipant {
         const tabUnfocusedHoverForeground = theme.getColor('tab.unfocusedHoverForeground');
         if (tabUnfocusedHoverForeground) {
             collector.addRule(`
-                #theia-main-content-panel .p-TabBar:not(.theia-tabBar-active) .p-TabBar-tab:hover {
+                #theia-main-content-panel .lm-TabBar:not(.theia-tabBar-active) .lm-TabBar-tab:hover {
                     color: ${tabUnfocusedHoverForeground};
                 }
             `);
@@ -299,7 +299,7 @@ export class TabbarStylingParticipant implements StylingParticipant {
         const tabHoverBorder = theme.getColor('tab.hoverBorder');
         if (tabHoverBorder) {
             collector.addRule(`
-                #theia-main-content-panel .p-TabBar .p-TabBar-tab:hover {
+                #theia-main-content-panel .lm-TabBar .lm-TabBar-tab:hover {
                     box-shadow: 0 1px 0 ${tabHoverBorder} inset;
                 }
             `);
@@ -308,7 +308,7 @@ export class TabbarStylingParticipant implements StylingParticipant {
         const tabUnfocusedHoverBorder = theme.getColor('tab.unfocusedHoverBorder');
         if (tabUnfocusedHoverBorder) {
             collector.addRule(`
-                #theia-main-content-panel .p-TabBar:not(.theia-tabBar-active) .p-TabBar-tab:hover {
+                #theia-main-content-panel .lm-TabBar:not(.theia-tabBar-active) .lm-TabBar-tab:hover {
                     box-shadow: 0 1px 0 ${tabUnfocusedHoverBorder} inset;
                 }
             `);

@@ -15,57 +15,57 @@
  ********************************************************************************/
 
 /*
- * phosphor.js sets the z-index of its panels to 0, which causes overlay issues
+ * Lumino sets the z-index of its panels to 0, which causes overlay issues
  * See also https://github.com/eclipse-theia/theia/issues/14290
  */
-.p-SplitPanel-child,
-.p-DockPanel,
-.p-DockPanel-widget {
+.lm-SplitPanel-child,
+.lm-DockPanel,
+.lm-DockPanel-widget {
   z-index: initial;
 }
 
-.p-DockPanel.p-SplitPanel-child {
+.lm-DockPanel.lm-SplitPanel-child {
   padding: 0px;
 }
 
-.p-DockPanel-widget {
+.lm-DockPanel-widget {
   min-width: 100px;
   min-height: 100px;
 }
 
-.p-DockPanel-handle[data-orientation="vertical"] {
+.lm-DockPanel-handle[data-orientation="vertical"] {
   min-height: var(--theia-border-width);
   z-index: 3;
 }
 
-.p-DockPanel-handle[data-orientation="horizontal"] {
+.lm-DockPanel-handle[data-orientation="horizontal"] {
   min-width: var(--theia-border-width);
 }
 
-.p-DockPanel-handle[data-orientation="horizontal"]::after {
+.lm-DockPanel-handle[data-orientation="horizontal"]::after {
   min-width: var(--theia-sash-width);
   transform: translateX(0%);
   left: calc(-1 * var(--theia-sash-width) / 2);
 }
 
-.p-DockPanel-handle[data-orientation="vertical"]::after {
+.lm-DockPanel-handle[data-orientation="vertical"]::after {
   min-height: var(--theia-sash-width);
   width: 100%;
   transform: translateY(0%);
   top: calc(-1 * var(--theia-sash-width) / 2);
 }
 
-.p-DockPanel-handle:hover::after {
+.lm-DockPanel-handle:hover::after {
   background-color: var(--theia-sash-hoverBorder);
   transition-delay: var(--theia-sash-hoverDelay);
 }
 
-.p-DockPanel-handle:active::after {
+.lm-DockPanel-handle:active::after {
   background-color: var(--theia-sash-activeBorder);
   transition-delay: 0s !important;
 }
 
-.p-DockPanel-overlay {
+.lm-DockPanel-overlay {
   background: var(--theia-editorGroup-dropBackground);
   border: var(--theia-border-width) dashed var(--theia-contrastActiveBorder);
   transition-property: top, left, right, bottom;
@@ -73,14 +73,14 @@
   transition-timing-function: ease;
 }
 
-.p-DockPanel-overlay.p-mod-root-top,
-.p-DockPanel-overlay.p-mod-root-left,
-.p-DockPanel-overlay.p-mod-root-right,
-.p-DockPanel-overlay.p-mod-root-bottom,
-.p-DockPanel-overlay.p-mod-root-center {
+.lm-DockPanel-overlay.lm-mod-root-top,
+.lm-DockPanel-overlay.lm-mod-root-left,
+.lm-DockPanel-overlay.lm-mod-root-right,
+.lm-DockPanel-overlay.lm-mod-root-bottom,
+.lm-DockPanel-overlay.lm-mod-root-center {
   border-width: 2px;
 }
 
-.p-DockPanel-overlay.p-mod-root-bottom {
+.lm-DockPanel-overlay.lm-mod-root-bottom {
   background: var(--theia-panel-dropBackground);
 }

@@ -18,7 +18,7 @@ import { enableJSDOM } from '../test/jsdom';
 let disableJSDOM = enableJSDOM();
 import { expect } from 'chai';
 
-import { Title, Widget } from '@phosphor/widgets';
+import { Title, Widget } from '@lumino/widgets';
 import { TabBarRenderer } from './tab-bars';
 
 disableJSDOM();

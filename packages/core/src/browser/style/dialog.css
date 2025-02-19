@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
  ********************************************************************************/
 
-.p-Widget.dialogOverlay {
+.lm-Widget.dialogOverlay {
   z-index: 5000;
   display: flex;
   flex-direction: column;
@@ -29,7 +29,7 @@
   font-size: var(--theia-ui-font-size1);
   padding: 2px;
 }
-.p-Widget.dialogOverlay .dialogBlock {
+.lm-Widget.dialogOverlay .dialogBlock {
   display: flex;
   flex-direction: column;
   min-width: 400px;
@@ -40,7 +40,7 @@
   overflow: hidden;
   box-shadow: 0 0px 8px var(--theia-widget-shadow);
 }
-.p-Widget.dialogOverlay .dialogTitle {
+.lm-Widget.dialogOverlay .dialogTitle {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
@@ -54,11 +54,11 @@
   min-height: 24px;
 }
 
-.p-Widget.dialogOverlay .dialogTitle i.closeButton {
+.lm-Widget.dialogOverlay .dialogTitle i.closeButton {
   cursor: pointer;
 }
 
-.p-Widget.dialogOverlay .dialogContent {
+.lm-Widget.dialogOverlay .dialogContent {
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -69,7 +69,7 @@
   overflow-y: auto;
 }
 
-.p-Widget.dialogOverlay .dialogControl {
+.lm-Widget.dialogOverlay .dialogControl {
   padding: calc(var(--theia-ui-padding) * 2);
   display: flex;
   flex-direction: row;
@@ -79,24 +79,24 @@
   min-height: 21px;
 }
 
-.p-Widget.dialogOverlay.hidden {
+.lm-Widget.dialogOverlay.hidden {
   display: none;
 }
-.p-Widget.dialogOverlay.dialogErrorMessage {
+.lm-Widget.dialogOverlay.dialogErrorMessage {
   display: none;
 }
-.p-Widget.dialogOverlay .error {
+.lm-Widget.dialogOverlay .error {
   color: var(--theia-inputValidation-errorForeground);
 }
-.p-Widget.dialogOverlay .error.main {
+.lm-Widget.dialogOverlay .error.main {
   color: var(--theia-inputValidation-errorForeground);
   border-color: var(--theia-inputValidation-errorBorder);
 }
-.p-Widget.dialogOverlay .error > .theia-button.main {
+.lm-Widget.dialogOverlay .error > .theia-button.main {
   background-color: var(--theia-inputValidation-errorBackground);
   color: var(--theia-inputValidation-errorForeground);
 }
-.p-Widget.dialogOverlay .error > .dialogErrorMessage {
+.lm-Widget.dialogOverlay .error > .dialogErrorMessage {
   margin-top: calc(var(--theia-ui-padding) * 3);
   font-size: var(--theia-ui-font-size1);
   display: block;

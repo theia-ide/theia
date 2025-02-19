@@ -71,6 +71,9 @@ export class SearchInWorkspaceWidget extends BaseWidget implements StatefulWidge
     private includeRef = React.createRef<SearchInWorkspaceInput>();
     private excludeRef = React.createRef<SearchInWorkspaceInput>();
 
+    private refsAreSet: Promise<void> = new Promise(resolve => this.resolveRefsAreSet = resolve);
+    private resolveRefsAreSet: () => void;
+
     protected _showReplaceField = false;
     protected get showReplaceField(): boolean {
         return this._showReplaceField;
@@ -346,18 +349,19 @@ export class SearchInWorkspaceWidget extends BaseWidget implements StatefulWidge
         this.focusInputField();
     }
 
-    protected focusInputField(): void {
-        const f = document.getElementById('search-input-field');
-        if (f) {
-            (f as HTMLInputElement).focus();
-            (f as HTMLInputElement).select();
+    protected async focusInputField(): Promise<void> {
+        // Wait until React rendering is sufficiently progressed before trying to focus the input field.
+        await this.refsAreSet;
+        if (this.searchRef.current?.textarea.current) {
+            this.searchRef.current.textarea.current.focus();
+            this.searchRef.current.textarea.current.select();
         }
     }
 
     protected renderSearchHeader(): React.ReactNode {
         const searchAndReplaceContainer = this.renderSearchAndReplace();
         const searchDetails = this.renderSearchDetails();
-        return <div>{searchAndReplaceContainer}{searchDetails}</div>;
+        return <div ref={() => this.resolveRefsAreSet()}>{searchAndReplaceContainer}{searchDetails}</div>;
     }
 
     protected renderSearchAndReplace(): React.ReactNode {

@@ -605,6 +605,7 @@ export class MemoryTableWidget extends ReactWidget {
                 menuPath: MemoryTableWidget.CONTEXT_MENU,
                 anchor: { x: right, y: top },
                 args: this.getContextMenuArgs(event),
+                context: target
             });
         }
     }

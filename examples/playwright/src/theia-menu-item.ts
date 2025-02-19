@@ -23,15 +23,15 @@ export class TheiaMenuItem {
     constructor(protected element: ElementHandle<SVGElement | HTMLElement>) { }
 
     protected labelElementHandle(): Promise<ElementHandle<SVGElement | HTMLElement>> {
-        return this.element.waitForSelector('.p-Menu-itemLabel');
+        return this.element.waitForSelector('.lm-Menu-itemLabel');
     }
 
     protected shortCutElementHandle(): Promise<ElementHandle<SVGElement | HTMLElement>> {
-        return this.element.waitForSelector('.p-Menu-itemShortcut');
+        return this.element.waitForSelector('.lm-Menu-itemShortcut');
     }
 
     protected isHidden(): Promise<boolean> {
-        return elementContainsClass(this.element, 'p-mod-collapsed');
+        return elementContainsClass(this.element, 'lm-mod-collapsed');
     }
 
     async label(): Promise<string | undefined> {
@@ -60,11 +60,11 @@ export class TheiaMenuItem {
         if (classAttribute === undefined || classAttribute === null) {
             return false;
         }
-        return !classAttribute.includes('p-mod-disabled') && !classAttribute.includes('p-mod-collapsed');
+        return !classAttribute.includes('lm-mod-disabled') && !classAttribute.includes('lm-mod-collapsed');
     }
 
     async click(): Promise<void> {
-        return this.element.waitForSelector('.p-Menu-itemLabel')
+        return this.element.waitForSelector('.lm-Menu-itemLabel')
             .then(labelElement => labelElement.click({ position: { x: 10, y: 10 } }));
     }
 

@@ -19,7 +19,7 @@ import { ApplicationShell } from './application-shell';
 import { injectable, inject } from 'inversify';
 import { DisposableCollection, Disposable } from '../../common/disposable';
 import { Emitter, Event } from '../../common/event';
-import { FocusTracker, PanelLayout, SplitPanel } from '@phosphor/widgets';
+import { FocusTracker, PanelLayout, SplitPanel } from '@lumino/widgets';
 import { addEventListener, Widget } from '../widgets';
 /**
  * Contribution that tracks `mouseup` and `mousedown` events.
@@ -44,7 +44,7 @@ export class ApplicationShellMouseTracker implements FrontendApplicationContribu
     protected readonly mousedownListener: (e: MouseEvent) => void = e => this.mousedownEmitter.fire(e);
 
     onStart(): void {
-        // Here we need to attach a `mousedown` listener to the `TabBar`s, `DockPanel`s and the `SidePanel`s. Otherwise, Phosphor handles the event and stops the propagation.
+        // Here we need to attach a `mousedown` listener to the `TabBar`s, `DockPanel`s and the `SidePanel`s. Otherwise, Lumino handles the event and stops the propagation.
         // Track the `mousedown` on the `TabBar` for the currently active widget.
         this.applicationShell.onDidChangeActiveWidget((args: FocusTracker.IChangedArgs<Widget>) => {
             this.toDisposeOnActiveChange.dispose();
@@ -68,7 +68,7 @@ export class ApplicationShellMouseTracker implements FrontendApplicationContribu
         this.toDispose.pushAll([mainPanel, bottomPanel, leftPanelHandler.dockPanel, rightPanelHandler.dockPanel]
             .map(panel => addEventListener(panel.node, 'mousedown', this.mousedownListener, true)));
 
-        // The `mouseup` event has to be tracked on the `document`. Phosphor attaches to there.
+        // The `mouseup` event has to be tracked on the `document`. Lumino attaches to there.
         document.addEventListener('mouseup', this.mouseupListener, true);
 
         // Make sure it is disposed in the end.

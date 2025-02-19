@@ -16,7 +16,7 @@
 import { DisposableCollection, Emitter, Event } from '@theia/core';
 import { PreferenceScope, PreferenceService } from '@theia/core/lib/browser';
 import { inject, injectable } from '@theia/core/shared/inversify';
-import { JSONObject } from '@theia/core/shared/@phosphor/coreutils';
+import { JSONObject } from '@theia/core/shared/@lumino/coreutils';
 import { AISettings, AISettingsService, AgentSettings } from '../common';
 
 @injectable()

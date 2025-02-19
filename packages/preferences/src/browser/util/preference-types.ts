@@ -24,7 +24,7 @@ import {
     CommonCommands,
 } from '@theia/core/lib/browser';
 import { Command, MenuPath } from '@theia/core';
-import { JSONValue } from '@theia/core/shared/@phosphor/coreutils';
+import { JSONValue } from '@theia/core/shared/@lumino/coreutils';
 import { JsonType } from '@theia/core/lib/common/json-schema';
 
 export namespace Preference {

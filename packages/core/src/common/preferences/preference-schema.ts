@@ -16,7 +16,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { JSONValue } from '@phosphor/coreutils';
+import { JSONValue } from '@lumino/coreutils';
 import { IJSONSchema } from '../json-schema';
 import { PreferenceScope } from './preference-scope';
 import { isObject, isString } from '../types';

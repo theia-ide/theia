@@ -18,7 +18,7 @@ import { PreferenceLeafNodeRenderer, PreferenceNodeRenderer } from './preference
 import { injectable, inject, interfaces } from '@theia/core/shared/inversify';
 import { CommandService, nls } from '@theia/core/lib/common';
 import { Preference, PreferencesCommands } from '../../util/preference-types';
-import { JSONValue } from '@theia/core/shared/@phosphor/coreutils';
+import { JSONValue } from '@theia/core/shared/@lumino/coreutils';
 import { PreferenceLeafNodeRendererContribution } from './preference-node-renderer-creator';
 
 @injectable()

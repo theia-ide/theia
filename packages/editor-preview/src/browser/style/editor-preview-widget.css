@@ -18,6 +18,6 @@
   height: 100%;
 }
 
-.theia-editor-preview-title-unpinned .p-TabBar-tabLabel {
+.theia-editor-preview-title-unpinned .lm-TabBar-tabLabel {
   font-style: italic;
 }

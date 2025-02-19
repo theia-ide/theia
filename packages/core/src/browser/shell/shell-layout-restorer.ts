@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { injectable, inject, named } from 'inversify';
-import { Widget } from '@phosphor/widgets';
+import { Widget } from '@lumino/widgets';
 import { FrontendApplication } from '../frontend-application';
 import { WidgetManager, WidgetConstructionOptions } from '../widget-manager';
 import { StorageService } from '../storage-service';

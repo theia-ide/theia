@@ -15,21 +15,23 @@
 // *****************************************************************************
 
 import { injectable, inject } from 'inversify';
-import { MenuBar, Menu as MenuWidget, Widget } from '@phosphor/widgets';
-import { CommandRegistry as PhosphorCommandRegistry } from '@phosphor/commands';
+import { Menu, MenuBar, Menu as MenuWidget, Widget } from '@lumino/widgets';
+import { CommandRegistry as LuminoCommandRegistry } from '@lumino/commands';
 import {
     CommandRegistry, environment, DisposableCollection, Disposable,
-    MenuModelRegistry, MAIN_MENU_BAR, MenuPath, MenuNode, MenuCommandExecutor, CompoundMenuNode, CompoundMenuNodeRole, CommandMenuNode
+    MenuModelRegistry, MAIN_MENU_BAR, MenuPath, MenuNode, MenuCommandExecutor, CompoundMenuNode, CompoundMenuNodeRole, CommandMenuNode,
+    ArrayUtils
 } from '../../common';
 import { KeybindingRegistry } from '../keybinding';
 import { FrontendApplication } from '../frontend-application';
 import { FrontendApplicationContribution } from '../frontend-application-contribution';
 import { ContextKeyService, ContextMatcher } from '../context-key-service';
 import { ContextMenuContext } from './context-menu-context';
-import { waitForRevealed } from '../widgets';
+import { Message, waitForRevealed } from '../widgets';
 import { ApplicationShell } from '../shell';
 import { CorePreferences } from '../core-preferences';
 import { PreferenceService } from '../preferences/preference-service';
+import { ElementExt } from '@lumino/domutils';
 
 export abstract class MenuBarWidget extends MenuBar {
     abstract activateMenu(label: string, ...labels: string[]): Promise<MenuWidget>;
@@ -82,8 +84,10 @@ export class BrowserMainMenuFactory implements MenuWidgetFactory {
             this.keybindingRegistry.onKeybindingsChanged(() => {
                 this.showMenuBar(menuBar);
             }),
-            this.menuProvider.onDidChange(() => {
-                this.showMenuBar(menuBar);
+            this.menuProvider.onDidChange(evt => {
+                if (ArrayUtils.startsWith(evt.path, MAIN_MENU_BAR)) {
+                    this.showMenuBar(menuBar);
+                }
             })
         );
         menuBar.disposed.connect(() => disposable.dispose());
@@ -156,6 +160,10 @@ export class BrowserMainMenuFactory implements MenuWidgetFactory {
 
 }
 
+export function isMenuElement(element: HTMLElement | null): boolean {
+    return !!element && element.className.includes('lm-Menu');
+}
+
 export class DynamicMenuBarWidget extends MenuBarWidget {
 
     /**
@@ -173,7 +181,8 @@ export class DynamicMenuBarWidget extends MenuBarWidget {
                 // We want to save the focus object for the former case only.
                 if (!this.childMenu) {
                     const { activeElement } = document;
-                    if (activeElement instanceof HTMLElement) {
+                    // we do not want to restore focus to menus
+                    if (activeElement instanceof HTMLElement && !isMenuElement(activeElement)) {
                         this.previousFocusedElement = activeElement;
                     }
                 }
@@ -263,6 +272,48 @@ export class DynamicMenuWidget extends MenuWidget {
         this.updateSubMenus(this, this.menu, this.options.commands);
     }
 
+    protected override onAfterAttach(msg: Message): void {
+        super.onAfterAttach(msg);
+        this.node.ownerDocument.addEventListener('pointerdown', this, true);
+    }
+
+    protected override onBeforeDetach(msg: Message): void {
+        this.node.ownerDocument.removeEventListener('pointerdown', this);
+        super.onAfterDetach(msg);
+    }
+
+    override handleEvent(event: Event): void {
+        if (event.type === 'pointerdown') {
+            this.handlePointerDown(event as PointerEvent);
+        }
+        super.handleEvent(event);
+    }
+
+    handlePointerDown(event: PointerEvent): void {
+        // this code is copied from the superclass because we cannot use the hit
+        // test from the "Private" implementation namespace
+        if (this['_parentMenu']) {
+            return;
+        }
+
+        // The mouse button which is pressed is irrelevant. If the press
+        // is not on a menu, the entire hierarchy is closed and the event
+        // is allowed to propagate. This allows other code to act on the
+        // event, such as focusing the clicked element.
+        if (!this.hitTestMenus(this, event.clientX, event.clientY)) {
+            this.close();
+        }
+    }
+
+    private hitTestMenus(menu: Menu, x: number, y: number): boolean {
+        for (let temp: Menu | null = menu; temp; temp = temp.childMenu) {
+            if (ElementExt.hitTest(temp.node, x, y)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public aboutToShow({ previousFocusedElement }: { previousFocusedElement: HTMLElement | undefined }): void {
         this.preserveFocusedElement(previousFocusedElement);
         this.clearItems();
@@ -272,20 +323,27 @@ export class DynamicMenuWidget extends MenuWidget {
         });
     }
 
-    public override open(x: number, y: number, options?: MenuWidget.IOpenOptions, anchor?: HTMLElement): void {
+    public override open(x: number, y: number, options?: MenuWidget.IOpenOptions): void {
         const cb = () => {
             this.restoreFocusedElement();
             this.aboutToClose.disconnect(cb);
         };
         this.aboutToClose.connect(cb);
         this.preserveFocusedElement();
-        super.open(x, y, options, anchor);
+        super.open(x, y, options);
     }
 
     protected updateSubMenus(parent: MenuWidget, menu: CompoundMenuNode, commands: MenuCommandRegistry): void {
         const items = this.buildSubMenus([], menu, commands);
         while (items[items.length - 1]?.type === 'separator') {
             items.pop();
+        }
+        // Add at least one entry to avoid empty menus.
+        // This is needed as Lumino does all kind of checks whether a menu is empty and for example prevents activating it
+        // This item will be cleared once the menu is opened via the next update as we don't have empty main menus
+        // See https://github.com/jupyterlab/lumino/issues/729
+        if (items.length === 0) {
+            items.push({ type: 'separator' });
         }
         for (const item of items) {
             parent.addItem(item);
@@ -332,7 +390,7 @@ export class DynamicMenuWidget extends MenuWidget {
     }
 
     protected preserveFocusedElement(previousFocusedElement: Element | null = document.activeElement): boolean {
-        if (!this.previousFocusedElement && previousFocusedElement instanceof HTMLElement) {
+        if (!this.previousFocusedElement && previousFocusedElement instanceof HTMLElement && !isMenuElement(previousFocusedElement)) {
             this.previousFocusedElement = previousFocusedElement;
             return true;
         }
@@ -351,14 +409,16 @@ export class DynamicMenuWidget extends MenuWidget {
     protected runWithPreservedFocusContext(what: () => void): void {
         let focusToRestore: HTMLElement | undefined = undefined;
         const { activeElement } = document;
-        if (this.previousFocusedElement && activeElement instanceof HTMLElement && this.previousFocusedElement !== activeElement) {
+        if (this.previousFocusedElement &&
+            activeElement instanceof HTMLElement &&
+            this.previousFocusedElement !== activeElement) {
             focusToRestore = activeElement;
             this.previousFocusedElement.focus({ preventScroll: true });
         }
         try {
             what();
         } finally {
-            if (focusToRestore) {
+            if (focusToRestore && !isMenuElement(focusToRestore)) {
                 focusToRestore.focus({ preventScroll: true });
             }
         }
@@ -415,9 +475,9 @@ export class BrowserMenuBarContribution implements FrontendApplicationContributi
 }
 
 /**
- * Stores Theia-specific action menu nodes instead of PhosphorJS commands with their handlers.
+ * Stores Theia-specific action menu nodes instead of Lumino commands with their handlers.
  */
-export class MenuCommandRegistry extends PhosphorCommandRegistry {
+export class MenuCommandRegistry extends LuminoCommandRegistry {
 
     protected actions = new Map<string, [MenuNode & CommandMenuNode, unknown[]]>();
     protected toDispose = new DisposableCollection();
@@ -466,7 +526,7 @@ export class MenuCommandRegistry extends PhosphorCommandRegistry {
         const unregisterCommand = this.addCommand(id, {
             execute: () => commandExecutor.executeCommand(menuPath, id, ...args),
             label: menu.label,
-            icon: menu.icon,
+            iconClass: menu.icon,
             isEnabled: () => enabled,
             isVisible: () => visible,
             isToggled: () => toggled
@@ -482,7 +542,7 @@ export class MenuCommandRegistry extends PhosphorCommandRegistry {
             this.addKeyBinding({
                 command: id,
                 keys,
-                selector: '.p-Widget' // We have the PhosphorJS dependency anyway.
+                selector: '.lm-Widget' // We have the Lumino dependency anyway.
             });
         }
         return Disposable.create(() => unregisterCommand.dispose());

@@ -19,7 +19,7 @@ import { PreferenceValidationService } from './preference-validation-service';
 import { PreferenceItem, PreferenceSchemaProvider } from './preference-contribution';
 import { PreferenceLanguageOverrideService } from './preference-language-override-service';
 import * as assert from 'assert';
-import { JSONValue } from '@phosphor/coreutils';
+import { JSONValue } from '@lumino/coreutils';
 import { IJSONSchema, JsonType } from '../../common/json-schema';
 
 /* eslint-disable no-null/no-null */

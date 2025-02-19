@@ -106,6 +106,7 @@ export class ToolbarImpl extends TabBarToolbar {
         const { menuPath, anchor } = this.getMenuDetailsForClick(event);
         return this.contextMenuRenderer.render({
             args: contextMenuArgs,
+            context: event.currentTarget,
             menuPath,
             anchor,
         });

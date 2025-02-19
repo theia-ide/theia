@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { PreferenceItem } from '../../common/preferences/preference-schema';
-import { JSONObject, JSONValue } from '../../../shared/@phosphor/coreutils';
+import { JSONObject, JSONValue } from '../../../shared/@lumino/coreutils';
 import { PreferenceSchemaProvider } from './preference-contribution';
 import { PreferenceLanguageOverrideService } from './preference-language-override-service';
 import { inject, injectable } from '../../../shared/inversify';

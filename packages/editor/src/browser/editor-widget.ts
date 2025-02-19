@@ -17,7 +17,7 @@
 import { Disposable, SelectionService, Event, UNTITLED_SCHEME, DisposableCollection } from '@theia/core/lib/common';
 import { Widget, BaseWidget, Message, Saveable, SaveableSource, Navigatable, StatefulWidget, lock, TabBar, DockPanel, unlock, ExtractableWidget } from '@theia/core/lib/browser';
 import URI from '@theia/core/lib/common/uri';
-import { find } from '@theia/core/shared/@phosphor/algorithm';
+import { find } from '@theia/core/shared/@lumino/algorithm';
 import { TextEditor } from './editor';
 
 export class EditorWidget extends BaseWidget implements SaveableSource, Navigatable, StatefulWidget, ExtractableWidget {

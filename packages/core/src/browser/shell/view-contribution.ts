@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { injectable, inject, interfaces, optional, unmanaged } from 'inversify';
-import { Widget } from '@phosphor/widgets';
+import { Widget } from '@lumino/widgets';
 import {
     MenuModelRegistry, Command, CommandContribution,
     MenuContribution, CommandRegistry, nls

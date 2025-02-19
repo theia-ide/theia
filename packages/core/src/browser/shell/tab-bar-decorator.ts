@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import debounce = require('lodash.debounce');
-import { Title, Widget } from '@phosphor/widgets';
+import { Title, Widget } from '@lumino/widgets';
 import { inject, injectable, named } from 'inversify';
 import { ContributionProvider, Emitter, Event } from '../../common';
 import { ColorRegistry } from '../color-registry';

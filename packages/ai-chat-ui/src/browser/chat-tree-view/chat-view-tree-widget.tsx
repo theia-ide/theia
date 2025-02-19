@@ -439,7 +439,8 @@ export class ChatViewTreeWidget extends TreeWidget {
         this.contextMenuRenderer.render({
             menuPath: ChatViewTreeWidget.CONTEXT_MENU,
             anchor: { x: event.clientX, y: event.clientY },
-            args: [node]
+            args: [node],
+            context: event.currentTarget
         });
         event.preventDefault();
     }

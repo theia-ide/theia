@@ -176,7 +176,7 @@ export class TheiaApp {
     }
 
     protected async visibleTabIds(): Promise<string[]> {
-        const tabs = await this.page.$$('.p-TabBar-tab');
+        const tabs = await this.page.$$('.lm-TabBar-tab');
         const tabIds = (await Promise.all(tabs.map(tab => tab.getAttribute('id')))).filter(id => !!id);
         return tabIds as string[];
     }

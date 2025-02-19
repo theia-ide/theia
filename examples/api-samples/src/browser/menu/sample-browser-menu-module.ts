@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { injectable, ContainerModule } from '@theia/core/shared/inversify';
-import { Menu as MenuWidget } from '@theia/core/shared/@phosphor/widgets';
+import { Menu as MenuWidget } from '@theia/core/shared/@lumino/widgets';
 import { Disposable } from '@theia/core/lib/common/disposable';
 import { MenuNode, CompoundMenuNode, MenuPath } from '@theia/core/lib/common/menu';
 import { BrowserMainMenuFactory, MenuCommandRegistry, DynamicMenuWidget, BrowserMenuOptions } from '@theia/core/lib/browser/menu/browser-menu-plugin';
@@ -74,7 +74,7 @@ class SampleMenuCommandRegistry extends MenuCommandRegistry {
         return this.addCommand(id, {
             execute: () => { /* NOOP */ },
             label: menu.label,
-            icon: menu.icon,
+            iconClass: menu.icon,
             isEnabled: () => false,
             isVisible: () => true
         });

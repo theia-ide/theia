@@ -69,7 +69,7 @@ export class MonacoDiffEditor extends MonacoEditor {
     }
 
     protected override create(options?: IDiffEditorConstructionOptions, override?: EditorServiceOverrides): Disposable {
-        options = { ...options, fixedOverflowWidgets: true };
+        options = { ...options, fixedOverflowWidgets: false };
         const instantiator = this.getInstantiatorWithOverrides(override);
         /**
          *  @monaco-uplift. Should be guaranteed to work.

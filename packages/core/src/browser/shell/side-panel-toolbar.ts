@@ -14,9 +14,9 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { Widget, Title } from '@phosphor/widgets';
+import { Widget, Title } from '@lumino/widgets';
 import { TabBarToolbar, TabBarToolbarRegistry, TabBarToolbarFactory } from './tab-bar-toolbar';
-import { Message } from '@phosphor/messaging';
+import { Message } from '@lumino/messaging';
 import { BaseWidget } from '../widgets';
 import { Emitter } from '../../common/event';
 import { ContextMenuAccess, Anchor } from '../context-menu-renderer';

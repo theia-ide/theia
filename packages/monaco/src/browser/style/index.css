@@ -13,7 +13,7 @@
 /*
  * set z-index to 0, so tabs are not above overlay widgets
  */
-.p-TabBar.theia-app-centers {
+.lm-TabBar.theia-app-centers {
   z-index: 0;
   display: flex;
 }

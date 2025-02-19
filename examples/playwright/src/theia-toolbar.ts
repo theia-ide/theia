@@ -19,7 +19,7 @@ import { TheiaPageObject } from './theia-page-object';
 import { TheiaToolbarItem } from './theia-toolbar-item';
 
 export class TheiaToolbar extends TheiaPageObject {
-    selector = 'div#main-toolbar.p-TabBar-toolbar';
+    selector = 'div#main-toolbar.lm-TabBar-toolbar';
 
     protected async toolbarElementHandle(): Promise<ElementHandle<SVGElement | HTMLElement> | null> {
         return this.page.$(this.selector);

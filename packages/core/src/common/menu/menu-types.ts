@@ -139,8 +139,9 @@ export interface MutableCompoundMenuNode extends CompoundMenuNode {
      * Removes the first node with the given id.
      *
      * @param id node id.
+     * @returns true if the id was present
      */
-    removeNode(id: string): void;
+    removeNode(id: string): boolean;
 
     /**
      * Fills any `undefined` fields with the values from the {@link options}.

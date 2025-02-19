@@ -351,7 +351,8 @@ export class VSXExtension implements VSXExtensionData, TreeElement {
                 x: e.clientX,
                 y: e.clientY,
             },
-            args: [this]
+            args: [this],
+            context: e.currentTarget
         });
     }
 

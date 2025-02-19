@@ -21,7 +21,7 @@ import { TheiaPageObject } from './theia-page-object';
 import { normalizeId, toTextContentArray } from './util';
 
 export class TheiaMainMenu extends TheiaMenu {
-    override selector = '.p-Menu.p-MenuBar-menu';
+    override selector = '.lm-Menu.lm-MenuBar-menu';
 }
 
 export class TheiaMenuBar extends TheiaPageObject {
@@ -48,7 +48,7 @@ export class TheiaMenuBar extends TheiaPageObject {
     }
 
     protected menuBarItemSelector(label = ''): string {
-        return `${normalizeId('#theia:menubar')} .p-MenuBar-itemLabel >> text=${label}`;
+        return `${normalizeId('#theia:menubar')} .lm-MenuBar-itemLabel >> text=${label}`;
     }
 
 }

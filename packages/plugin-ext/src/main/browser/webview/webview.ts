@@ -21,7 +21,7 @@
 // copied and modified from https://github.com/microsoft/vscode/blob/ba40bd16433d5a817bfae15f3b4350e18f144af4/src/vs/workbench/contrib/webview/browser/webviewElement.ts#
 
 import * as mime from 'mime';
-import { JSONExt } from '@theia/core/shared/@phosphor/coreutils';
+import { JSONExt } from '@theia/core/shared/@lumino/coreutils';
 import { injectable, inject, postConstruct } from '@theia/core/shared/inversify';
 import { WebviewPanelOptions, WebviewPortMapping } from '@theia/plugin';
 import { BaseWidget, Message } from '@theia/core/lib/browser/widgets/widget';
@@ -406,7 +406,8 @@ export class WebviewWidget extends BaseWidget implements StatefulWidget, Extract
                     args: [event.context],
                     anchor: {
                         x: domRect.x + event.clientX, y: domRect.y + event.clientY
-                    }
+                    },
+                    context: this.node
                 });
             });
     }

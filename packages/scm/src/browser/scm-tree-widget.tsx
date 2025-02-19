@@ -523,7 +523,8 @@ export abstract class ScmElement<P extends ScmElement.Props = ScmElement.Props> 
             contextMenuRenderer.render({
                 menuPath: this.contextMenuPath,
                 anchor: event.nativeEvent,
-                args: this.contextMenuArgs
+                args: this.contextMenuArgs,
+                context: event.currentTarget
             });
         });
     };

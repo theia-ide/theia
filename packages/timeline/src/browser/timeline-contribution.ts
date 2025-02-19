@@ -28,7 +28,7 @@ import { TimelineWidget } from './timeline-widget';
 import { TimelineService } from './timeline-service';
 import { CommandContribution, CommandRegistry } from '@theia/core/lib/common';
 import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
-import { toArray } from '@theia/core/shared/@phosphor/algorithm';
+import { toArray } from '@theia/core/shared/@lumino/algorithm';
 import { LOAD_MORE_COMMAND } from './timeline-tree-model';
 
 @injectable()

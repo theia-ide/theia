@@ -23,7 +23,7 @@ import { Preference, PreferenceMenus } from '../../util/preference-types';
 import { PreferenceTreeLabelProvider } from '../../util/preference-tree-label-provider';
 import { PreferencesScopeTabBar } from '../preference-scope-tabbar-widget';
 import { Disposable, nls } from '@theia/core/lib/common';
-import { JSONValue } from '@theia/core/shared/@phosphor/coreutils';
+import { JSONValue } from '@theia/core/shared/@lumino/coreutils';
 import debounce = require('@theia/core/shared/lodash.debounce');
 import { PreferenceTreeModel } from '../../preference-tree-model';
 import { PreferencesSearchbarWidget } from '../preference-searchbar-widget';
@@ -269,6 +269,7 @@ export abstract class PreferenceLeafNodeRenderer<ValueType extends JSONValue, In
                 menuPath: PreferenceMenus.PREFERENCE_EDITOR_CONTEXT_MENU,
                 anchor: { x: domRect.left, y: domRect.bottom },
                 args: [{ id: this.id, value }],
+                context: target,
                 onHide: () => this.hideCog()
             });
         }

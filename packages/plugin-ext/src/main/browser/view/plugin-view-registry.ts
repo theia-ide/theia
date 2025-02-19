@@ -235,9 +235,11 @@ export class PluginViewRegistry implements FrontendApplicationContribution {
             });
         };
 
-        hookDockPanelKey(this.shell.leftPanelHandler.dockPanel, this.viewContextKeys.activeViewlet);
-        hookDockPanelKey(this.shell.rightPanelHandler.dockPanel, this.viewContextKeys.activeAuxiliary);
-        hookDockPanelKey(this.shell.bottomPanel, this.viewContextKeys.activePanel);
+        this.shell.initialized.then(() => {
+            hookDockPanelKey(this.shell.leftPanelHandler.dockPanel, this.viewContextKeys.activeViewlet);
+            hookDockPanelKey(this.shell.rightPanelHandler.dockPanel, this.viewContextKeys.activeAuxiliary);
+            hookDockPanelKey(this.shell.bottomPanel, this.viewContextKeys.activePanel);
+        });
     }
 
     protected async updateViewWelcomeVisibility(viewId: string): Promise<void> {

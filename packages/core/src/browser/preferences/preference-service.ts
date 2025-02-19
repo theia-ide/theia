@@ -24,7 +24,7 @@ import { PreferenceSchemaProvider } from './preference-contribution';
 import URI from '../../common/uri';
 import { PreferenceScope } from './preference-scope';
 import { PreferenceConfigurations } from './preference-configurations';
-import { JSONExt, JSONValue } from '@phosphor/coreutils/lib/json';
+import { JSONExt, JSONValue } from '@lumino/coreutils';
 import { OverridePreferenceName, PreferenceLanguageOverrideService } from './preference-language-override-service';
 
 export { PreferenceScope };

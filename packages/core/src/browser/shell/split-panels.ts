@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { injectable } from 'inversify';
-import { SplitPanel, SplitLayout, Widget } from '@phosphor/widgets';
+import { SplitPanel, SplitLayout, Widget } from '@lumino/widgets';
 
 export interface SplitPositionOptions {
     /** The side of the side panel that shall be resized. */

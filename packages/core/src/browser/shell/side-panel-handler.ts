@@ -15,11 +15,11 @@
 // *****************************************************************************
 
 import { injectable, inject } from 'inversify';
-import { find, map, toArray, some } from '@phosphor/algorithm';
-import { TabBar, Widget, DockPanel, Title, Panel, BoxPanel, BoxLayout, SplitPanel, PanelLayout } from '@phosphor/widgets';
-import { MimeData } from '@phosphor/coreutils';
-import { Drag } from '@phosphor/dragdrop';
-import { AttachedProperty } from '@phosphor/properties';
+import { find, map, toArray, some } from '@lumino/algorithm';
+import { TabBar, Widget, DockPanel, Title, Panel, BoxPanel, BoxLayout, SplitPanel, PanelLayout } from '@lumino/widgets';
+import { MimeData } from '@lumino/coreutils';
+import { Drag } from '@lumino/dragdrop';
+import { AttachedProperty } from '@lumino/properties';
 import { TabBarRendererFactory, TabBarRenderer, SHELL_TABBAR_CONTEXT_MENU, SideTabBar } from './tab-bars';
 import { SidebarMenuWidget, SidebarMenu, SidebarBottomMenuWidgetFactory, SidebarTopMenuWidgetFactory } from './sidebar-menu-widget';
 import { SplitPositionHandler, SplitPositionOptions } from './split-panels';
@@ -240,7 +240,8 @@ export class SidePanelHandler {
         this.contextMenuRenderer.render({
             args: [title.owner],
             menuPath: SIDE_PANEL_TOOLBAR_CONTEXT_MENU,
-            anchor: e
+            anchor: e,
+            context: e.currentTarget instanceof HTMLElement ? e.currentTarget : undefined
         });
     }
 
@@ -556,12 +557,12 @@ export class SidePanelHandler {
             const index = parent.widgets.indexOf(this.container);
             if (this.side === 'left') {
                 const handle = parent.handles[index];
-                if (!handle.classList.contains('p-mod-hidden')) {
+                if (!handle.classList.contains('lm-mod-hidden')) {
                     return handle.offsetLeft;
                 }
             } else if (this.side === 'right') {
                 const handle = parent.handles[index - 1];
-                if (!handle.classList.contains('p-mod-hidden')) {
+                if (!handle.classList.contains('lm-mod-hidden')) {
                     const parentWidth = parent.node.clientWidth;
                     return parentWidth - handle.offsetLeft;
                 }
@@ -632,13 +633,13 @@ export class SidePanelHandler {
         const clonedTab = tab.cloneNode(true) as HTMLElement;
         clonedTab.style.width = '';
         clonedTab.style.height = '';
-        const label = clonedTab.getElementsByClassName('p-TabBar-tabLabel')[0] as HTMLElement;
+        const label = clonedTab.getElementsByClassName('lm-TabBar-tabLabel')[0] as HTMLElement;
         label.style.width = '';
         label.style.height = '';
 
         // Create and start a drag to move the selected tab to another panel
         const mimeData = new MimeData();
-        mimeData.setData('application/vnd.phosphor.widget-factory', () => title.owner);
+        mimeData.setData('application/vnd.lumino.widget-factory', () => title.owner);
         const drag = new Drag({
             mimeData,
             dragImage: clonedTab,
@@ -646,10 +647,10 @@ export class SidePanelHandler {
             supportedActions: 'move',
         });
 
-        tab.classList.add('p-mod-hidden');
+        tab.classList.add('lm-mod-hidden');
         drag.start(clientX, clientY).then(() => {
             // The promise is resolved when the drag has ended
-            tab.classList.remove('p-mod-hidden');
+            tab.classList.remove('lm-mod-hidden');
         });
     }
 

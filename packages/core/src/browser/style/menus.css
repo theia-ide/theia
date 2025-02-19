@@ -28,39 +28,39 @@
 | MenuBar
 |----------------------------------------------------------------------------*/
 
-.p-Widget.p-MenuBar {
+.lm-Widget.lm-MenuBar {
   display: flex;
   align-items: center; 
   padding-left: 5px;
   font-size: var(--theia-ui-font-size1);
 }
 
-.p-MenuBar-menu {
+.lm-MenuBar-menu {
   transform: translateY(calc(-2 * var(--theia-border-width)));
 }
 
-.p-MenuBar-content {
+.lm-MenuBar-content {
   display: flex;
   align-items: center; 
 }
 
-.p-MenuBar-item {
+.lm-MenuBar-item {
   padding: 0px 8px;
   line-height: var(--theia-content-line-height);
   border-radius: 4px;
 }
 
-.p-MenuBar-item .p-MenuBar-itemLabel {
+.lm-MenuBar-item .lm-MenuBar-itemLabel {
   white-space: pre;
 }
 
-.p-MenuBar-item.p-mod-active {
+.lm-MenuBar-item.lm-mod-active {
   background: var(--theia-menubar-selectionBackground);
   color: var(--theia-menubar-selectionForeground);
   opacity: 1;
 }
 
-.p-MenuBar.p-mod-active .p-MenuBar-item.p-mod-active {
+.lm-MenuBar.lm-mod-active .lm-MenuBar-item.lm-mod-active {
   z-index: calc(var(--theia-menu-z-index) - 1);
   background: var(--theia-menubar-selectionBackground);
   border-left: var(--theia-border-width) solid
@@ -69,11 +69,11 @@
     var(--theia-menubar-selectionBorder);
 }
 
-.p-MenuBar-item.p-mod-disabled {
+.lm-MenuBar-item.lm-mod-disabled {
   opacity: var(--theia-mod-disabled-opacity);
 }
 
-.p-MenuBar-item.p-type-separator {
+.lm-MenuBar-item.lm-type-separator {
   margin: 2px;
   padding: 0;
   border: none;
@@ -81,7 +81,7 @@
     var(--theia-menu-separatorBackground);
 }
 
-.p-MenuBar-itemMnemonic {
+.lm-MenuBar-itemMnemonic {
   text-decoration: underline;
 }
 
@@ -102,7 +102,7 @@
 | Menu
 |----------------------------------------------------------------------------*/
 
-.p-Menu {
+.lm-Menu {
   z-index: var(--theia-menu-z-index);
   padding: 4px;
   background: var(--theia-menu-background);
@@ -113,11 +113,11 @@
   border-radius: 5px;
 }
 
-.p-Menu:focus {
+.lm-Menu:focus {
   outline: none;
 }
 
-.p-Menu-item {
+.lm-Menu-item {
   min-height: var(--theia-private-menu-item-height);
   max-height: var(--theia-private-menu-item-height);
   padding: 0px;
@@ -129,7 +129,7 @@
   overflow: hidden;
 }
 
-.p-Menu-item.p-mod-active {
+.lm-Menu-item.lm-mod-active {
   color: var(--theia-menu-selectionForeground);
   border: thin solid var(--theia-menu-selectionBorder);
   opacity: 1;
@@ -141,54 +141,54 @@
  * So we apply it to its first and last child
  */
 
-.p-Menu-item.p-mod-active > div {
+.lm-Menu-item.lm-mod-active > div {
   background: var(--theia-menu-selectionBackground);
 }
 
-.p-Menu-item.p-mod-active > div:first-child {
+.lm-Menu-item.lm-mod-active > div:first-child {
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
 }
 
-.p-Menu-item.p-mod-active > div:last-child {
+.lm-Menu-item.lm-mod-active > div:last-child {
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
 }
 
-.p-Menu-item.p-mod-disabled {
+.lm-Menu-item.lm-mod-disabled {
   opacity: var(--theia-mod-disabled-opacity);
 }
 
-.p-Menu-itemIcon {
+.lm-Menu-itemIcon {
   width: 21px;
   padding: 0px 2px 0px 4px;
   height: var(--theia-private-menu-item-height);
 }
 
-.p-Menu-itemLabel {
+.lm-Menu-itemLabel {
   padding: 0px 32px 0px 2px;
 }
 
-.p-Menu-itemMnemonic {
+.lm-Menu-itemMnemonic {
   text-decoration: underline;
 }
 
-.p-Menu-itemShortcut {
+.lm-Menu-itemShortcut {
   padding: 0px;
 }
 
-.p-Menu-itemSubmenuIcon {
+.lm-Menu-itemSubmenuIcon {
   width: var(--theia-icon-size);
   padding: 0px 10px 0px 0px;
 }
 
-.p-Menu-item[data-type="separator"] > div {
+.lm-Menu-item[data-type="separator"] > div {
   padding: 0;
   height: 9px;
   opacity: 0.36;
 }
 
-.p-Menu-item[data-type="separator"] > div::after {
+.lm-Menu-item[data-type="separator"] > div::after {
   content: "";
   display: block;
   position: relative;
@@ -197,16 +197,16 @@
     var(--theia-menu-separatorBackground);
 }
 
-.p-Menu-item[data-type="separator"] > div:first-child:after {
+.lm-Menu-item[data-type="separator"] > div:first-child:after {
   margin-left: -4px;
 }
 
-.p-Menu-item[data-type="separator"] > div:last-child::after {
+.lm-Menu-item[data-type="separator"] > div:last-child::after {
   margin-right: -4px;
 }
 
-.p-Menu-itemIcon::before,
-.p-Menu-itemSubmenuIcon::before {
+.lm-Menu-itemIcon::before,
+.lm-Menu-itemSubmenuIcon::before {
   font: normal normal normal 16px/1 codicon;
   display: inline-block;
   text-decoration: none;
@@ -220,11 +220,11 @@
   transform: translateY(20%);
 }
 
-.p-Menu-item.p-mod-toggled > .p-Menu-itemIcon::before {
+.lm-Menu-item.lm-mod-toggled > .lm-Menu-itemIcon::before {
   content: "\eab2";
   transform: scale(0.8) translateY(20%);
 }
 
-.p-Menu-item[data-type="submenu"] > .p-Menu-itemSubmenuIcon::before {
+.lm-Menu-item[data-type="submenu"] > .lm-Menu-itemSubmenuIcon::before {
   content: "\eab6";
 }

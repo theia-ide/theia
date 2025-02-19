@@ -62,16 +62,16 @@
   display: inline-block;
 }
 
-.p-TabBar.theia-app-sides .theia-plugin-file-icon,
-.p-TabBar.theia-app-sides .theia-plugin-file-icon::before,
-.p-TabBar.theia-app-sides .theia-plugin-folder-icon,
-.p-TabBar.theia-app-sides .theia-plugin-folder-icon::before,
-.p-TabBar.theia-app-sides .theia-plugin-folder-expanded-icon,
-.p-TabBar.theia-app-sides .theia-plugin-folder-expanded-icon::before,
-.p-TabBar.theia-app-sides .theia-plugin-root-folder-icon,
-.p-TabBar.theia-app-sides .theia-plugin-root-folder-icon::before,
-.p-TabBar.theia-app-sides .theia-plugin-root-folder-expanded-icon,
-.p-TabBar.theia-app-sides .theia-plugin-root-folder-expanded-icon::before {
+.lm-TabBar.theia-app-sides .theia-plugin-file-icon,
+.lm-TabBar.theia-app-sides .theia-plugin-file-icon::before,
+.lm-TabBar.theia-app-sides .theia-plugin-folder-icon,
+.lm-TabBar.theia-app-sides .theia-plugin-folder-icon::before,
+.lm-TabBar.theia-app-sides .theia-plugin-folder-expanded-icon,
+.lm-TabBar.theia-app-sides .theia-plugin-folder-expanded-icon::before,
+.lm-TabBar.theia-app-sides .theia-plugin-root-folder-icon,
+.lm-TabBar.theia-app-sides .theia-plugin-root-folder-icon::before,
+.lm-TabBar.theia-app-sides .theia-plugin-root-folder-expanded-icon,
+.lm-TabBar.theia-app-sides .theia-plugin-root-folder-expanded-icon::before {
   padding: 0px !important;
   width: var(--theia-private-sidebar-icon-size) !important;
   height: var(--theia-private-sidebar-icon-size) !important;

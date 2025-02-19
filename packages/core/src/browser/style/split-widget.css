@@ -14,25 +14,25 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
  ********************************************************************************/
 
-.theia-split-widget > .p-SplitPanel {
+.theia-split-widget > .lm-SplitPanel {
   height: 100%;
   width: 100%;
   outline: none;
 }
 
-.theia-split-widget > .p-SplitPanel > .p-SplitPanel-child {
+.theia-split-widget > .lm-SplitPanel > .lm-SplitPanel-child {
   min-width: 50px;
   min-height: var(--theia-content-line-height);
 }
 
-.theia-split-widget > .p-SplitPanel > .p-SplitPanel-handle {
+.theia-split-widget > .lm-SplitPanel > .lm-SplitPanel-handle {
   box-sizing: border-box;
 }
 
-.theia-split-widget > .p-SplitPanel[data-orientation="horizontal"] > .p-SplitPanel-handle {
+.theia-split-widget > .lm-SplitPanel[data-orientation="horizontal"] > .lm-SplitPanel-handle {
   border-left: var(--theia-border-width) solid var(--theia-sideBarSectionHeader-border);
 }
 
-.theia-split-widget > .p-SplitPanel[data-orientation="vertical"] > .p-SplitPanel-handle {
+.theia-split-widget > .lm-SplitPanel[data-orientation="vertical"] > .lm-SplitPanel-handle {
   border-top: var(--theia-border-width) solid var(--theia-sideBarSectionHeader-border);
 }

@@ -17,7 +17,7 @@
 import { inject, injectable, postConstruct } from '@theia/core/shared/inversify';
 import { Diagnostic, DiagnosticSeverity } from '@theia/core/shared/vscode-languageserver-protocol';
 import { Event, Emitter } from '@theia/core/lib/common/event';
-import { Title, Widget } from '@theia/core/shared/@phosphor/widgets';
+import { Title, Widget } from '@theia/core/shared/@lumino/widgets';
 import { WidgetDecoration } from '@theia/core/lib/browser/widget-decoration';
 import { TabBarDecorator } from '@theia/core/lib/browser/shell/tab-bar-decorator';
 import { Marker } from '../../common/marker';

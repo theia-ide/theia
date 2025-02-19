@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
  ********************************************************************************/
 
-.theia-webview.p-mod-hidden {
+.theia-webview.lm-mod-hidden {
   visibility: hidden;
   display: flex !important;
 }
@@ -48,7 +48,7 @@
   content: "";
 }
 
-.p-TabBar.theia-app-sides .theia-webview-icon::before {
+.lm-TabBar.theia-app-sides .theia-webview-icon::before {
   width: var(--theia-private-sidebar-icon-size);
   height: var(--theia-private-sidebar-icon-size);
   background-size: contain;

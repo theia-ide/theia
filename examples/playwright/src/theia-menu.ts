@@ -22,7 +22,7 @@ import { isDefined } from './util';
 
 export class TheiaMenu extends TheiaPageObject {
 
-    selector = '.p-Menu';
+    selector = '.lm-Menu';
 
     protected async menuElementHandle(): Promise<ElementHandle<SVGElement | HTMLElement> | null> {
         return this.page.$(this.selector);
@@ -50,7 +50,7 @@ export class TheiaMenu extends TheiaPageObject {
         if (!menuHandle) {
             return [];
         }
-        const items = await menuHandle.$$('.p-Menu-content .p-Menu-item');
+        const items = await menuHandle.$$('.lm-Menu-content .lm-Menu-item');
         return items.map(element => new TheiaMenuItem(element));
     }
 
@@ -84,7 +84,7 @@ export class TheiaMenu extends TheiaPageObject {
     }
 
     protected menuItemSelector(label = ''): string {
-        return `.p-Menu-content .p-Menu-itemLabel >> text=${label}`;
+        return `.lm-Menu-content .lm-Menu-itemLabel >> text=${label}`;
     }
 
     async visibleMenuItems(): Promise<string[]> {

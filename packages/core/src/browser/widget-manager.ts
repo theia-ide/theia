@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { inject, named, injectable } from 'inversify';
-import { Widget } from '@phosphor/widgets';
+import { Widget } from '@lumino/widgets';
 import { ILogger, Emitter, Event, ContributionProvider, MaybePromise, WaitUntilEvent } from '../common';
 import stableJsonStringify = require('fast-json-stable-stringify');
 

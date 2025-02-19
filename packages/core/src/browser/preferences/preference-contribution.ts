@@ -28,7 +28,7 @@ import { bindPreferenceConfigurations, PreferenceConfigurations } from './prefer
 export { PreferenceSchema, PreferenceSchemaProperties, PreferenceDataSchema, PreferenceItem, PreferenceSchemaProperty, PreferenceDataProperty };
 import { isObject, Mutable } from '../../common/types';
 import { PreferenceLanguageOverrideService } from './preference-language-override-service';
-import { JSONValue } from '@phosphor/coreutils';
+import { JSONValue } from '@lumino/coreutils';
 
 /* eslint-disable guard-for-in, @typescript-eslint/no-explicit-any */
 

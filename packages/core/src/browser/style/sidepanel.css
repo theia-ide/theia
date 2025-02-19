@@ -32,24 +32,25 @@
 | SideBars (left and right)
 |----------------------------------------------------------------------------*/
 
-.p-TabBar.theia-app-sides {
+.lm-TabBar.theia-app-sides {
   display: block;
   color: var(--theia-activityBar-inactiveForeground);
   background: var(--theia-activityBar-background);
   font-size: var(--theia-ui-font-size1);
   min-width: var(--theia-private-sidebar-tab-width);
   max-width: var(--theia-private-sidebar-tab-width);
+  overflow: hidden;
 }
 
-.p-TabBar-content {
+.lm-TabBar-content {
   gap: 4px 0px;
 }
 
-.p-TabBar.theia-app-sides .p-TabBar-content {
+.lm-TabBar.theia-app-sides .lm-TabBar-content {
   z-index: 1;
 }
 
-.p-TabBar.theia-app-sides .p-TabBar-tab {
+.lm-TabBar.theia-app-sides .lm-TabBar-tab {
   position: relative;
   background: var(--theia-activityBar-background);
   flex-direction: column;
@@ -59,8 +60,8 @@
   cursor: pointer;
 }
 
-.p-TabBar.theia-app-sides .p-TabBar-tab.p-mod-current,
-.p-TabBar.theia-app-sides .p-TabBar-tab:hover {
+.lm-TabBar.theia-app-sides .lm-TabBar-tab.lm-mod-current,
+.lm-TabBar.theia-app-sides .lm-TabBar-tab:hover {
   color: var(--theia-activityBar-foreground);
   background-color: var(--theia-activityBar-activeBackground);
   min-height: var(--theia-private-sidebar-tab-height);
@@ -68,23 +69,23 @@
   border-top: none;
 }
 
-.p-TabBar.theia-app-left .p-TabBar-tab.p-mod-current {
+.lm-TabBar.theia-app-left .lm-TabBar-tab.lm-mod-current {
   border-top-color: transparent;
   box-shadow: 2px 0 0 var(--theia-activityBar-activeBorder) inset;
 }
 
-.p-TabBar.theia-app-right .p-TabBar-tab.p-mod-current {
+.lm-TabBar.theia-app-right .lm-TabBar-tab.lm-mod-current {
   border-top-color: transparent;
   box-shadow: -2px 0 0 var(--theia-activityBar-activeBorder) inset;
 }
 
-.p-TabBar.theia-app-sides .p-TabBar-tabLabel,
-.p-TabBar.theia-app-sides .p-TabBar-tabCloseIcon {
+.lm-TabBar.theia-app-sides .lm-TabBar-tabLabel,
+.lm-TabBar.theia-app-sides .lm-TabBar-tabCloseIcon {
   display: none;
 }
 
 /* inactive common icons */
-.p-TabBar.theia-app-sides .p-TabBar-tabIcon {
+.lm-TabBar.theia-app-sides .lm-TabBar-tabIcon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,38 +105,38 @@
 }
 
 /* inactive legacy/plugin icons */
-.p-TabBar.theia-app-sides .p-TabBar-tabIcon:not(.codicon) {
+.lm-TabBar.theia-app-sides .lm-TabBar-tabIcon:not(.codicon) {
   background: var(--theia-activityBar-inactiveForeground);
 }
 
 /* inactive file icons */
-.p-TabBar.theia-app-sides .file-icon.p-TabBar-tabIcon {
+.lm-TabBar.theia-app-sides .file-icon.lm-TabBar-tabIcon {
   background: inherit !important;
 }
 
 /* inactive font-awesome icons */
-.p-TabBar.theia-app-sides .fa.p-TabBar-tabIcon {
+.lm-TabBar.theia-app-sides .fa.lm-TabBar-tabIcon {
   background: none !important;
 }
 
 /* active icons */
-.p-TabBar.theia-app-sides .p-TabBar-tabIcon:hover,
-.p-TabBar.theia-app-sides .p-mod-current .p-TabBar-tabIcon {
+.lm-TabBar.theia-app-sides .lm-TabBar-tabIcon:hover,
+.lm-TabBar.theia-app-sides .lm-mod-current .lm-TabBar-tabIcon {
   color: var(--theia-activityBar-foreground);
 }
 
 /* active legacy/plugin icons */
-.p-TabBar.theia-app-sides .p-TabBar-tabIcon:not(.codicon):hover,
-.p-TabBar.theia-app-sides .p-mod-current .p-TabBar-tabIcon:not(.codicon) {
+.lm-TabBar.theia-app-sides .lm-TabBar-tabIcon:not(.codicon):hover,
+.lm-TabBar.theia-app-sides .lm-mod-current .lm-TabBar-tabIcon:not(.codicon) {
   background-color: var(--theia-activityBar-foreground);
 }
 
-.p-TabBar.theia-app-left .p-TabBar-tabLabel {
+.lm-TabBar.theia-app-left .lm-TabBar-tabLabel {
   transform-origin: top left 0;
   transform: rotate(-90deg) translateX(-100%);
 }
 
-.p-TabBar.theia-app-right .p-TabBar-tabLabel {
+.lm-TabBar.theia-app-right .lm-TabBar-tabLabel {
   transform-origin: top left 0;
   transform: rotate(90deg) translateY(-50%);
 }
@@ -145,12 +146,12 @@
   max-width: var(--theia-private-sidebar-tab-width);
 }
 
-#theia-left-content-panel > .p-Panel {
+#theia-left-content-panel > .lm-Panel {
   border-right: var(--theia-panel-border-width) solid
     var(--theia-activityBar-border);
 }
 
-#theia-right-content-panel > .p-Panel {
+#theia-right-content-panel > .lm-Panel {
   border-left: var(--theia-panel-border-width) solid
     var(--theia-activityBar-border);
 }
@@ -159,8 +160,8 @@
   background-color: var(--theia-sideBar-background);
 }
 
-.p-Widget.theia-side-panel .p-Widget,
-.p-Widget .theia-sidepanel-toolbar {
+.lm-Widget.theia-side-panel .lm-Widget,
+.lm-Widget .theia-sidepanel-toolbar {
   color: var(--theia-sideBar-foreground);
 }
 
@@ -180,17 +181,17 @@
   flex-shrink: 0;
 }
 
-.p-Widget.theia-sidebar-menu {
+.lm-Widget.theia-sidebar-menu {
   background-color: var(--theia-activityBar-background);
   display: flex;
   flex-direction: column-reverse;
 }
 
-.p-Widget .theia-sidebar-menu-item {
+.lm-Widget .theia-sidebar-menu-item {
     cursor: pointer;
 }
 
-.p-Widget.theia-sidebar-menu i {
+.lm-Widget.theia-sidebar-menu i {
   padding: var(--theia-private-sidebar-tab-padding-top-and-bottom)
     var(--theia-private-sidebar-tab-padding-left-and-right);
   display: flex;
@@ -209,7 +210,7 @@
   font-size: 16px;
 }
 
-.p-SplitPanel-handle.sash-hidden {
+.lm-SplitPanel-handle.sash-hidden {
   visibility: hidden;
 }
 
@@ -217,12 +218,12 @@
 | Perfect scrollbar
 |----------------------------------------------------------------------------*/
 
-.p-TabBar.theia-app-sides > .ps__rail-y {
+.lm-TabBar.theia-app-sides > .ps__rail-y {
   width: var(--theia-private-sidebar-scrollbar-rail-width);
   z-index: 1000;
 }
 
-#theia-app-shell .p-TabBar.theia-app-sides > .ps__rail-y > .ps__thumb-y {
+#theia-app-shell .lm-TabBar.theia-app-sides > .ps__rail-y > .ps__thumb-y {
   width: var(--theia-private-sidebar-scrollbar-width);
   right: calc(
     (
@@ -232,13 +233,13 @@
   );
 }
 
-.p-TabBar.theia-app-sides > .ps__rail-y:hover,
-.p-TabBar.theia-app-sides > .ps__rail-y:focus {
+.lm-TabBar.theia-app-sides > .ps__rail-y:hover,
+.lm-TabBar.theia-app-sides > .ps__rail-y:focus {
   width: var(--theia-private-sidebar-scrollbar-rail-width);
 }
 
-.p-TabBar.theia-app-sides > .ps__rail-y:hover > .ps__thumb-y,
-.p-TabBar.theia-app-sides > .ps__rail-y:focus > .ps__thumb-y {
+.lm-TabBar.theia-app-sides > .ps__rail-y:hover > .ps__thumb-y,
+.lm-TabBar.theia-app-sides > .ps__rail-y:focus > .ps__thumb-y {
   width: var(--theia-private-sidebar-scrollbar-width);
   right: calc(
     (
@@ -260,39 +261,39 @@
   border-color: var(--theia-panelInput-border);
 }
 
-#theia-bottom-content-panel .p-DockPanel-handle[data-orientation="horizontal"] {
+#theia-bottom-content-panel .lm-DockPanel-handle[data-orientation="horizontal"] {
   border-left: var(--theia-border-width) solid var(--theia-panel-border);
 }
 
-#theia-bottom-content-panel .p-TabBar {
+#theia-bottom-content-panel .lm-TabBar {
   border-top: var(--theia-border-width) solid var(--theia-panel-border);
   background: inherit;
 }
 
-#theia-bottom-content-panel .p-TabBar-tab {
+#theia-bottom-content-panel .lm-TabBar-tab {
   background: inherit;
 }
 
-#theia-bottom-content-panel .p-TabBar-tab:not(.p-mod-current) {
+#theia-bottom-content-panel .lm-TabBar-tab:not(.lm-mod-current) {
   color: var(--theia-panelTitle-inactiveForeground);
 }
 
-#theia-bottom-content-panel .p-TabBar-tab.p-mod-current {
+#theia-bottom-content-panel .lm-TabBar-tab.lm-mod-current {
   color: var(--theia-panelTitle-activeForeground);
   box-shadow: 0 var(--theia-border-width) 0 var(--theia-panelTitle-activeBorder)
     inset;
 }
 
 #theia-bottom-content-panel
-  .p-TabBar:not(.theia-tabBar-active)
-  .p-TabBar-tab
+  .lm-TabBar:not(.theia-tabBar-active)
+  .lm-TabBar-tab
   .theia-tab-icon-label {
   color: var(--theia-tab-unfocusedInactiveForeground);
 }
 
 #theia-bottom-content-panel
-  .p-TabBar:not(.theia-tabBar-active)
-  .p-TabBar-tab.p-mod-current
+  .lm-TabBar:not(.theia-tabBar-active)
+  .lm-TabBar-tab.lm-mod-current
   .theia-tab-icon-label {
   color: var(--theia-tab-unfocusedActiveForeground);
 }
@@ -308,15 +309,15 @@
   padding-inline-start: 0px;
 }
 
-.p-TabBar.theia-app-sides > .theia-TabBar-hidden-content .p-TabBar-tab {
+.lm-TabBar.theia-app-sides > .theia-TabBar-hidden-content .lm-TabBar-tab {
   line-height: var(--theia-private-sidebar-tab-width);
 }
 
-.p-TabBar.theia-app-left > .theia-TabBar-hidden-content .p-TabBar-tabLabel {
+.lm-TabBar.theia-app-left > .theia-TabBar-hidden-content .lm-TabBar-tabLabel {
   transform: none;
 }
 
-.p-TabBar.theia-app-right > .theia-TabBar-hidden-content .p-TabBar-tabLabel {
+.lm-TabBar.theia-app-right > .theia-TabBar-hidden-content .lm-TabBar-tabLabel {
   transform: none;
 }
 
@@ -344,11 +345,11 @@
   min-width: 1rem;
 }
 
-.theia-sidepanel-toolbar .p-TabBar-toolbar .item {
+.theia-sidepanel-toolbar .lm-TabBar-toolbar .item {
   color: var(--theia-icon-foreground);
 }
 
-.theia-sidepanel-toolbar .p-TabBar-toolbar .item > div {
+.theia-sidepanel-toolbar .lm-TabBar-toolbar .item > div {
   height: 18px;
   width: 18px;
   background-repeat: no-repeat;
@@ -365,3 +366,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+
+

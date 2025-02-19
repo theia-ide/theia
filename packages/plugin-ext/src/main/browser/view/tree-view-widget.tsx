@@ -929,7 +929,8 @@ export class TreeViewWidget extends TreeViewWelcomeWidget {
                     menuPath: contextMenuPath,
                     anchor: { x, y },
                     args,
-                    contextKeyService
+                    contextKeyService,
+                    context: event.currentTarget
                 }), 10);
             }
         }

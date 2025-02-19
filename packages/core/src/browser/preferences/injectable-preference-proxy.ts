@@ -19,7 +19,7 @@ import { PreferenceSchema } from '../../common/preferences/preference-schema';
 import { Disposable, DisposableCollection, Emitter, Event, isObject, MaybePromise } from '../../common';
 import { PreferenceChangeEvent, PreferenceEventEmitter, PreferenceProxy, PreferenceProxyOptions, PreferenceRetrieval } from './preference-proxy';
 import { PreferenceChange, PreferenceChangeImpl, PreferenceChanges, PreferenceScope, PreferenceService } from './preference-service';
-import { JSONValue } from '@phosphor/coreutils';
+import { JSONValue } from '@lumino/coreutils';
 import { PreferenceProviderDataChange } from './preference-provider';
 import { OverridePreferenceName } from './preference-language-override-service';
 

@@ -260,6 +260,7 @@ export class RegisterTableWidget extends MemoryTableWidget {
                 menuPath: RegisterTableWidget.CONTEXT_MENU,
                 anchor: event.nativeEvent,
                 args: this.getContextMenuArgs(event),
+                context: curTarget
             });
         }
     }

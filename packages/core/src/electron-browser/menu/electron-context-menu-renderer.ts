@@ -56,6 +56,7 @@ export class ElectronTextInputContextMenuContribution implements FrontendApplica
                     this.contextMenuRenderer.render({
                         anchor: event,
                         menuPath: ElectronTextInputContextMenu.MENU_PATH,
+                        context: event.target,
                         onHide: () => target.focus()
                     });
                 }
@@ -119,7 +120,8 @@ export class ElectronContextMenuRenderer extends BrowserContextMenuRenderer {
             const node = (menuAccess as BrowserContextMenuAccess).menu.node;
             const topPanelHeight = document.getElementById('theia-top-panel')?.clientHeight ?? 0;
             // ensure the context menu is not displayed outside of the main area
-            if (node.style.top && parseInt(node.style.top.substring(0, node.style.top.length - 2)) < topPanelHeight) {
+            const menuRect = node.getBoundingClientRect();
+            if (menuRect.top < topPanelHeight) {
                 node.style.top = `${topPanelHeight}px`;
                 node.style.maxHeight = `calc(${node.style.maxHeight} - ${topPanelHeight}px)`;
             }

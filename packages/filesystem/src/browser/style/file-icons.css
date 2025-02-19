@@ -27,7 +27,7 @@
   font-size: calc(var(--theia-content-font-size) * 0.8);
 }
 
-.p-TabBar-tabIcon.theia-file-icons-js.file-icon {
+.lm-TabBar-tabIcon.theia-file-icons-js.file-icon {
   padding-left: 1px !important;
   padding-right: 3px !important;
 }

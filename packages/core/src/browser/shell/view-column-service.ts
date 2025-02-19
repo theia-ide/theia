@@ -17,8 +17,8 @@
 import { injectable, inject } from 'inversify';
 import { Emitter, Event } from '../../common/event';
 import { ApplicationShell } from './application-shell';
-import { toArray } from '@phosphor/algorithm';
-import { TabBar, Widget } from '@phosphor/widgets';
+import { toArray } from '@lumino/algorithm';
+import { TabBar, Widget } from '@lumino/widgets';
 
 @injectable()
 export class ViewColumnService {

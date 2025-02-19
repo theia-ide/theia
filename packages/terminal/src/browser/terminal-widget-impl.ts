@@ -115,7 +115,7 @@ export class TerminalWidgetImpl extends TerminalWidget implements StatefulWidget
     @inject(ShellTerminalServerProxy) protected readonly shellTerminalServer: ShellTerminalServerProxy;
     @inject(TerminalWatcher) protected readonly terminalWatcher: TerminalWatcher;
     @inject(ILogger) @named('terminal') protected readonly logger: ILogger;
-    @inject('terminal-dom-id') override readonly id: string;
+    @inject('terminal-dom-id') readonly _terminalDOMId: string;
     @inject(TerminalPreferences) protected readonly preferences: TerminalPreferences;
     @inject(ContributionProvider) @named(TerminalContribution) protected readonly terminalContributionProvider: ContributionProvider<TerminalContribution>;
     @inject(TerminalService) protected readonly terminalService: TerminalService;
@@ -166,6 +166,7 @@ export class TerminalWidgetImpl extends TerminalWidget implements StatefulWidget
 
     @postConstruct()
     protected init(): void {
+        this.id = this._terminalDOMId;
         this.setTitle(this.options.title || TerminalWidgetImpl.LABEL);
         this.setIconClass();
 
@@ -281,7 +282,7 @@ export class TerminalWidgetImpl extends TerminalWidget implements StatefulWidget
         const contextMenuListener = (event: MouseEvent) => {
             event.preventDefault();
             event.stopPropagation();
-            this.contextMenuRenderer.render({ menuPath: TerminalMenus.TERMINAL_CONTEXT_MENU, anchor: event });
+            this.contextMenuRenderer.render({ menuPath: TerminalMenus.TERMINAL_CONTEXT_MENU, anchor: event, context: this.node });
         };
         this.node.addEventListener('contextmenu', contextMenuListener);
         this.onDispose(() => this.node.removeEventListener('contextmenu', contextMenuListener));

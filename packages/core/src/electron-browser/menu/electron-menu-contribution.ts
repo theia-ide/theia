@@ -185,16 +185,16 @@ export class ElectronMenuContribution extends BrowserMenuBarContribution impleme
     /**
      * Hides the `theia-top-panel` depending on the selected `titleBarStyle`.
      * The `theia-top-panel` is used as the container of the main, application menu-bar for the
-     * browser. Native Electron has it's own.
+     * browser. Native Electron has its own.
      * By default, this method is called on application `onStart`.
      */
     protected hideTopPanel(app: FrontendApplication): void {
         const itr = app.shell.children();
         let child = itr.next();
-        while (child) {
+        while (!child.done) {
             // Top panel for the menu contribution is not required for native Electron title bar.
-            if (child.id === 'theia-top-panel') {
-                child.setHidden(this.titleBarStyle !== 'custom');
+            if (child.value.id === 'theia-top-panel') {
+                child.value.setHidden(this.titleBarStyle !== 'custom');
                 break;
             } else {
                 child = itr.next();

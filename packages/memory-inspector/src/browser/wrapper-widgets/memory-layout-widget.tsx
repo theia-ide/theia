@@ -97,8 +97,8 @@ export class MemoryLayoutWidget extends Panel implements Disposable, Application
     protected dockPanelHoldsWidgets(): boolean {
         const iter = this.dockPanel.tabBars();
         let tabBar = iter.next();
-        while (tabBar) {
-            if (tabBar.titles.length) {
+        while (!tabBar.done) {
+            if (tabBar.value.titles.length) {
                 return true;
             }
             tabBar = iter.next();
@@ -135,14 +135,8 @@ export class MemoryLayoutWidget extends Panel implements Disposable, Application
     }
 
     getTrackableWidgets(): Widget[] {
-        const children: Widget[] = [];
         const childIterator = this.dockPanel.children();
-        let currentChild = childIterator.next();
-        while (currentChild) {
-            children.push(currentChild);
-            currentChild = childIterator.next();
-        }
-        return children;
+        return Array.from(childIterator);
     }
 
     activateWidget(id: string): Widget | undefined {

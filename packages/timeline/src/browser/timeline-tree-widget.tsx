@@ -111,7 +111,8 @@ export class TimelineItemNode extends React.Component<TimelineItemNode.Props> {
             contextMenuRenderer.render({
                 menuPath: TIMELINE_ITEM_CONTEXT_MENU,
                 anchor: event.nativeEvent,
-                args: [timelineItem]
+                args: [timelineItem],
+                context: event.currentTarget
             });
         } finally {
             contextKeys.timelineItem.set(currentTimelineItem);

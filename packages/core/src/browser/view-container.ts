@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { interfaces, injectable, inject, postConstruct } from 'inversify';
-import { IIterator, toArray, find, some, every, map, ArrayExt } from '@phosphor/algorithm';
+import { find, some, every, map, ArrayExt } from '@lumino/algorithm';
 import {
     Widget, EXPANSION_TOGGLE_CLASS, COLLAPSED_CLASS, CODICON_TREE_ITEM_CLASSES, MessageLoop, Message, SplitPanel,
     BaseWidget, addEventListener, SplitLayout, LayoutItem, PanelLayout, addKeyListener, waitForRevealed, UnsafeWidgetUtilities, DockPanel, PINNED_CLASS
@@ -34,9 +34,9 @@ import { isEmpty, isObject, nls } from '../common';
 import { WidgetManager } from './widget-manager';
 import { Key } from './keys';
 import { ProgressBarFactory } from './progress-bar-factory';
-import { Drag, IDragEvent } from '@phosphor/dragdrop';
-import { MimeData } from '@phosphor/coreutils';
-import { ElementExt } from '@phosphor/domutils';
+import { Drag } from '@lumino/dragdrop';
+import { MimeData } from '@lumino/coreutils';
+import { ElementExt } from '@lumino/domutils';
 import { TabBarDecoratorService } from './shell/tab-bar-decorator';
 
 export interface ViewContainerTitleOptions {
@@ -170,7 +170,11 @@ export class ViewContainer extends BaseWidget implements StatefulWidget, Applica
                 if (event.button === 2 && every(this.containerLayout.iter(), part => !!part.isHidden)) {
                     event.stopPropagation();
                     event.preventDefault();
-                    contextMenuRenderer.render({ menuPath: this.contextMenuPath, anchor: event });
+                    contextMenuRenderer.render({
+                        menuPath: this.contextMenuPath,
+                        anchor: event,
+                        context: event.currentTarget instanceof HTMLElement ? event.currentTarget : this.node
+                    });
                 }
             }),
             commandRegistry.registerCommand({ id: this.globalHideCommandId }, {
@@ -220,7 +224,7 @@ export class ViewContainer extends BaseWidget implements StatefulWidget, Applica
     }
 
     protected updateSplitterVisibility(): void {
-        const className = 'p-first-visible';
+        const className = 'lm-first-visible';
         let firstFound = false;
         for (const part of this.getParts()) {
             if (!part.isHidden && !firstFound) {
@@ -436,7 +440,7 @@ export class ViewContainer extends BaseWidget implements StatefulWidget, Applica
                 if (event.button === 2) {
                     event.preventDefault();
                     event.stopPropagation();
-                    this.contextMenuRenderer.render({ menuPath: this.contextMenuPath, anchor: event });
+                    this.contextMenuRenderer.render({ menuPath: this.contextMenuPath, anchor: event, context: this.node });
                 }
             }),
             newPart.onTitleChanged(() => this.refreshMenu(newPart)),
@@ -713,47 +717,47 @@ export class ViewContainer extends BaseWidget implements StatefulWidget, Applica
 
     protected override onBeforeAttach(msg: Message): void {
         super.onBeforeAttach(msg);
-        this.node.addEventListener('p-dragenter', this, true);
-        this.node.addEventListener('p-dragover', this, true);
-        this.node.addEventListener('p-dragleave', this, true);
-        this.node.addEventListener('p-drop', this, true);
+        this.node.addEventListener('lm-dragenter', this, true);
+        this.node.addEventListener('lm-dragover', this, true);
+        this.node.addEventListener('lm-dragleave', this, true);
+        this.node.addEventListener('lm-drop', this, true);
     }
 
     protected override onAfterDetach(msg: Message): void {
         super.onAfterDetach(msg);
-        this.node.removeEventListener('p-dragenter', this, true);
-        this.node.removeEventListener('p-dragover', this, true);
-        this.node.removeEventListener('p-dragleave', this, true);
-        this.node.removeEventListener('p-drop', this, true);
+        this.node.removeEventListener('lm-dragenter', this, true);
+        this.node.removeEventListener('lm-dragover', this, true);
+        this.node.removeEventListener('lm-dragleave', this, true);
+        this.node.removeEventListener('lm-drop', this, true);
     }
 
     handleEvent(event: Event): void {
         switch (event.type) {
-            case 'p-dragenter':
-                this.handleDragEnter(event as IDragEvent);
+            case 'lm-dragenter':
+                this.handleDragEnter(event as Drag.Event);
                 break;
-            case 'p-dragover':
-                this.handleDragOver(event as IDragEvent);
+            case 'lm-dragover':
+                this.handleDragOver(event as Drag.Event);
                 break;
-            case 'p-dragleave':
-                this.handleDragLeave(event as IDragEvent);
+            case 'lm-dragleave':
+                this.handleDragLeave(event as Drag.Event);
                 break;
-            case 'p-drop':
-                this.handleDrop(event as IDragEvent);
+            case 'lm-drop':
+                this.handleDrop(event as Drag.Event);
                 break;
         }
     }
 
-    handleDragEnter(event: IDragEvent): void {
-        if (event.mimeData.hasData('application/vnd.phosphor.view-container-factory')) {
+    handleDragEnter(event: Drag.Event): void {
+        if (event.mimeData.hasData('application/vnd.lumino.view-container-factory')) {
             event.preventDefault();
             event.stopPropagation();
         }
     }
 
     toDisposeOnDragEnd = new DisposableCollection();
-    handleDragOver(event: IDragEvent): void {
-        const factory = event.mimeData.getData('application/vnd.phosphor.view-container-factory');
+    handleDragOver(event: Drag.Event): void {
+        const factory = event.mimeData.getData('application/vnd.lumino.view-container-factory');
         const widget = factory && factory();
         if (!(widget instanceof ViewContainerPart)) {
             return;
@@ -797,17 +801,17 @@ export class ViewContainer extends BaseWidget implements StatefulWidget, Applica
         event.dropAction = event.proposedAction;
     };
 
-    handleDragLeave(event: IDragEvent): void {
+    handleDragLeave(event: Drag.Event): void {
         this.toDisposeOnDragEnd.dispose();
-        if (event.mimeData.hasData('application/vnd.phosphor.view-container-factory')) {
+        if (event.mimeData.hasData('application/vnd.lumino.view-container-factory')) {
             event.preventDefault();
             event.stopPropagation();
         }
     };
 
-    handleDrop(event: IDragEvent): void {
+    handleDrop(event: Drag.Event): void {
         this.toDisposeOnDragEnd.dispose();
-        const factory = event.mimeData.getData('application/vnd.phosphor.view-container-factory');
+        const factory = event.mimeData.getData('application/vnd.lumino.view-container-factory');
         const draggedPart = factory && factory();
         if (!(draggedPart instanceof ViewContainerPart)) {
             event.dropAction = 'none';
@@ -834,7 +838,7 @@ export class ViewContainer extends BaseWidget implements StatefulWidget, Applica
                 event => {
                     event.preventDefault();
                     const mimeData = new MimeData();
-                    mimeData.setData('application/vnd.phosphor.view-container-factory', () => part);
+                    mimeData.setData('application/vnd.lumino.view-container-factory', () => part);
                     const clonedHeader = part.headerElement.cloneNode(true) as HTMLElement;
                     clonedHeader.style.width = part.node.style.width;
                     clonedHeader.style.opacity = '0.6';
@@ -844,7 +848,7 @@ export class ViewContainer extends BaseWidget implements StatefulWidget, Applica
                         proposedAction: 'move',
                         supportedActions: 'move'
                     });
-                    part.node.classList.add('p-mod-hidden');
+                    part.node.classList.add('lm-mod-hidden');
                     drag.start(event.clientX, event.clientY).then(dropAction => {
                         // The promise is resolved when the drag has ended
                         if (dropAction === 'move' && part.currentViewContainerId !== this.id) {
@@ -852,7 +856,7 @@ export class ViewContainer extends BaseWidget implements StatefulWidget, Applica
                             this.lastVisibleState = this.doStoreState();
                         }
                     });
-                    setTimeout(() => { part.node.classList.remove('p-mod-hidden'); }, 0);
+                    setTimeout(() => { part.node.classList.remove('lm-mod-hidden'); }, 0);
                 }, false));
     }
 
@@ -1364,13 +1368,13 @@ export class ViewContainerLayout extends SplitLayout {
         return (this as any)._items as Array<LayoutItem & ViewContainerLayout.Item>;
     }
 
-    override iter(): IIterator<ViewContainerPart> {
+    iter(): IterableIterator<ViewContainerPart> {
         return map(this.items, item => item.widget);
     }
 
     // @ts-expect-error TS2611 `SplitLayout.widgets` is declared as `readonly widgets` but is implemented as a getter.
     get widgets(): ViewContainerPart[] {
-        return toArray(this.iter());
+        return Array.from(this.iter());
     }
 
     override attachWidget(index: number, widget: ViewContainerPart): void {

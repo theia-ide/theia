@@ -126,4 +126,29 @@ export namespace ArrayUtils {
         }
         return result;
     }
+
+    export function shallowEqual<T>(left: readonly T[], right: readonly T[]): boolean {
+        if (left.length !== right.length) {
+            return false;
+        }
+        for (let i = 0; i < left.length; i++) {
+            if (left[i] !== right[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    export function startsWith<T>(left: readonly T[], right: readonly T[]): boolean {
+        if (right.length > left.length) {
+            return false;
+        }
+
+        for (let i = 0; i < right.length; i++) {
+            if (left[i] !== right[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

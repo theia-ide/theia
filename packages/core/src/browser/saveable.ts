@@ -14,8 +14,8 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { Widget } from '@phosphor/widgets';
-import { Message } from '@phosphor/messaging';
+import { Widget } from '@lumino/widgets';
+import { Message } from '@lumino/messaging';
 import { Emitter, Event } from '../common/event';
 import { MaybePromise } from '../common/types';
 import { Key } from './keyboard/keys';
