@@ -19,12 +19,15 @@ import { inject, injectable } from '@theia/core/shared/inversify';
 import { FileService } from '@theia/filesystem/lib/browser/file-service';
 import { FileStat } from '@theia/filesystem/lib/common/files';
 import { WorkspaceService } from '@theia/workspace/lib/browser';
-import { FILE_CONTENT_FUNCTION_ID, GET_WORKSPACE_DIRECTORY_STRUCTURE_FUNCTION_ID, GET_WORKSPACE_FILE_LIST_FUNCTION_ID } from '../common/workspace-functions';
+import { FILE_CONTENT_FUNCTION_ID, GET_FILE_DIAGNOSTICS_ID, GET_WORKSPACE_DIRECTORY_STRUCTURE_FUNCTION_ID, GET_WORKSPACE_FILE_LIST_FUNCTION_ID } from '../common/workspace-functions';
 import ignore from 'ignore';
 import { Minimatch } from 'minimatch';
 import { PreferenceService } from '@theia/core/lib/browser';
 import { CONSIDER_GITIGNORE_PREF, USER_EXCLUDE_PATTERN_PREF } from './workspace-preferences';
 import { MonacoWorkspace } from '@theia/monaco/lib/browser/monaco-workspace';
+import { MonacoTextModelService } from '@theia/monaco/lib/browser/monaco-text-model-service';
+import { ProblemManager } from '@theia/markers/lib/browser';
+import { DiagnosticSeverity, Range } from '@theia/core/shared/vscode-languageserver-protocol';
 
 @injectable()
 export class WorkspaceFunctionScope {
@@ -322,5 +325,89 @@ export class GetWorkspaceFileList implements ToolProvider {
         }
 
         return result;
+    }
+}
+
+@injectable()
+export class FileDiagonsticProvider implements ToolProvider {
+    static ID = GET_FILE_DIAGNOSTICS_ID;
+
+    @inject(WorkspaceFunctionScope)
+    protected workspaceScope: WorkspaceFunctionScope;
+
+    @inject(ProblemManager)
+    protected readonly problemManager: ProblemManager;
+
+    @inject(MonacoTextModelService)
+    protected readonly modelService: MonacoTextModelService;
+
+    getTool(): ToolRequest {
+        return {
+            id: FileDiagonsticProvider.ID,
+            name: FileDiagonsticProvider.ID,
+            description:
+                `A function to retrieve diagnostics associated with a specific file in the workspace. It will return a list of problems that includes the surrounding text \
+            a message describing the problem, and optionally a code and a codeDescription field describing that code.`,
+            parameters: {
+                type: 'object',
+                properties: {
+                    file: {
+                        type: 'string',
+                        description: `The relative path to the target file within the workspace. This path is resolved from the workspace root, and only files within the workspace 
+                        boundaries are accessible. Attempting to access paths outside the workspace will result in an error.`,
+                    }
+                },
+                required: ['file']
+            },
+            handler: async (arg) => {
+                const { file } = JSON.parse(arg);
+                let workspaceRoot;
+                try {
+                    workspaceRoot = await this.workspaceScope.getWorkspaceRoot();
+                } catch (error) {
+                    return JSON.stringify({ error: error.message });
+                }
+
+                const targetUri = workspaceRoot.resolve(file);
+                this.workspaceScope.ensureWithinWorkspace(targetUri, workspaceRoot);
+                return this.getDiagnosticsForFile(targetUri);
+            }
+        }
+    }
+
+    protected async getDiagnosticsForFile(uri: URI): Promise<string> {
+        const markers = this.problemManager.findMarkers({ uri });
+        const editor = await this.modelService.createModelReference(uri);
+        const report = markers
+            .filter(marker => marker.data.severity !== DiagnosticSeverity.Information && marker.data.severity !== DiagnosticSeverity.Hint)
+            .map(marker => {
+                const contextRange = this.atLeastThreeLines(marker.data.range, editor.object.lineCount)
+                const text = editor.object.getText(contextRange);
+                const message = marker.data.message;
+                const code = marker.data.code;
+                const codeDescription = marker.data.codeDescription;
+                return { text, message, code, codeDescription };
+            });
+        editor.dispose();
+        return JSON.stringify(report);
+    }
+
+    protected atLeastThreeLines(range: Range, lineCount: number): Range {
+        let startLine = range.start.line;
+        let endLine = range.end.line;
+
+        while (endLine - startLine < 2 && (startLine > 0 || endLine < lineCount - 1)) {
+            if (startLine > 0) {
+                startLine--
+            } else if (endLine < lineCount - 1) {
+                endLine++;
+            }
+            if (endLine < lineCount - 1) {
+                endLine++
+            } else if (startLine > 0) {
+                startLine
+            }
+        }
+        return { end: { character: Number.MAX_SAFE_INTEGER, line: endLine }, start: { character: 0, line: startLine } };
     }
 }

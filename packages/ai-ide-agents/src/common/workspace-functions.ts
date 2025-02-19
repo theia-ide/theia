@@ -16,3 +16,4 @@
 export const FILE_CONTENT_FUNCTION_ID = 'getFileContent';
 export const GET_WORKSPACE_FILE_LIST_FUNCTION_ID = 'getWorkspaceFileList';
 export const GET_WORKSPACE_DIRECTORY_STRUCTURE_FUNCTION_ID = 'getWorkspaceDirectoryStructure';
+export const GET_FILE_DIAGNOSTICS_ID = 'getFileDiagnostics';

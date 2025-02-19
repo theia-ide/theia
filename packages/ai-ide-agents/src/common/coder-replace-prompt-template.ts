@@ -20,7 +20,8 @@ import { PromptTemplate } from '@theia/ai-core/lib/common';
 import {
   GET_WORKSPACE_FILE_LIST_FUNCTION_ID,
   FILE_CONTENT_FUNCTION_ID,
-  GET_WORKSPACE_DIRECTORY_STRUCTURE_FUNCTION_ID
+  GET_WORKSPACE_DIRECTORY_STRUCTURE_FUNCTION_ID,
+  GET_FILE_DIAGNOSTICS_ID
 } from './workspace-functions';
 
 export const CODER_REWRITE_PROMPT_TEMPLATE_ID = 'coder-rewrite';
@@ -36,6 +37,10 @@ Use the following functions to interact with the workspace files if you require 
 - **~{${GET_WORKSPACE_DIRECTORY_STRUCTURE_FUNCTION_ID}}**: Returns the complete directory structure.
 - **~{${GET_WORKSPACE_FILE_LIST_FUNCTION_ID}}**: Lists files and directories in a specific directory.
 - **~{${FILE_CONTENT_FUNCTION_ID}}**: Retrieves the content of a specific file.
+
+## File Validation
+Use the following function to retrieve a list of problems in a file if the user requests fixes in a given file:
+- **~{${GET_FILE_DIAGNOSTICS_ID}}**: Retrieves a list of problems identified in a given file by tool integrations such as language servers and linters.
 
 ## Propose Code Changes
 To propose code changes or any file changes to the user, never print code or new file content in your response.

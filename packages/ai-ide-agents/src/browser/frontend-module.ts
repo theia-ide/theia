@@ -19,7 +19,7 @@ import { ChatAgent, DefaultChatAgentId, FallbackChatAgentId } from '@theia/ai-ch
 import { Agent, ToolProvider } from '@theia/ai-core/lib/common';
 import { WorkspaceAgent } from './workspace-agent';
 import { CoderAgent } from './coder-agent';
-import { FileContentFunction, GetWorkspaceDirectoryStructure, GetWorkspaceFileList, WorkspaceFunctionScope } from './workspace-functions';
+import { FileContentFunction, FileDiagonsticProvider, GetWorkspaceDirectoryStructure, GetWorkspaceFileList, WorkspaceFunctionScope } from './workspace-functions';
 import { PreferenceContribution } from '@theia/core/lib/browser';
 import { WorkspacePreferencesSchema } from './workspace-preferences';
 import {
@@ -60,6 +60,7 @@ export default new ContainerModule(bind => {
     bind(ToolProvider).to(GetWorkspaceFileList);
     bind(ToolProvider).to(FileContentFunction);
     bind(ToolProvider).to(GetWorkspaceDirectoryStructure);
+    bind(ToolProvider).to(FileDiagonsticProvider);
     bind(WorkspaceFunctionScope).toSelf().inSingletonScope();
 
     bind(ToolProvider).to(WriteChangeToFileProvider);
