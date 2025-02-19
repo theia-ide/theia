@@ -18,12 +18,12 @@ import { injectable, inject, optional } from '@theia/core/shared/inversify';
 import * as monaco from '@theia/monaco-editor-core';
 import {
     AIVariable,
-    ResolvedAIVariable,
     AIVariableContribution,
     AIVariableResolver,
     AIVariableService,
     AIVariableResolutionRequest,
-    AIVariableContext
+    AIVariableContext,
+    ResolvedAIContextVariable
 } from './variable-service';
 import { PromptCustomizationService, PromptService } from './prompt-service';
 import { PromptText } from './prompt-text';
@@ -35,6 +35,7 @@ export const PROMPT_VARIABLE: AIVariable = {
     args: [
         { name: 'id', description: nls.localize('theia/ai/core/promptVariable/argDescription', 'The prompt template id to resolve') }
     ],
+    isContextVariable: true
 };
 
 @injectable()
@@ -58,19 +59,14 @@ export class PromptVariableContribution implements AIVariableContribution, AIVar
         return -1;
     }
 
-    async resolve(request: AIVariableResolutionRequest, context: AIVariableContext): Promise<ResolvedAIVariable | undefined> {
+    async resolve(request: AIVariableResolutionRequest, context: AIVariableContext): Promise<ResolvedAIContextVariable | undefined> {
         if (request.variable.name === PROMPT_VARIABLE.name) {
-            return this.resolvePromptVariable(request);
-        }
-        return undefined;
-    }
-
-    private async resolvePromptVariable(request: AIVariableResolutionRequest): Promise<ResolvedAIVariable | undefined> {
-        const promptId = request.arg?.trim();
-        if (promptId) {
-            const resolvedPrompt = await this.promptService.getPrompt(promptId);
-            if (resolvedPrompt) {
-                return { variable: request.variable, value: resolvedPrompt.text };
+            const promptId = request.arg?.trim();
+            if (promptId) {
+                const resolvedPrompt = await this.promptService.getPrompt(promptId);
+                if (resolvedPrompt) {
+                    return { variable: request.variable, value: resolvedPrompt.text, contextValue: resolvedPrompt.text };
+                }
             }
         }
         return undefined;
