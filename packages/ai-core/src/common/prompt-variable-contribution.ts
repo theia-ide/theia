@@ -13,6 +13,7 @@
 //
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
+import { nls } from '@theia/core';
 import { injectable, inject, optional } from '@theia/core/shared/inversify';
 import * as monaco from '@theia/monaco-editor-core';
 import {
@@ -29,10 +30,10 @@ import { PromptText } from './prompt-text';
 
 export const PROMPT_VARIABLE: AIVariable = {
     id: 'prompt-provider',
-    description: 'Resolves prompt templates via the prompt service',
+    description: nls.localize('theia/ai/core/promptVariable/description', 'Resolves prompt templates via the prompt service'),
     name: 'prompt',
     args: [
-        { name: 'id', description: 'The prompt template id to resolve' }
+        { name: 'id', description: nls.localize('theia/ai/core/promptVariable/argDescription', 'The prompt template id to resolve') }
     ],
 };
 
@@ -82,7 +83,7 @@ export class PromptVariableContribution implements AIVariableContribution, AIVar
         const lineContent = model.getLineContent(position.lineNumber);
 
         // Only provide completions once the variable argument separator is typed
-        const triggerCharIndex = lineContent.lastIndexOf(PromptText.VARIABLE_ARG_SEPARATOR, position.column - 1);
+        const triggerCharIndex = lineContent.lastIndexOf(PromptText.VARIABLE_SEPARATOR_CHAR, position.column - 1);
         if (triggerCharIndex === -1) {
             return undefined;
         }
@@ -96,20 +97,26 @@ export class PromptVariableContribution implements AIVariableContribution, AIVar
 
         const range = new monaco.Range(position.lineNumber, triggerCharIndex + 2, position.lineNumber, position.column);
 
-        // TODO consider all prompts or only custom prompts? If only custom, we might also consider this during variable resolution.
-        const prompts = this.promptService.getAllPrompts();
-        if (this.promptCustomizationService) {
-            this.promptCustomizationService.getCustomPromptTemplateIDs();
-        }
-        const allPromptIds = [...Object.keys(prompts), ...(this.promptCustomizationService?.getCustomPromptTemplateIDs() || [])];
-        allPromptIds.sort();
+        const customPromptIds = this.promptCustomizationService?.getCustomPromptTemplateIDs() ?? [];
+        const builtinPromptIds = Object.keys(this.promptService.getAllPrompts());
 
-        return allPromptIds.map(promptId => ({
-            filterText: PromptText.VARIABLE_ARG_SEPARATOR,
+        const customPromptCompletions = customPromptIds.map(promptId => ({
+            label: promptId,
+            kind: monaco.languages.CompletionItemKind.Enum,
+            insertText: promptId,
+            range,
+            detail: nls.localize('theia/ai/core/promptVariable/completions/detail/custom', 'Custom prompt template'),
+            sortText: `AAA${promptId}` // Sort before everything else including all built-in prompts
+        }));
+        const builtinPromptCompletions = builtinPromptIds.map(promptId => ({
             label: promptId,
             kind: monaco.languages.CompletionItemKind.Variable,
             insertText: promptId,
-            range
+            range,
+            detail: nls.localize('theia/ai/core/promptVariable/completions/detail/builtin', 'Built-in prompt template'),
+            sortText: `AAB${promptId}` // Sort after all custom prompts but before others
         }));
+
+        return [...customPromptCompletions, ...builtinPromptCompletions];
     }
 }
