@@ -940,7 +940,11 @@ export class LanguagesMainImpl implements LanguagesMain, Disposable {
             },
             resolveCodeAction: (codeAction, token) => this.resolveCodeAction(handle, codeAction, token)
         };
-        this.register(handle, (monaco.languages.registerCodeActionProvider as RegistrationFunction<monaco.languages.CodeActionProvider>)(languageSelector, quickFixProvider));
+        this.register(handle,
+            monaco.languages.registerCodeActionProvider(languageSelector, quickFixProvider, {
+                documentation: documentation,
+                providedCodeActionKinds
+            }));
     }
 
     protected async provideCodeActions(
