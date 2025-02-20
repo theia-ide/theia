@@ -281,7 +281,7 @@ export class TerminalWidgetImpl extends TerminalWidget implements StatefulWidget
         const contextMenuListener = (event: MouseEvent) => {
             event.preventDefault();
             event.stopPropagation();
-            this.contextMenuRenderer.render({ menuPath: TerminalMenus.TERMINAL_CONTEXT_MENU, anchor: event });
+            this.contextMenuRenderer.render({ menuPath: TerminalMenus.TERMINAL_CONTEXT_MENU, anchor: event, context: this.node });
         };
         this.node.addEventListener('contextmenu', contextMenuListener);
         this.onDispose(() => this.node.removeEventListener('contextmenu', contextMenuListener));

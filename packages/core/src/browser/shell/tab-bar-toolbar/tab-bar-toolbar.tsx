@@ -309,7 +309,7 @@ export class TabBarToolbar extends ReactWidget {
             menuPath: TAB_BAR_TOOLBAR_CONTEXT_MENU,
             args: [this.current],
             anchor,
-            context: this.current?.node,
+            context: this.current?.node || this.node,
             onHide: () => toDisposeOnHide.dispose(),
             skipSingleRootNode: true,
         });
@@ -375,7 +375,7 @@ export class TabBarToolbar extends ReactWidget {
             menuPath,
             args: [this.current],
             anchor,
-            context: this.current?.node,
+            context: this.current?.node || this.node,
             contextKeyService: contextMatcher,
             onHide: () => toDisposeOnHide.dispose()
         });

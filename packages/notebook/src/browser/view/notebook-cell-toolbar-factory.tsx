@@ -92,7 +92,7 @@ export class NotebookCellToolbarFactory {
                         menuPath,
                         includeAnchorArg: false,
                         args: itemOptions.contextMenuArgs?.(),
-                        context: this.notebookContextManager.context
+                        context: this.notebookContextManager.context || (e.currentTarget as HTMLElement)
                     }) :
                 () => this.commandRegistry.executeCommand(menuNode.command!, ...(itemOptions.commandArgs?.() ?? [])),
             isVisible: () => menuPath ? true : Boolean(this.commandRegistry.getVisibleHandler(menuNode.command!, ...(itemOptions.commandArgs?.() ?? []))),

@@ -152,6 +152,7 @@ export class SidebarMenuWidget extends ReactWidget {
                 x: button.left + button.width,
                 y: button.top,
             },
+            context: e.currentTarget,
             onHide: () => {
                 this.preservingContext = false;
                 if (this.preservedContext) {

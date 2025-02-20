@@ -260,6 +260,7 @@ export class PreferencesScopeTabBar extends TabBar<Widget> implements StatefulWi
         this.contextMenuRenderer.render({
             menuPath: PreferenceMenus.FOLDER_SCOPE_MENU_PATH,
             anchor: { x: tabRect.left, y: tabRect.bottom },
+            context: folderTabNode,
             onHide: () => {
                 setTimeout(() => toDisposeOnHide.dispose());
                 if (source === 'click') { folderTabNode.blur(); }

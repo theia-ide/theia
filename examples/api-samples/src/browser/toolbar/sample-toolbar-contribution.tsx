@@ -91,6 +91,7 @@ export class SampleToolbarContribution extends AbstractToolbarContribution
                 includeAnchorArg: false,
                 menuPath: ToolbarMenus.SEARCH_WIDGET_DROPDOWN_MENU,
                 anchor: { x: left, y: bottom },
+                context: e.currentTarget
             });
         }
     }

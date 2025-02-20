@@ -240,7 +240,8 @@ export class SidePanelHandler {
         this.contextMenuRenderer.render({
             args: [title.owner],
             menuPath: SIDE_PANEL_TOOLBAR_CONTEXT_MENU,
-            anchor: e
+            anchor: e,
+            context: e.currentTarget instanceof HTMLElement ? e.currentTarget : this.tabBar.node
         });
     }
 

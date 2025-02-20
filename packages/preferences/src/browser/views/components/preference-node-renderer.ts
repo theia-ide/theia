@@ -269,6 +269,7 @@ export abstract class PreferenceLeafNodeRenderer<ValueType extends JSONValue, In
                 menuPath: PreferenceMenus.PREFERENCE_EDITOR_CONTEXT_MENU,
                 anchor: { x: domRect.left, y: domRect.bottom },
                 args: [{ id: this.id, value }],
+                context: target,
                 onHide: () => this.hideCog()
             });
         }

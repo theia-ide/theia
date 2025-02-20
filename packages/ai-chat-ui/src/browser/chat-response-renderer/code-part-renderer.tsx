@@ -137,7 +137,8 @@ export class CodePartRenderer
         this.contextMenuRenderer.render({
             menuPath: ChatViewTreeWidget.CONTEXT_MENU,
             anchor: { x: event.posx, y: event.posy },
-            args: [node, { code }]
+            args: [node, { code }],
+            context: event.target
         });
         event.preventDefault();
     }

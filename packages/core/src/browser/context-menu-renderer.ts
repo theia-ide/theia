@@ -110,10 +110,10 @@ export interface RenderContextMenuOptions {
      */
     includeAnchorArg?: boolean;
     /**
-     * A DOM context to use when evaluating any `when` clauses
-     * of menu items registered for this item.
+     * A DOM context for the menu to be shown
+     * Will be used to attach the menu to a window and to evaluate enablement ("when"-clauses)
      */
-    context?: HTMLElement;
+    context: HTMLElement;
     contextKeyService?: ContextMatcher;
     onHide?: () => void;
     /**

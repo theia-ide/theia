@@ -406,7 +406,8 @@ export class WebviewWidget extends BaseWidget implements StatefulWidget, Extract
                     args: [event.context],
                     anchor: {
                         x: domRect.x + event.clientX, y: domRect.y + event.clientY
-                    }
+                    },
+                    context: this.node
                 });
             });
     }

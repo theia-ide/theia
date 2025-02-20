@@ -170,7 +170,11 @@ export class ViewContainer extends BaseWidget implements StatefulWidget, Applica
                 if (event.button === 2 && every(this.containerLayout.iter(), part => !!part.isHidden)) {
                     event.stopPropagation();
                     event.preventDefault();
-                    contextMenuRenderer.render({ menuPath: this.contextMenuPath, anchor: event });
+                    contextMenuRenderer.render({
+                        menuPath: this.contextMenuPath,
+                        anchor: event,
+                        context: event.currentTarget instanceof HTMLElement ? event.currentTarget : this.node
+                    });
                 }
             }),
             commandRegistry.registerCommand({ id: this.globalHideCommandId }, {
@@ -436,7 +440,7 @@ export class ViewContainer extends BaseWidget implements StatefulWidget, Applica
                 if (event.button === 2) {
                     event.preventDefault();
                     event.stopPropagation();
-                    this.contextMenuRenderer.render({ menuPath: this.contextMenuPath, anchor: event });
+                    this.contextMenuRenderer.render({ menuPath: this.contextMenuPath, anchor: event, context: this.node });
                 }
             }),
             newPart.onTitleChanged(() => this.refreshMenu(newPart)),

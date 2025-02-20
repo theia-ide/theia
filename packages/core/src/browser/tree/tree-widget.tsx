@@ -1362,6 +1362,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
                 const args = this.toContextMenuArgs(node);
                 setTimeout(() => this.contextMenuRenderer.render({
                     menuPath: contextMenuPath,
+                    context: event.currentTarget,
                     anchor: { x, y },
                     args
                 }), 10);

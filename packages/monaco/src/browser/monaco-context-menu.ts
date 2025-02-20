@@ -51,14 +51,14 @@ export class MonacoContextMenuService implements IContextMenuService {
         }
     }
 
-    private getContext(delegate: IContextMenuDelegate): HTMLElement | undefined {
+    private getContext(delegate: IContextMenuDelegate): HTMLElement {
         const anchor = delegate.getAnchor();
         if (anchor instanceof HTMLElement) {
             return anchor;
         } else if (anchor instanceof StandardMouseEvent) {
             return anchor.target;
         } else {
-            return undefined;
+            return window.document.body; // last resort
         }
     }
     showContextMenu(delegate: IContextMenuDelegate): void {

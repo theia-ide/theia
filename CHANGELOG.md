@@ -7,7 +7,7 @@
 ## 1.59.0
 
 <a name="breaking_changes_1.59.0">[Breaking Changes:](#breaking_changes_1.59.0)</a>
-
+- [core] A context html element is now mandatory when showing a context menu [#14982](https://github.com/eclipse-theia/theia/pull/14982) - contributed on behalf of STMicroelectronics
 - [core] Adjusted the binding of named `ILogger` injections. These no longer have to be bound explicitly.
   If you encounter errors such as `Error: Ambiguous match found for serviceIdentifier: Symbol(ILogger)`, remove your bindings for the `ILogger` symbol.
 

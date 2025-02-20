@@ -462,7 +462,8 @@ export class KeybindingWidget extends ReactWidget implements StatefulWidget {
         this.contextMenuRenderer.render({
             menuPath: KeybindingWidget.CONTEXT_MENU,
             anchor: event.nativeEvent,
-            args: [item, this]
+            args: [item, this],
+            context: event.currentTarget
         });
     }
 
