@@ -27,6 +27,9 @@ import { ConsoleContentWidget } from './console-content-widget';
 import { ConsoleSession } from './console-session';
 import { ConsoleSessionManager } from './console-session-manager';
 import * as monaco from '@theia/monaco-editor-core';
+import { Disposable } from '@theia/core/lib/common/disposable';
+import { EditorManager } from '@theia/editor/lib/browser';
+import { MonacoEditorService } from '@theia/monaco/lib/browser/monaco-editor-service';
 
 export const ConsoleOptions = Symbol('ConsoleWidgetOptions');
 export interface ConsoleOptions {
@@ -78,8 +81,15 @@ export class ConsoleWidget extends BaseWidget implements StatefulWidget {
     @inject(ContextKeyService)
     protected readonly contextKeyService: ContextKeyService;
 
+    @inject(MonacoEditorService)
+    protected readonly editorService: MonacoEditorService;
+
+    @inject(EditorManager)
+    protected readonly editorManager: EditorManager;
+
     protected _input: MonacoEditor;
     protected _inputFocusContextKey: ContextKey<boolean>;
+    protected modelChangeListener = Disposable.NULL;
 
     constructor() {
         super();
@@ -139,6 +149,11 @@ export class ConsoleWidget extends BaseWidget implements StatefulWidget {
         input.getControl().createContextKey('consoleInputFocus', true);
         const contentContext = this.contextKeyService.createScoped(this.content.node);
         contentContext.setContext('consoleContentFocus', true);
+
+        this.toDispose.pushAll([
+            this.editorManager.onActiveEditorChanged(() => this.setMode()),
+            this.onDidChangeVisibility(() => this.setMode())
+        ]);
     }
 
     protected createInput(node: HTMLElement): Promise<MonacoEditor> {
@@ -293,6 +308,30 @@ export class ConsoleWidget extends BaseWidget implements StatefulWidget {
 
     hasInputFocus(): boolean {
         return this._input && this._input.isFocused({ strict: true });
+    }
+
+    override dispose(): void {
+        super.dispose();
+        this.modelChangeListener.dispose();
+    }
+
+    // To set the active language for the console input text model.
+    // https://github.com/microsoft/vscode/blob/2af422737386e792c3fcde7884f9bf47a1aff2f5/src/vs/workbench/contrib/debug/browser/repl.ts#L371-L384
+    protected setMode(): void {
+        if (this.isHidden) {
+            return;
+        }
+
+        const activeEditorControl = this.editorService.getActiveCodeEditor();
+        if (activeEditorControl) {
+            this.modelChangeListener.dispose();
+            this.modelChangeListener = activeEditorControl.onDidChangeModelLanguage(() => this.setMode());
+            const consoleModel = this._input.getControl().getModel();
+            const activeEditorModel = activeEditorControl.getModel();
+            if (consoleModel && activeEditorModel) {
+                monaco.editor.setModelLanguage(consoleModel, activeEditorModel.getLanguageId());
+            }
+        }
     }
 
 }
