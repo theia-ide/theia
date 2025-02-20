@@ -19,28 +19,43 @@ import { injectable } from '@theia/core/shared/inversify';
 import { AIVariable, ResolvedAIVariable, AIVariableContribution, AIVariableResolver, AIVariableService, AIVariableResolutionRequest, AIVariableContext } from '@theia/ai-core';
 import { ChatSessionContext } from './chat-service';
 
-export const CONTEXT_SUMMARY_VARIABLE: AIVariable = {
-    id: 'contextSummary',
-    description: nls.localize('theia/ai/core/contextSummaryVariable/description', 'Describes files in the context for a given session.'),
-    name: 'contextSummary',
+export const CONTEXT_DETAILS_VARIABLE: AIVariable = {
+    id: 'contextDetails',
+    description: nls.localize('theia/ai/core/contextDetailsVariable/description', 'Provides full text values and descriptions for all context variables.'),
+    name: 'contextDetails',
 };
 
 @injectable()
 export class ContextSummaryVariableContribution implements AIVariableContribution, AIVariableResolver {
+    protected variableService: AIVariableService | undefined;
+
     registerVariables(service: AIVariableService): void {
-        service.registerResolver(CONTEXT_SUMMARY_VARIABLE, this);
+        this.variableService = service;
+        service.registerResolver(CONTEXT_DETAILS_VARIABLE, this);
     }
 
     canResolve(request: AIVariableResolutionRequest, context: AIVariableContext): MaybePromise<number> {
-        return request.variable.name === CONTEXT_SUMMARY_VARIABLE.name ? 50 : 0;
+        return request.variable.name === CONTEXT_DETAILS_VARIABLE.name ? 50 : 0;
     }
 
     async resolve(request: AIVariableResolutionRequest, context: AIVariableContext): Promise<ResolvedAIVariable | undefined> {
-        if (!ChatSessionContext.is(context) || request.variable.name !== CONTEXT_SUMMARY_VARIABLE.name) { return undefined; }
+        if (!ChatSessionContext.is(context) || request.variable.name !== CONTEXT_DETAILS_VARIABLE.name || !this.variableService) { return undefined; }
         return {
-            variable: CONTEXT_SUMMARY_VARIABLE,
-            value: context.session.context.getVariables().filter(variable => !!variable.arg).map(variable => `- ${variable.arg}`).join('\n')
+            variable: CONTEXT_DETAILS_VARIABLE,
+            value: await this.resolveAllContextVariables(context)
         };
+    }
+
+    protected async resolveAllContextVariables(context: ChatSessionContext): Promise<string> {
+        const values = await Promise.all(context.session.context.getVariables().map(variable => this.variableService?.resolveVariable(variable, context)));
+        const data = values.filter((candidate): candidate is ResolvedAIVariable => !!candidate)
+            .map(resolved => ({
+                variableKind: resolved.variable.name,
+                variableKindDescription: resolved.variable.description,
+                variableInstanceData: resolved.arg,
+                value: resolved.value
+            }));
+        return `\`\`\`json\n${JSON.stringify(data)}\n\`\`\``;
     }
 }
 

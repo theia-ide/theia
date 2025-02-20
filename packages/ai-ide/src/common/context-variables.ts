@@ -15,3 +15,5 @@
 // *****************************************************************************
 
 export const CHAT_CONTEXT_VARIABLE = 'contextSummary';
+export const CHAT_CONTEXT_DETAILS_VARIABLE = 'contextDetails';
+export const CHANGE_SET_SUMMARY_VARIABLE = 'changeSetSummary';
