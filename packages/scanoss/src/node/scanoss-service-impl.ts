@@ -56,7 +56,7 @@ export class ScanOSSServiceImpl implements ScanOSSService {
                 key: 'content_scanning',
             });
         } catch (e) {
-            console.error('SCANOSS error', e);
+            console.debug('SCANOSS error', e);
 
             // map known errors to a more user-friendly message
 
@@ -90,8 +90,7 @@ export class ScanOSSServiceImpl implements ScanOSSService {
             };
         }
 
-        // eslint-disable-next-line no-null/no-null
-        console.log('SCANOSS results', JSON.stringify(results, null, 2));
+        console.debug('SCANOSS results', JSON.stringify(results, undefined, 2));
 
         let contentScanning: ScannerComponent[] | undefined = results['/content_scanning'];
         if (!contentScanning) {

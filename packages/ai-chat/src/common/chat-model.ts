@@ -88,7 +88,7 @@ export interface ChatModel {
     isEmpty(): boolean;
 }
 
-export interface ChangeSet {
+export interface ChangeSet extends Disposable {
     onDidChange: Event<ChangeSetChangeEvent>;
     readonly title: string;
     getElements(): ChangeSetElement[];
@@ -610,8 +610,8 @@ export class ChangeSetImpl implements ChangeSet {
     }
 
     dispose(): void {
-        this._elements.forEach(element => element.dispose?.());
         this._onDidChangeEmitter.dispose();
+        this._elements.forEach(element => element.dispose?.());
     }
 }
 

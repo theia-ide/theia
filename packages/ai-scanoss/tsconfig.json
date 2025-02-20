@@ -22,6 +22,9 @@
       "path": "../core"
     },
     {
+      "path": "../monaco"
+    },
+    {
       "path": "../scanoss"
     }
   ]

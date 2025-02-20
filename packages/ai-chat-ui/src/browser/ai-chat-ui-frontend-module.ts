@@ -14,12 +14,12 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
+import '../../src/browser/style/index.css';
 import { bindContributionProvider, CommandContribution, MenuContribution } from '@theia/core';
 import { bindViewContribution, FrontendApplicationContribution, WidgetFactory } from '@theia/core/lib/browser';
 import { TabBarToolbarContribution } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { ContainerModule, interfaces } from '@theia/core/shared/inversify';
 import { EditorSelectionResolver } from '@theia/editor/lib/browser/editor-manager';
-import '../../src/browser/style/index.css';
 import { AIChatContribution } from './ai-chat-ui-contribution';
 import { AIChatInputConfiguration, AIChatInputWidget } from './chat-input-widget';
 import { ChatNodeToolbarActionContribution } from './chat-node-toolbar-action-contribution';
@@ -48,6 +48,8 @@ import { ChatViewLanguageContribution } from './chat-view-language-contribution'
 import { ChatViewWidget } from './chat-view-widget';
 import { ChatViewWidgetToolbarContribution } from './chat-view-widget-toolbar-contribution';
 import { ContextVariablePicker } from './context-variable-picker';
+import { ChangeSetActionRenderer, ChangeSetActionService } from './change-set-actions/change-set-action-service';
+import { ChangeSetAcceptAction } from './change-set-actions/change-set-accept-action';
 
 export default new ContainerModule((bind, _unbind, _isBound, rebind) => {
     bindViewContribution(bind, AIChatContribution);
@@ -90,6 +92,7 @@ export default new ContainerModule((bind, _unbind, _isBound, rebind) => {
     );
 
     bindContributionProvider(bind, CodePartRendererAction);
+    bindContributionProvider(bind, ChangeSetActionRenderer);
     bind(CopyToClipboardButtonAction).toSelf().inSingletonScope();
     bind(CodePartRendererAction).toService(CopyToClipboardButtonAction);
     bind(InsertCodeAtCursorButtonAction).toSelf().inSingletonScope();
@@ -103,6 +106,9 @@ export default new ContainerModule((bind, _unbind, _isBound, rebind) => {
     bind(TabBarToolbarContribution).toService(ChatViewWidgetToolbarContribution);
 
     bind(FrontendApplicationContribution).to(ChatViewLanguageContribution).inSingletonScope();
+    bind(ChangeSetActionService).toSelf().inSingletonScope();
+    bind(ChangeSetAcceptAction).toSelf().inSingletonScope();
+    bind(ChangeSetActionRenderer).toService(ChangeSetAcceptAction);
 
     bindContributionProvider(bind, ChatNodeToolbarActionContribution);
 });

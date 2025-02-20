@@ -16,6 +16,7 @@
 
 import { DisposableCollection, Emitter, URI } from '@theia/core';
 import { inject, injectable, postConstruct } from '@theia/core/shared/inversify';
+import { Replacement } from '@theia/core/lib/common/content-replacer';
 import { ChangeSetElement, ChangeSetImpl } from '../common';
 import { ChangeSetFileResourceResolver, createChangeSetFileUri, UpdatableReferenceResource } from './change-set-file-resource';
 import { ChangeSetFileService } from './change-set-file-service';
@@ -39,6 +40,11 @@ export interface ChangeSetElementArgs extends Partial<ChangeSetElement> {
      * If `undefined`, there is no change.
      */
     targetState?: string;
+    /**
+     * An array of replacements used to create the new content for the targetState.
+     * This is only available if the agent was able to provide replacements and we were able to apply them.
+     */
+    replacements?: Replacement[];
 };
 
 @injectable()
@@ -147,6 +153,10 @@ export class ChangeSetFileElement implements ChangeSetElement {
             this._state = value;
             this.onDidChangeEmitter.fire();
         }
+    }
+
+    get replacements(): Replacement[] | undefined {
+        return this.elementProps.replacements;
     }
 
     get type(): 'add' | 'modify' | 'delete' | undefined {

@@ -130,3 +130,40 @@
     overflow: auto;
     font-size: 0.9em;
 }
+
+.theia-changeSet-scanOss {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--theia-ui-padding);
+}
+
+.theia-changeSet-Action .theia-changeSet-scanOss .scanoss-logo {
+    background-size: cover;
+    background-color: inherit;
+    /* Buttons in all themes tested used a light font color */
+    background-image: url("scanoss_logo_dark_theme.svg");
+}
+
+.theia-changeSet-scanOss.clean,
+.theia-changeSet-scanOss.pending {
+    cursor: default;
+}
+
+.theia-changeSet-scanOss.clean:hover,
+.theia-changeSet-scanOss.pending:hover {
+    background-color: var(--theia-button-background);
+}
+
+.theia-changeSet-scanOss .status-icon {
+    height: 16px;
+}
+
+.theia-changeSet-scanOss.clean .status-icon {
+    color: var(--theia-notebookStatusSuccessIcon-foreground);
+}
+
+.theia-changeSet-scanOss.match .status-icon {
+    color: var(--theia-problemsWarningIcon-foreground);
+}

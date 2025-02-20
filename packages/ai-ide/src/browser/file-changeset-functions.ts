@@ -19,7 +19,8 @@ import { WorkspaceFunctionScope } from './workspace-functions';
 import { ChangeSetFileElementFactory } from '@theia/ai-chat/lib/browser/change-set-file-element';
 import { ChangeSetImpl, MutableChatRequestModel } from '@theia/ai-chat';
 import { FileService } from '@theia/filesystem/lib/browser/file-service';
-import { ContentReplacer, Replacement } from './content-replacer';
+import { ContentReplacer, Replacement } from '@theia/core/lib/common/content-replacer';
+
 
 @injectable()
 export class WriteChangeToFileProvider implements ToolProvider {

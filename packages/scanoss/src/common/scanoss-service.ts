@@ -13,6 +13,9 @@
 //
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
+
+import { ScannerComponent } from 'scanoss';
+
 export const SCANOSS_SERVICE_PATH = '/services/scanoss/service';
 export const ScanOSSService = Symbol('ScanOSSService');
 export interface ScanOSSResultClean {
@@ -22,7 +25,8 @@ export interface ScanOSSResultMatch {
     type: 'match';
     matched: string; // e.g. "75%"
     url: string;
-    raw: unknown;
+    raw: ScannerComponent;
+    file?: string;
 }
 export interface ScanOSSResultError {
     type: 'error';
