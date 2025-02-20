@@ -64,6 +64,10 @@ export interface PromptService {
      * Allows to directly replace placeholders in the prompt. The supported format is 'Hi {{name}}!'.
      * The placeholder is then searched inside the args object and replaced.
      * Function references are also supported via format '~{functionId}'.
+     *
+     * All placeholders are replaced before function references are resolved.
+     * This allows to resolve function references contained in placeholders.
+     *
      * @param id the id of the prompt
      * @param args the object with placeholders, mapping the placeholder key to the value
      */
@@ -259,9 +263,14 @@ export class PromptServiceImpl implements PromptService {
             return undefined;
         }
 
+        // First resolve variables and arguments
+        let resolvedTemplate = prompt.template;
         const variableAndArgReplacements = await this.getVariableAndArgReplacements(prompt.template, args);
+        variableAndArgReplacements.forEach(replacement => resolvedTemplate = resolvedTemplate.replace(replacement.placeholder, replacement.value));
 
-        const functionMatches = matchFunctionsRegEx(prompt.template);
+        // Then resolve function references with already resolved variables and arguments
+        // This allows to resolve function references contained in resolved variables (e.g. prompt fragments)
+        const functionMatches = matchFunctionsRegEx(resolvedTemplate);
         const functions = new Map<string, ToolRequest>();
         const functionReplacements = functionMatches.map(match => {
             const completeText = match[0];
@@ -275,10 +284,8 @@ export class PromptServiceImpl implements PromptService {
                 value: toolRequest ? toolRequestToPromptText(toolRequest) : completeText
             };
         });
+        functionReplacements.forEach(replacement => resolvedTemplate = resolvedTemplate.replace(replacement.placeholder, replacement.value));
 
-        let resolvedTemplate = prompt.template;
-        const replacements = [...variableAndArgReplacements, ...functionReplacements];
-        replacements.forEach(replacement => resolvedTemplate = resolvedTemplate.replace(replacement.placeholder, replacement.value));
         return {
             id,
             text: resolvedTemplate,
