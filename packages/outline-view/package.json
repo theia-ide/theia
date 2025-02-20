@@ -43,5 +43,6 @@
   },
   "nyc": {
     "extends": "../../configs/nyc.json"
-  }
+  },
+  "$schema": "../../schemas/theia-extension.schema.json"
 }

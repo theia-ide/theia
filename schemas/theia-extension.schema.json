@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Theia package.json Schema",
+  "type": "object",
+  "$ref": "https://json.schemastore.org/package.json",
+  "required": [
+    "keywords",
+    "theiaExtensions"
+  ],
+  "properties": {
+    "keywords": {
+      "description": "This helps people discover your package as it's listed in 'npm search'. Must include 'theia-extension'.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "contains": {
+        "const": "theia-extension"
+      },
+      "minItems": 1
+    },
+    "theiaExtensions": {
+      "type": "array",
+      "description": "Array of Theia extension configurations",
+      "items": {
+        "type": "object",
+        "description": "A Theia extension module configuration",
+        "properties": {
+          "frontend": {
+            "type": "string",
+            "description": "Path to the frontend module (used in browser and electron if frontendElectron is not provided)"
+          },
+          "frontendOnly": {
+            "type": "string",
+            "description": "Path to the frontend-only module"
+          },
+          "frontendElectron": {
+            "type": "string",
+            "description": "Path to the electron-specific frontend module"
+          },
+          "frontendPreload": {
+            "type": "string",
+            "description": "Path to the frontend preload module"
+          },
+          "frontendOnlyPreload": {
+            "type": "string",
+            "description": "Path to the frontend-only preload module"
+          },
+          "backend": {
+            "type": "string",
+            "description": "Path to the backend module (used in node and electron if backendElectron is not provided)"
+          },
+          "backendElectron": {
+            "type": "string",
+            "description": "Path to the electron-specific backend module"
+          },
+          "electronMain": {
+            "type": "string",
+            "description": "Path to the electron main process module"
+          },
+          "preload": {
+            "type": "string",
+            "description": "Path to the preload module"
+          },
+          "secondaryWindow": {
+            "type": "string",
+            "description": "Path to the secondary window module"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}
