@@ -35,7 +35,7 @@ import {
     ParsedChatRequest,
     ParsedChatRequestPart,
 } from './parsed-chat-request';
-import { AIVariable, AIVariableService, ToolInvocationRegistry, ToolRequest } from '@theia/ai-core';
+import { AIVariable, AIVariableService, PROMPT_FUNCTION_REGEX, ToolInvocationRegistry, ToolRequest } from '@theia/ai-core';
 
 const agentReg = /^@([\w_\-\.]+)(?=(\s|$|\b))/i; // An @-agent
 const functionReg = /^~([\w_\-\.]+)(?=(\s|$|\b))/i; // A ~ tool function
@@ -202,7 +202,8 @@ export class ChatRequestParserImpl {
     }
 
     private tryParseFunction(message: string, offset: number): ParsedChatRequestFunctionPart | undefined {
-        const nextFunctionMatch = message.match(functionReg);
+        // Support both the and chat and prompt formats for functions
+        const nextFunctionMatch = message.match(functionReg) || message.match(PROMPT_FUNCTION_REGEX);
         if (!nextFunctionMatch) {
             return;
         }

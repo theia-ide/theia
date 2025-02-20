@@ -63,7 +63,7 @@ export class PromptVariableContribution implements AIVariableContribution, AIVar
         if (request.variable.name === PROMPT_VARIABLE.name) {
             const promptId = request.arg?.trim();
             if (promptId) {
-                const resolvedPrompt = await this.promptService.getPrompt(promptId);
+                const resolvedPrompt = await this.promptService.getPromptFragment(promptId);
                 if (resolvedPrompt) {
                     return { variable: request.variable, value: resolvedPrompt.text, contextValue: resolvedPrompt.text };
                 }

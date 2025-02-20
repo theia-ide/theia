@@ -68,6 +68,19 @@ export interface PromptService {
      * @param args the object with placeholders, mapping the placeholder key to the value
      */
     getPrompt(id: string, args?: { [key: string]: unknown }): Promise<ResolvedPromptTemplate | undefined>;
+
+    /**
+     * Allows to directly replace placeholders in the prompt. The supported format is 'Hi {{name}}!'.
+     * The placeholder is then searched inside the args object and replaced.
+     *
+     * In contrast to {@link getPrompt}, this method does not resolve function references but leaves them as is.
+     * This allows resolving them later as part of the prompt or chat message containing the fragment.
+     *
+     * @param id the id of the prompt
+     * @param @param args the object with placeholders, mapping the placeholder key to the value
+     */
+    getPromptFragment(id: string, args?: { [key: string]: unknown }): Promise<Omit<ResolvedPromptTemplate, 'functionDescriptions'> | undefined>;
+
     /**
      * Adds a {@link PromptTemplate} to the list of prompts.
      * @param promptTemplate the prompt template to store
@@ -246,25 +259,7 @@ export class PromptServiceImpl implements PromptService {
             return undefined;
         }
 
-        const matches = matchVariablesRegEx(prompt.template);
-        const variableAndArgReplacements = await Promise.all(matches.map(async match => {
-            const completeText = match[0];
-            const variableAndArg = match[1];
-            let variableName = variableAndArg;
-            let argument: string | undefined;
-            const parts = variableAndArg.split(':', 2);
-            if (parts.length > 1) {
-                variableName = parts[0];
-                argument = parts[1];
-            }
-            return {
-                placeholder: completeText,
-                value: String(args?.[variableAndArg] ?? (await this.variableService?.resolveVariable({
-                    variable: variableName,
-                    arg: argument
-                }, {}))?.value ?? completeText)
-            };
-        }));
+        const variableAndArgReplacements = await this.getVariableAndArgReplacements(prompt.template, args);
 
         const functionMatches = matchFunctionsRegEx(prompt.template);
         const functions = new Map<string, ToolRequest>();
@@ -290,6 +285,52 @@ export class PromptServiceImpl implements PromptService {
             functionDescriptions: functions.size > 0 ? functions : undefined
         };
     }
+
+    async getPromptFragment(id: string, args?: { [key: string]: unknown }): Promise<Omit<ResolvedPromptTemplate, 'functionDescriptions'> | undefined> {
+        const variantId = await this.getVariantId(id);
+        const prompt = this.getUnresolvedPrompt(variantId);
+        if (prompt === undefined) {
+            return undefined;
+        }
+
+        const replacements = await this.getVariableAndArgReplacements(prompt.template, args);
+        let resolvedTemplate = prompt.template;
+        replacements.forEach(replacement => resolvedTemplate = resolvedTemplate.replace(replacement.placeholder, replacement.value));
+        return {
+            id,
+            text: resolvedTemplate,
+        };
+    }
+
+    /**
+     * Calculates all variable and argument replacements for an unresolved template.
+     *
+     * @param template the unresolved template text
+     * @param args the object with placeholders, mapping the placeholder key to the value
+     */
+    protected async getVariableAndArgReplacements(template: string, args?: { [key: string]: unknown }): Promise<{ placeholder: string; value: string }[]> {
+        const matches = matchVariablesRegEx(template);
+        const variableAndArgReplacements = await Promise.all(matches.map(async match => {
+            const completeText = match[0];
+            const variableAndArg = match[1];
+            let variableName = variableAndArg;
+            let argument: string | undefined;
+            const parts = variableAndArg.split(':', 2);
+            if (parts.length > 1) {
+                variableName = parts[0];
+                argument = parts[1];
+            }
+            return {
+                placeholder: completeText,
+                value: String(args?.[variableAndArg] ?? (await this.variableService?.resolveVariable({
+                    variable: variableName,
+                    arg: argument
+                }, {}))?.value ?? completeText)
+            };
+        }));
+        return variableAndArgReplacements;
+    }
+
     getAllPrompts(): PromptMap {
         if (this.customizationService !== undefined) {
             const myCustomization = this.customizationService;
