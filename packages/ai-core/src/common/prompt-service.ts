@@ -16,7 +16,7 @@
 
 import { URI, Event } from '@theia/core';
 import { inject, injectable, optional } from '@theia/core/shared/inversify';
-import { AIVariableService } from './variable-service';
+import { AIVariableContext, AIVariableService } from './variable-service';
 import { ToolInvocationRegistry } from './tool-invocation-registry';
 import { toolRequestToPromptText } from './language-model-util';
 import { ToolRequest } from './language-model';
@@ -67,7 +67,7 @@ export interface PromptService {
      * @param id the id of the prompt
      * @param args the object with placeholders, mapping the placeholder key to the value
      */
-    getPrompt(id: string, args?: { [key: string]: unknown }): Promise<ResolvedPromptTemplate | undefined>;
+    getPrompt(id: string, args?: { [key: string]: unknown }, context?: AIVariableContext): Promise<ResolvedPromptTemplate | undefined>;
     /**
      * Adds a {@link PromptTemplate} to the list of prompts.
      * @param promptTemplate the prompt template to store
@@ -239,7 +239,7 @@ export class PromptServiceImpl implements PromptService {
         return id;
     }
 
-    async getPrompt(id: string, args?: { [key: string]: unknown }): Promise<ResolvedPromptTemplate | undefined> {
+    async getPrompt(id: string, args?: { [key: string]: unknown }, context?: AIVariableContext): Promise<ResolvedPromptTemplate | undefined> {
         const variantId = await this.getVariantId(id);
         const prompt = this.getUnresolvedPrompt(variantId);
         if (prompt === undefined) {
@@ -262,7 +262,7 @@ export class PromptServiceImpl implements PromptService {
                 value: String(args?.[variableAndArg] ?? (await this.variableService?.resolveVariable({
                     variable: variableName,
                     arg: argument
-                }, {}))?.value ?? completeText)
+                }, context ?? {}))?.value ?? completeText)
             };
         }));
 

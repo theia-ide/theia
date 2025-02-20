@@ -22,6 +22,8 @@ import {
   FILE_CONTENT_FUNCTION_ID,
   GET_WORKSPACE_DIRECTORY_STRUCTURE_FUNCTION_ID
 } from './workspace-functions';
+import { CHANGE_SET_SUMMARY_VARIABLE, CHAT_CONTEXT_VARIABLE } from './context-variables';
+import { UPDATE_CONTEXT_FILES_FUNCTION_ID } from './context-functions';
 
 export const CODER_REWRITE_PROMPT_TEMPLATE_ID = 'coder-rewrite';
 export const CODER_REPLACE_PROMPT_TEMPLATE_ID = 'coder-search-replace';
@@ -36,14 +38,26 @@ Use the following functions to interact with the workspace files if you require 
 - **~{${GET_WORKSPACE_DIRECTORY_STRUCTURE_FUNCTION_ID}}**: Returns the complete directory structure.
 - **~{${GET_WORKSPACE_FILE_LIST_FUNCTION_ID}}**: Lists files and directories in a specific directory.
 - **~{${FILE_CONTENT_FUNCTION_ID}}**: Retrieves the content of a specific file.
+- **~{${UPDATE_CONTEXT_FILES_FUNCTION_ID}}**: Remember file locations that are relevant for completing your tasks. Only add files that are really relevant to look at later.
 
 ## Propose Code Changes
 To propose code changes or any file changes to the user, never print code or new file content in your response.
 
 Instead, for each file you want to propose changes for:
-  - **Always Retrieve Current Content**: Use ${FILE_CONTENT_FUNCTION_ID} to get the latest content of the target file.
-  - **Change Content**: Use ~{changeSet_writeChangeToFile}${withSearchAndReplace ? ' or ~{changeSet_replaceContentInFile}' : ''} to suggest file changes to the user.\
-  ${withSearchAndReplace ? 'Only select and call one function per file.' : ''}`,
+- **Always Retrieve Current Content**: Use ${FILE_CONTENT_FUNCTION_ID} to get the latest content of the target file.
+- **Change Content**: Use ~{changeSet_writeChangeToFile}${withSearchAndReplace ? ' or ~{changeSet_replaceContentInFile}' : ''} to suggest file changes to the user.\
+  ${withSearchAndReplace ? 'Only select and call one function per file.' : ''}
+  
+## Additional Context
+
+The following files have been provided for additional context. Some of them may also be referred to above.\
+Always look at the relevant files to understand your task using getFileContent
+{{${CHAT_CONTEXT_VARIABLE}}}
+
+## Previously Proposed Changes
+Changes have been proposed for the following files. Some suggestions may have been accepted, while others may still be pending.
+{{${CHANGE_SET_SUMMARY_VARIABLE}}} 
+`,
     ...(!withSearchAndReplace ? { variantOf: CODER_REPLACE_PROMPT_TEMPLATE_ID } : {}),
   };
 }
