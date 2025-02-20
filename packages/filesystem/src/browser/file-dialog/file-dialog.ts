@@ -58,6 +58,10 @@ export const FILENAME_TEXTFIELD_CLASS = 'theia-FileNameTextField';
 export const CONTROL_PANEL_CLASS = 'theia-ControlPanel';
 export const TOOLBAR_ITEM_TRANSFORM_TIMEOUT = 100;
 
+export interface AdditionalButtonDefinition<T> {
+    label: string;
+    onClick: (resolve: (v: T | undefined) => void, reject: (v: unknown) => void) => void;
+}
 export class FileDialogProps extends DialogProps {
 
     /**
@@ -77,6 +81,16 @@ export class FileDialogProps extends DialogProps {
      * Defaults to `true`.
      */
     modal?: boolean;
+
+    /**
+     * scheme of the fileUri. Defaults to `file`.
+     */
+    fileScheme?: string;
+
+    /**
+     * Additional buttons to show beside the close and accept buttons.
+     */
+    additionalButtons?: AdditionalButtonDefinition<unknown>[];
 
 }
 
@@ -179,6 +193,15 @@ export abstract class FileDialog<T> extends AbstractDialog<T> {
 
         this.hiddenFilesToggleRenderer = this.hiddenFilesToggleFactory(this.widget.model.tree);
         this.contentNode.appendChild(this.hiddenFilesToggleRenderer.host);
+
+        this.props.additionalButtons?.forEach(({ label, onClick }) => {
+            const button = this.appendButton(label, false);
+            button.onclick = () => {
+                if (this.resolve && this.reject) {
+                    onClick(this.resolve, this.reject);
+                }
+            };
+        });
 
         if (this.props.filters) {
             this.treeFiltersRenderer = this.treeFiltersFactory({ suppliedFilters: this.props.filters, fileDialogTree: this.widget.model.tree });

@@ -17,6 +17,9 @@
     },
     {
       "path": "../userstorage"
+    },
+    {
+      "path": "../workspace"
     }
   ]
 }

@@ -18,14 +18,16 @@ import { injectable } from 'inversify';
 import { Endpoint } from '../../browser/endpoint';
 import { WebSocketConnectionSource } from '../../browser/messaging/ws-connection-source';
 
+export const LOCAL_PORT_PARAM = 'localPort';
 export function getLocalPort(): string | undefined {
     const params = new URLSearchParams(location.search);
-    return params.get('localPort') ?? undefined;
+    return params.get(LOCAL_PORT_PARAM) ?? undefined;
 }
 
+export const CURRENT_PORT_PARAM = 'port';
 export function getCurrentPort(): string | undefined {
     const params = new URLSearchParams(location.search);
-    return params.get('port') ?? undefined;
+    return params.get(CURRENT_PORT_PARAM) ?? undefined;
 }
 
 @injectable()

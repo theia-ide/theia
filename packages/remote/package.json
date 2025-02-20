@@ -6,6 +6,7 @@
     "@theia/core": "1.58.0",
     "@theia/filesystem": "1.58.0",
     "@theia/userstorage": "1.58.0",
+    "@theia/workspace": "1.58.0",
     "archiver": "^5.3.1",
     "decompress": "^4.2.1",
     "decompress-tar": "^4.0.0",
