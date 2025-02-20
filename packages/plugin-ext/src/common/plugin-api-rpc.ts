@@ -1900,8 +1900,8 @@ export interface CustomEditorsExt {
     $redo(resource: UriComponents, viewType: string, editId: number, isDirty: boolean): Promise<void>;
     $revert(resource: UriComponents, viewType: string, cancellation: CancellationToken): Promise<void>;
     $disposeEdits(resourceComponents: UriComponents, viewType: string, editIds: number[]): void;
-    $onSave(resource: UriComponents, viewType: string, cancellation: CancellationToken): Promise<void>;
-    $onSaveAs(resource: UriComponents, viewType: string, targetResource: UriComponents, cancellation: CancellationToken): Promise<void>;
+    $save(resource: UriComponents, viewType: string, cancellation: CancellationToken): Promise<void>;
+    $saveAs(resource: UriComponents, viewType: string, targetResource: UriComponents, cancellation: CancellationToken): Promise<void>;
     // $backup(resource: UriComponents, viewType: string, cancellation: CancellationToken): Promise<string>;
     $onMoveCustomEditor(handle: string, newResource: UriComponents, viewType: string): Promise<void>;
 }

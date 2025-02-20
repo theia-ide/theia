@@ -46,7 +46,7 @@ export class FilesystemSaveableService extends SaveableService {
     override canSaveAs(widget: Widget | undefined): widget is Widget & SaveableSource & Navigatable {
         return widget !== undefined
             && Saveable.isSource(widget)
-            && (typeof widget.saveable.createSnapshot === 'function' || typeof widget.saveable.serialize === 'function')
+            && (typeof widget.saveable.createSnapshot === 'function' || typeof widget.saveable.serialize === 'function' || typeof widget.saveable.saveAs === 'function')
             && typeof widget.saveable.revert === 'function'
             && Navigatable.is(widget)
             && widget.getResourceUri() !== undefined;
@@ -97,23 +97,30 @@ export class FilesystemSaveableService extends SaveableService {
      */
     protected async saveSnapshot(sourceWidget: Widget & SaveableSource & Navigatable, target: URI, overwrite: boolean): Promise<void> {
         const saveable = sourceWidget.saveable;
-        let buffer: BinaryBuffer;
-        if (saveable.serialize) {
-            buffer = await saveable.serialize();
-        } else if (saveable.createSnapshot) {
-            const snapshot = saveable.createSnapshot();
-            const content = Saveable.Snapshot.read(snapshot) ?? '';
-            buffer = BinaryBuffer.fromString(content);
+        if (saveable.saveAs) {
+            // Some widgets have their own "Save As" implementation, such as the custom plugin editors
+            await saveable.saveAs({
+                target
+            });
         } else {
-            throw new Error('Cannot save the widget as the saveable does not provide a snapshot or a serialize method.');
-        }
-
-        if (await this.fileService.exists(target)) {
-            // Do not fire the `onDidCreate` event as the file already exists.
-            await this.fileService.writeFile(target, buffer);
-        } else {
-            // Ensure to actually call `create` as that fires the `onDidCreate` event.
-            await this.fileService.createFile(target, buffer, { overwrite });
+            // Most other editors simply allow us to serialize the content and write it to the target file.
+            let buffer: BinaryBuffer;
+            if (saveable.serialize) {
+                buffer = await saveable.serialize();
+            } else if (saveable.createSnapshot) {
+                const snapshot = saveable.createSnapshot();
+                const content = Saveable.Snapshot.read(snapshot) ?? '';
+                buffer = BinaryBuffer.fromString(content);
+            } else {
+                throw new Error('Cannot save the widget as the saveable does not provide a snapshot or a serialize method.');
+            }
+            if (await this.fileService.exists(target)) {
+                // Do not fire the `onDidCreate` event as the file already exists.
+                await this.fileService.writeFile(target, buffer);
+            } else {
+                // Ensure to actually call `create` as that fires the `onDidCreate` event.
+                await this.fileService.createFile(target, buffer, { overwrite });
+            }
         }
         await saveable.revert!();
         await open(this.openerService, target, { widgetOptions: { ref: sourceWidget, mode: 'tab-replace' } });

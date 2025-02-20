@@ -184,12 +184,12 @@ export class CustomEditorsExtImpl implements CustomEditorsExt {
 
     async $undo(resourceComponents: UriComponents, viewType: string, editId: number, isDirty: boolean): Promise<void> {
         const entry = this.getCustomDocumentEntry(viewType, resourceComponents);
-        return entry.undo(editId, isDirty);
+        await entry.undo(editId, isDirty);
     }
 
     async $redo(resourceComponents: UriComponents, viewType: string, editId: number, isDirty: boolean): Promise<void> {
         const entry = this.getCustomDocumentEntry(viewType, resourceComponents);
-        return entry.redo(editId, isDirty);
+        await entry.redo(editId, isDirty);
     }
 
     async $revert(resourceComponents: UriComponents, viewType: string, cancellation: CancellationToken): Promise<void> {
@@ -198,16 +198,16 @@ export class CustomEditorsExtImpl implements CustomEditorsExt {
         await provider.revertCustomDocument(entry.document, cancellation);
     }
 
-    async $onSave(resourceComponents: UriComponents, viewType: string, cancellation: CancellationToken): Promise<void> {
+    async $save(resourceComponents: UriComponents, viewType: string, cancellation: CancellationToken): Promise<void> {
         const entry = this.getCustomDocumentEntry(viewType, resourceComponents);
         const provider = this.getCustomEditorProvider(viewType);
         await provider.saveCustomDocument(entry.document, cancellation);
     }
 
-    async $onSaveAs(resourceComponents: UriComponents, viewType: string, targetResource: UriComponents, cancellation: CancellationToken): Promise<void> {
+    async $saveAs(resourceComponents: UriComponents, viewType: string, targetResource: UriComponents, cancellation: CancellationToken): Promise<void> {
         const entry = this.getCustomDocumentEntry(viewType, resourceComponents);
         const provider = this.getCustomEditorProvider(viewType);
-        return provider.saveCustomDocumentAs(entry.document, URI.revive(targetResource), cancellation);
+        await provider.saveCustomDocumentAs(entry.document, URI.revive(targetResource), cancellation);
     }
 
     private getCustomEditorProvider(viewType: string): theia.CustomEditorProvider {

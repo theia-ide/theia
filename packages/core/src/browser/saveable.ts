@@ -21,7 +21,7 @@ import { MaybePromise } from '../common/types';
 import { Key } from './keyboard/keys';
 import { AbstractDialog } from './dialogs';
 import { nls } from '../common/nls';
-import { Disposable, DisposableCollection, isObject } from '../common';
+import { Disposable, DisposableCollection, isObject, URI } from '../common';
 import { BinaryBuffer } from '../common/buffer';
 
 export type AutoSaveMode = 'off' | 'afterDelay' | 'onFocusChange' | 'onWindowChange';
@@ -44,6 +44,10 @@ export interface Saveable {
      * Saves dirty changes.
      */
     save(options?: SaveOptions): MaybePromise<void>;
+    /**
+     * Performs the save operation with a new file name.
+     */
+    saveAs?(options: SaveAsOptions): MaybePromise<void>;
     /**
      * Reverts dirty changes.
      */
@@ -87,6 +91,7 @@ export class DelegatingSaveable implements Saveable {
     createSnapshot?(): Saveable.Snapshot;
     applySnapshot?(snapshot: object): void;
     serialize?(): Promise<BinaryBuffer>;
+    saveAs?(options: SaveAsOptions): MaybePromise<void>;
 
     protected _delegate?: Saveable;
     protected toDispose = new DisposableCollection();
@@ -110,6 +115,7 @@ export class DelegatingSaveable implements Saveable {
         this.createSnapshot = delegate.createSnapshot?.bind(delegate);
         this.applySnapshot = delegate.applySnapshot?.bind(delegate);
         this.serialize = delegate.serialize?.bind(delegate);
+        this.saveAs = delegate.saveAs?.bind(delegate);
     }
 
 }
@@ -339,6 +345,10 @@ export interface SaveOptions {
      * The reason for saving the resource.
      */
     readonly saveReason?: SaveReason;
+}
+
+export interface SaveAsOptions extends SaveOptions {
+    readonly target: URI;
 }
 
 /**
