@@ -1648,6 +1648,7 @@ export class DocumentLink {
 export class DocumentDropOrPasteEditKind {
     static readonly Empty: DocumentDropOrPasteEditKind = new DocumentDropOrPasteEditKind('');
     static readonly Text: DocumentDropOrPasteEditKind = new DocumentDropOrPasteEditKind('text');
+    static readonly TextUpdateImports: DocumentDropOrPasteEditKind = new DocumentDropOrPasteEditKind('updateImports');
 
     private static sep = '.';
 
@@ -3784,6 +3785,8 @@ export class InteractiveWindowInput {
 // #region DocumentPaste
 export class DocumentPasteEditKind {
     static Empty: DocumentPasteEditKind;
+    static Text: DocumentPasteEditKind;
+    static TextUpdateImports: DocumentPasteEditKind;
 
     constructor(public readonly value: string) { }
 
@@ -3803,6 +3806,8 @@ export class DocumentPasteEditKind {
     }
 }
 DocumentPasteEditKind.Empty = new DocumentPasteEditKind('');
+DocumentPasteEditKind.Text = new DocumentDropOrPasteEditKind('text');
+DocumentPasteEditKind.TextUpdateImports = DocumentDropOrPasteEditKind.Text.append('updateImports');
 
 @es5ClassCompat
 export class DocumentPasteEdit {
