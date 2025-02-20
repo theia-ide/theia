@@ -21,15 +21,14 @@
       ],
       "export =": [
         "electron as Electron",
-        "electron-store as ElectronStore",
-        "fix-path as fixPath"
+        "electron-store as ElectronStore"
       ]
     }
   },
   "publishConfig": {
     "access": "public"
   },
-  "theiaExtensions": [ ],
+  "theiaExtensions": [],
   "keywords": [
     "theia-extension"
   ],

@@ -74,7 +74,6 @@ export class SomeClass {
   - `native-keymap` (from [`native-keymap@^2.2.1`](https://www.npmjs.com/package/native-keymap))
   - `electron` (from [`electron@30.1.2`](https://www.npmjs.com/package/electron/v/30.1.2))
   - `electron-store` (from [`electron-store@^8.0.0`](https://www.npmjs.com/package/electron-store))
-  - `fix-path` (from [`fix-path@^4.0.0`](https://www.npmjs.com/package/fix-path))
 - `@theia/core/shared/...`
   - `@phosphor/algorithm` (from [`@phosphor/algorithm@1`](https://www.npmjs.com/package/@phosphor/algorithm))
   - `@phosphor/commands` (from [`@phosphor/commands@1`](https://www.npmjs.com/package/@phosphor/commands))

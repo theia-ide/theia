@@ -1,1 +1,1 @@
-module.exports = require('fix-path');
+module.exports = import('fix-path');

@@ -37,12 +37,6 @@ export class BackendGenerator extends AbstractGenerator {
 
 require('@theia/core/shared/reflect-metadata');
 
-// Useful for Electron/NW.js apps as GUI apps on macOS doesn't inherit the \`$PATH\` define
-// in your dotfiles (.bashrc/.bash_profile/.zshrc/etc).
-// https://github.com/electron/electron/issues/550#issuecomment-162037357
-// https://github.com/eclipse-theia/theia/pull/3534#issuecomment-439689082
-require('@theia/core/electron-shared/fix-path').default();
-
 // Workaround for https://github.com/electron/electron/issues/9225. Chrome has an issue where
 // in certain locales (e.g. PL), image metrics are wrongly computed. We explicitly set the
 // LC_NUMERIC to prevent this from happening (selects the numeric formatting category of the
@@ -52,18 +46,24 @@ if (process.env.LC_ALL) {
 }
 process.env.LC_NUMERIC = 'C';
 
-const { resolve } = require('path');
-const theiaAppProjectPath = resolve(__dirname, '..', '..');
-process.env.THEIA_APP_PROJECT_PATH = theiaAppProjectPath;
-const { default: electronMainApplicationModule } = require('@theia/core/lib/electron-main/electron-main-application-module');
-const { ElectronMainApplication, ElectronMainApplicationGlobals } = require('@theia/core/lib/electron-main/electron-main-application');
-const { Container } = require('@theia/core/shared/inversify');
-const { app } = require('electron');
-
-const config = ${this.prettyStringify(this.pck.props.frontend.config)};
-const isSingleInstance = ${this.pck.props.backend.config.singleInstance === true ? 'true' : 'false'};
-
 (async () => {
+    // Useful for Electron/NW.js apps as GUI apps on macOS doesn't inherit the \`$PATH\` define
+    // in your dotfiles (.bashrc/.bash_profile/.zshrc/etc).
+    // https://github.com/electron/electron/issues/550#issuecomment-162037357
+    // https://github.com/eclipse-theia/theia/pull/3534#issuecomment-439689082
+    (await require('@theia/core/electron-shared/fix-path')).default();
+
+    const { resolve } = require('path');
+    const theiaAppProjectPath = resolve(__dirname, '..', '..');
+    process.env.THEIA_APP_PROJECT_PATH = theiaAppProjectPath;
+    const { default: electronMainApplicationModule } = require('@theia/core/lib/electron-main/electron-main-application-module');
+    const { ElectronMainApplication, ElectronMainApplicationGlobals } = require('@theia/core/lib/electron-main/electron-main-application');
+    const { Container } = require('@theia/core/shared/inversify');
+    const { app } = require('electron');
+
+    const config = ${this.prettyStringify(this.pck.props.frontend.config)};
+    const isSingleInstance = ${this.pck.props.backend.config.singleInstance === true ? 'true' : 'false'};
+
     if (isSingleInstance && !app.requestSingleInstanceLock()) {
         // There is another instance running, exit now. The other instance will request focus.
         app.quit();
